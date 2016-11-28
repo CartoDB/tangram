@@ -2,7 +2,7 @@
 
 import {StyleParser} from './style_parser';
 import FeatureSelection from '../selection';
-import ShaderProgram from '../gl/shader_program';
+// import ShaderProgram from '../gl/shader_program';
 import VBOMesh from '../gl/vbo_mesh';
 import Texture from '../gl/texture';
 import Material from '../material';
@@ -337,7 +337,7 @@ export var Style = {
         }
 
         // Create shaders
-        this.program = new ShaderProgram(
+        this.program = new Style.ShaderProgram(
             this.gl,
             this.vertex_shader_src,
             this.fragment_shader_src,
@@ -352,7 +352,7 @@ export var Style = {
         );
 
         if (this.selection) {
-            this.selection_program = new ShaderProgram(
+            this.selection_program = new Style.ShaderProgram(
                 this.gl,
                 this.vertex_shader_src,
                 shaderSrc_selectionFragment,
@@ -548,12 +548,12 @@ export var Style = {
     // Setup any GL state for rendering
     setup () {
         this.setUniforms();
-        this.material.setupProgram(ShaderProgram.current);
+        this.material.setupProgram(Style.ShaderProgram.current);
     },
 
     // Set style uniforms on currently bound program
     setUniforms () {
-        var program = ShaderProgram.current;
+        var program = Style.ShaderProgram.current;
         if (!program) {
             return;
         }

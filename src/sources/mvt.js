@@ -1,8 +1,8 @@
 import DataSource, {NetworkTileSource} from './data_source';
 import Geo from '../geo';
 
-import Pbf from 'pbf';
-import {VectorTile, VectorTileFeature} from 'vector-tile';
+// import Pbf from 'pbf';
+// import {VectorTile, VectorTileFeature} from 'vector-tile';
 
 /**
  Mapbox Vector Tile format
@@ -18,8 +18,8 @@ export class MVTSource extends NetworkTileSource {
     parseSourceData (tile, source, response) {
         // Convert Mapbox vector tile to GeoJSON
         var data = new Uint8Array(response);
-        var buffer = new Pbf(data);
-        source.data = new VectorTile(buffer);
+        var buffer = new MVTSource.Pbf(data);
+        source.data = new MVTSource.VectorTile(buffer);
         source.layers = this.toGeoJSON(source.data);
 
         // Apply optional data transform
@@ -62,11 +62,11 @@ export class MVTSource extends NetworkTileSource {
                 }
                 geometry.coordinates = coordinates;
 
-                if (VectorTileFeature.types[feature.type] === 'Point') {
+                if (MVTSource.VectorTileFeature.types[feature.type] === 'Point') {
                     geometry.type = 'Point';
                     geometry.coordinates = geometry.coordinates[0][0];
                 }
-                else if (VectorTileFeature.types[feature.type] === 'LineString') {
+                else if (MVTSource.VectorTileFeature.types[feature.type] === 'LineString') {
                     if (coordinates.length === 1) {
                         geometry.type = 'LineString';
                         geometry.coordinates = geometry.coordinates[0];
@@ -75,7 +75,7 @@ export class MVTSource extends NetworkTileSource {
                         geometry.type = 'MultiLineString';
                     }
                 }
-                else if (VectorTileFeature.types[feature.type] === 'Polygon') {
+                else if (MVTSource.VectorTileFeature.types[feature.type] === 'Polygon') {
                     geometry = decodeMultiPolygon(geometry); // un-flatten rings
                 }
 

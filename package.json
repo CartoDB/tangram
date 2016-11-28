@@ -28,7 +28,8 @@
     "build": "npm run build-bundle -- -o dist/tangram.debug.js && npm run build-minify",
     "build-test": "npm run build-bundle -- -o dist/tangram.test.js",
     "build-debug": "npm run build-bundle -- -o dist/tangram.debug.js",
-    "build-bundle": "$(npm bin)/browserify src/module.js -t [ babelify --presets [ es2015 ] ] -t brfs -s Tangram -p browserify-derequire --debug",
+    "build-worker": "$(npm bin)/browserify src/scene_worker.js -t [ babelify --presets [ es2015 ] ] -t brfs > dist/tangram.worker.js && uglifyjs dist/tangram.worker.js -c warnings=false -m -o dist/tangram.worker.min.js",
+    "build-bundle": "npm run build-worker && $(npm bin)/browserify src/module.js -t [ babelify --presets [ es2015 ] ] -t brfs -s Tangram -p browserify-derequire --debug",
     "build-minify": "$(npm bin)/uglifyjs dist/tangram.debug.js -c warnings=false -m -o dist/tangram.min.js && npm run build-size",
     "build-size": "gzip dist/tangram.min.js -c | wc -c | awk '{kb=$1/1024; print kb}' OFMT='%.0fk minified+gzipped'",
     "watch": "$(npm bin)/budo src/module.js:dist/tangram.debug.js --port 8000 --cors --live -- -t [ babelify --presets [ es2015 ] ] -t brfs -s Tangram"

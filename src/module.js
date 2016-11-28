@@ -7,7 +7,7 @@ import {leafletLayer} from './leaflet_layer';
 
 // The scene worker is only activated when a worker thread is instantiated, but must always be loaded
 import Scene from './scene';
-import {SceneWorker} from './scene_worker';
+// import {SceneWorker} from './scene_worker';
 
 // Additional modules are exposed for debugging
 import version from './utils/version';
@@ -23,18 +23,24 @@ import './sources/mvt';
 import './sources/raster';
 import GLSL from './gl/glsl';
 import ShaderProgram from './gl/shader_program';
+import VBOMesh from './gl/vbo_mesh';
 import VertexData from './gl/vertex_data';
 import Texture from './gl/texture';
 import Material from './material';
 import Light from './light';
 import WorkerBroker from './utils/worker_broker';
-import {layer_cache} from './styles/layer';
+// import {layer_cache} from './styles/layer';
+import {Style} from './styles/style';
 import {StyleManager} from './styles/style_manager';
 import {StyleParser} from './styles/style_parser';
-import Collision from './labels/collision';
+// import Collision from './labels/collision';
 import FeatureSelection from './selection';
 import CanvasText from './styles/text/canvas_text';
 import debugSettings from './utils/debug_settings';
+
+import {TextLabels} from './styles/text/text_labels';
+import {mat4, vec3} from './utils/gl-matrix';
+import Tile from './tile';
 
 import yaml from 'js-yaml';
 import JSZip from 'jszip';
@@ -55,12 +61,12 @@ var debug = {
     Material,
     Light,
     Scene,
-    SceneWorker,
+    // SceneWorker,
     WorkerBroker,
-    layer_cache,
+    // layer_cache,
     StyleManager,
     StyleParser,
-    Collision,
+    // Collision,
     FeatureSelection,
     CanvasText,
     debugSettings
@@ -75,6 +81,15 @@ if (Thread.is_main) {
         window.Promise = Promise;
         JSZip.external.Promise = Promise;
     }
+
+    TextLabels.CanvasText = CanvasText;
+
+    Tile.mat4 = mat4;
+    Tile.vec3 = vec3;
+
+    Style.ShaderProgram = ShaderProgram;
+    StyleManager.ShaderProgram = ShaderProgram;
+    VBOMesh.ShaderProgram = ShaderProgram;
 }
 
 module.exports = {

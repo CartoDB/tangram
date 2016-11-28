@@ -12,6 +12,52 @@ import {StyleManager} from './styles/style_manager';
 import {parseLayers} from './styles/layer';
 import Texture from './gl/texture';
 
+// Selectively load and assign modules only needed on worker
+import {GeoJSONSource} from './sources/geojson';
+import {TopoJSONSource} from './sources/topojson';
+import {MVTSource} from './sources/mvt';
+import './sources/raster';
+import './gl/vertex_elements';
+
+import * as topojson from 'topojson-client';
+import Pbf from 'pbf';
+import {VectorTile, VectorTileFeature} from 'vector-tile';
+import geojsonvt from 'geojson-vt';
+
+import {Polygons} from './styles/polygons/polygons';
+import {Lines} from './styles/lines/lines';
+import {Points} from './styles/points/points';
+import {TextStyle} from './styles/text/text';
+
+import {buildPolylines} from './builders/polylines';
+import {buildPolygons, buildExtrudedPolygons} from './builders/polygons';
+import {buildQuadsForPoints} from './builders/points';
+
+import Collision from './labels/collision';
+import placePointsOnLine from './labels/point_placement';
+import TextSettings from './styles/text/text_settings';
+import {TextLabels} from './styles/text/text_labels';
+
+Lines.builderBuildPolylines = buildPolylines;
+Polygons.builderBuildPolygons = buildPolygons;
+Polygons.builderBuildExtrudedPolygons = buildExtrudedPolygons;
+Points.buildQuadsForPoints = buildQuadsForPoints;
+
+TopoJSONSource.topojson = topojson;
+MVTSource.Pbf = Pbf;
+MVTSource.VectorTile = VectorTile;
+MVTSource.VectorTileFeature = VectorTileFeature;
+GeoJSONSource.geojsonvt = geojsonvt;
+
+Tile.Collision = Collision;
+TextLabels.Collision = Collision;
+TextStyle.Collision = Collision;
+Points.Collision = Collision;
+
+TextLabels.TextSettings = TextSettings;
+
+Points.placePointsOnLine = placePointsOnLine;
+
 export var SceneWorker = self;
 
 // Worker functionality will only be defined in worker thread

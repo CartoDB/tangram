@@ -1,11 +1,11 @@
 import log from './utils/log';
 import Geo from './geo';
 import {StyleParser} from './styles/style_parser';
-import Collision from './labels/collision';
+// import Collision from './labels/collision';
 import WorkerBroker from './utils/worker_broker';
 import Texture from './gl/texture';
 
-import {mat4, vec3} from './utils/gl-matrix';
+// import {mat4, vec3} from './utils/gl-matrix';
 
 export default class Tile {
 
@@ -198,7 +198,7 @@ export default class Tile {
 
         let data = tile.source_data;
 
-        Collision.startTile(tile.key);
+        Tile.Collision.startTile(tile.key);
 
         // Process each top-level layer
         for (let layer_name in layers) {
@@ -334,7 +334,7 @@ export default class Tile {
                     tile.mesh_data = {}; // reset so each group sends separate set of style meshes
 
                     if (progress.done) {
-                        Collision.resetTile(tile.key); // clear collision if we're done with the tile
+                        Tile.Collision.resetTile(tile.key); // clear collision if we're done with the tile
                     }
                 });
             }
@@ -345,7 +345,7 @@ export default class Tile {
                 `TileManager_${scene_id}.buildTileStylesCompleted`,
                 WorkerBroker.withTransferables({ tile: Tile.slice(tile), progress: { start: true, done: true } })
             );
-            Collision.resetTile(tile.key); // clear collision if we're done with the tile
+            Tile.Collision.resetTile(tile.key); // clear collision if we're done with the tile
         }
     }
 
@@ -537,10 +537,10 @@ export default class Tile {
         program.uniform('1f', 'u_tile_proxy_depth', this.proxy_depth);
 
         // Model - transform tile space into world space (meters, absolute mercator position)
-        mat4.identity(model);
-        mat4.translate(model, model, vec3.fromValues(this.min.x, this.min.y, 0));
-        mat4.scale(model, model, vec3.fromValues(this.span.x / Geo.tile_scale, -1 * this.span.y / Geo.tile_scale, 1)); // scale tile local coords to meters
-        mat4.copy(model32, model);
+        Tile.mat4.identity(model);
+        Tile.mat4.translate(model, model, Tile.vec3.fromValues(this.min.x, this.min.y, 0));
+        Tile.mat4.scale(model, model, Tile.vec3.fromValues(this.span.x / Geo.tile_scale, -1 * this.span.y / Geo.tile_scale, 1)); // scale tile local coords to meters
+        Tile.mat4.copy(model32, model);
         program.uniform('Matrix4fv', 'u_model', model32);
 
         // Fade in labels according to proxy status, avoiding "flickering" where

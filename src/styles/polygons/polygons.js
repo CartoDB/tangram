@@ -4,7 +4,7 @@ import {Style} from '../style';
 import {StyleParser} from '../style_parser';
 import gl from '../../gl/constants'; // web workers don't have access to GL context, so import all GL constants
 import VertexLayout from '../../gl/vertex_layout';
-import {buildPolygons, buildExtrudedPolygons} from '../../builders/polygons';
+// import {buildPolygons, buildExtrudedPolygons} from '../../builders/polygons';
 import Geo from '../../geo';
 
 let fs = require('fs');
@@ -154,7 +154,7 @@ Object.assign(Polygons, {
 
         // Extruded polygons (e.g. 3D buildings)
         if (style.extrude && style.height) {
-            buildExtrudedPolygons(
+            this.builderBuildExtrudedPolygons(
                 polygons,
                 style.z, style.height, style.min_height,
                 vertex_data, vertex_template,
@@ -165,7 +165,7 @@ Object.assign(Polygons, {
         }
         // Regular polygons
         else {
-            buildPolygons(
+            this.builderBuildPolygons(
                 polygons,
                 vertex_data, vertex_template,
                 options

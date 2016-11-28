@@ -4,7 +4,7 @@ import {decodeMultiPolygon} from './mvt';
 import Geo from '../geo';
 
 // For tiling GeoJSON client-side
-import geojsonvt from 'geojson-vt';
+// import geojsonvt from 'geojson-vt';
 
 /**
  GeoJSON standalone (non-tiled) source
@@ -32,7 +32,7 @@ export class GeoJSONSource extends NetworkSource {
 
                 let layers = data.source_data.layers;
                 for (let layer_name in layers) {
-                    this.tile_indexes[layer_name] = geojsonvt(layers[layer_name], {
+                    this.tile_indexes[layer_name] = this.geojsonvt(layers[layer_name], {
                         maxZoom: this.max_zoom,  // max zoom to preserve detail on
                         tolerance: 3, // simplification tolerance (higher means simpler)
                         extent: Geo.tile_scale, // tile extent (both width and height)

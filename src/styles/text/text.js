@@ -3,7 +3,7 @@
 import Geo from '../../geo';
 import {Style} from '../style';
 import {Points} from '../points/points';
-import Collision from '../../labels/collision';
+// import Collision from '../../labels/collision';
 import LabelPoint from '../../labels/label_point';
 import LabelLine from '../../labels/label_line';
 
@@ -72,7 +72,7 @@ Object.assign(TextStyle, {
         this.queues[tile.key].push(q);
 
         // Register with collision manager
-        Collision.addStyle(this.name, tile.key);
+        TextStyle.Collision.addStyle(this.name, tile.key);
     },
 
     // Override

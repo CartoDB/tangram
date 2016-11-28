@@ -5,13 +5,13 @@ import {Style} from '../style';
 import {StyleParser} from '../style_parser';
 import gl from '../../gl/constants'; // web workers don't have access to GL context, so import all GL constants
 import VertexLayout from '../../gl/vertex_layout';
-import {buildQuadsForPoints} from '../../builders/points';
+// import {buildQuadsForPoints} from '../../builders/points';
 import Texture from '../../gl/texture';
 import Geo from '../../geo';
 import Vector from '../../vector';
-import Collision from '../../labels/collision';
+// import Collision from '../../labels/collision';
 import LabelPoint from '../../labels/label_point';
-import placePointsOnLine from '../../labels/point_placement';
+// import placePointsOnLine from '../../labels/point_placement';
 import {TextLabels} from '../text/text_labels';
 import debugSettings from '../../utils/debug_settings';
 
@@ -219,7 +219,7 @@ Object.assign(Points, {
             // (they should stay fixed relative to the point)
             tf.layout.move_into_tile = false;
 
-            Collision.addStyle(this.collision_group_text, tile.key);
+            Points.Collision.addStyle(this.collision_group_text, tile.key);
         }
 
         // Queue the feature for processing
@@ -233,7 +233,7 @@ Object.assign(Points, {
         });
 
         // Register with collision manager
-        Collision.addStyle(this.collision_group_points, tile.key);
+        Points.Collision.addStyle(this.collision_group_points, tile.key);
     },
 
     // Override
@@ -299,7 +299,7 @@ Object.assign(Points, {
         return Promise.
             all([
                 // Points
-                Collision.collide(point_objs, this.collision_group_points, tile.key).then(point_objs => {
+                Points.Collision.collide(point_objs, this.collision_group_points, tile.key).then(point_objs => {
                     point_objs.forEach(q => {
                         this.feature_style = q.style;
                         this.feature_style.label = q.label;
@@ -479,7 +479,7 @@ Object.assign(Points, {
         }
         else if (geometry.type === "LineString") {
             let line = geometry.coordinates;
-            let point_labels = placePointsOnLine(line, size, options);
+            let point_labels = Points.placePointsOnLine(line, size, options);
             for (let i = 0; i < point_labels.length; ++i) {
                 labels.push(point_labels[i]);
             }
@@ -488,7 +488,7 @@ Object.assign(Points, {
             let lines = geometry.coordinates;
             for (let ln = 0; ln < lines.length; ln++) {
                 let line = lines[ln];
-                let point_labels = placePointsOnLine(line, size, options);
+                let point_labels = Points.placePointsOnLine(line, size, options);
                 for (let i = 0; i < point_labels.length; ++i) {
                     labels.push(point_labels[i]);
                 }
@@ -504,7 +504,7 @@ Object.assign(Points, {
             else {
                 let rings = geometry.coordinates;
                 for (let ln = 0; ln < rings.length; ln++) {
-                    let point_labels = placePointsOnLine(rings[ln], size, options);
+                    let point_labels = Points.placePointsOnLine(rings[ln], size, options);
                     for (let i = 0; i < point_labels.length; ++i) {
                         labels.push(point_labels[i]);
                     }
@@ -521,7 +521,7 @@ Object.assign(Points, {
                 for (let p = 0; p < polys.length; p++) {
                     let rings = polys[p];
                     for (let ln = 0; ln < rings.length; ln++) {
-                        let point_labels = placePointsOnLine(rings[ln], size, options);
+                        let point_labels = Points.placePointsOnLine(rings[ln], size, options);
                         for (let i = 0; i < point_labels.length; ++i) {
                             labels.push(point_labels[i]);
                         }
@@ -567,7 +567,7 @@ Object.assign(Points, {
     },
 
     buildQuad(points, size, angle, sampler, offset, texcoord_scale, vertex_data, vertex_template) {
-        buildQuadsForPoints(
+        this.buildQuadsForPoints(
             points,
             vertex_data,
             vertex_template,

@@ -5,7 +5,7 @@ import {StyleParser} from '../style_parser';
 import gl from '../../gl/constants'; // web workers don't have access to GL context, so import all GL constants
 import Texture from '../../gl/texture';
 import VertexLayout from '../../gl/vertex_layout';
-import {buildPolylines} from '../../builders/polylines';
+// import {buildPolylines} from '../../builders/polylines';
 import renderDashArray from './dasharray';
 import Geo from '../../geo';
 import {shaderSrc_polygonsVertex, shaderSrc_polygonsFragment} from '../polygons/polygons';
@@ -307,7 +307,7 @@ Object.assign(Lines, {
         // Main line
         this.feature_style = this.inline_feature_style; // restore calculated style for inline
         let vertex_template = this.makeVertexTemplate(style);
-        buildPolylines(
+        this.builderBuildPolylines(
             lines,
             style.width,
             vertex_data,

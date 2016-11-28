@@ -19,6 +19,9 @@ import RenderStateManager from './gl/render_state';
 import FontManager from './styles/text/font_manager';
 import MediaCapture from './utils/media_capture';
 
+let fs = require('fs');
+const worker_source = fs.readFileSync(__dirname + '/../dist/tangram.worker.min.js', 'utf8');
+
 // Load scene definition: pass an object directly, or a URL as string to load remotely
 export default class Scene {
 
@@ -240,10 +243,15 @@ export default class Scene {
 
     // Get the URL to load the web worker from
     getWorkerUrl() {
-        let worker_url = this.worker_url || URLs.findCurrentURL('tangram.debug.js', 'tangram.min.js');
+        // let worker_url = this.worker_url || URLs.findCurrentURL('tangram.debug.js', 'tangram.min.js');
+        let worker_url = this.worker_url || URLs.createObjectURL(new Blob([worker_source], { type: 'application/javascript' }));
 
         if (!worker_url) {
             throw new Error("Can't load worker because couldn't find base URL that library was loaded from");
+        }
+
+        if (this.data_source_scripts.length === 0) {
+            return worker_url;
         }
 
         // Import custom data source scripts alongside core library

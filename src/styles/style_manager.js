@@ -1,5 +1,5 @@
 // Manage rendering styles
-import ShaderProgram from '../gl/shader_program';
+// import ShaderProgram from '../gl/shader_program';
 import mergeObjects from '../utils/merge';
 import Geo from '../geo';
 import log from '../utils/log';
@@ -32,35 +32,35 @@ export class StyleManager {
 
     // Global configuration for all styles
     init () {
-        ShaderProgram.removeBlock('global');
-        ShaderProgram.removeBlock('setup');
+        StyleManager.ShaderProgram.removeBlock('global');
+        StyleManager.ShaderProgram.removeBlock('setup');
 
         // Model and world position accessors
-        ShaderProgram.addBlock('global', shaderSrc_accessors);
+        StyleManager.ShaderProgram.addBlock('global', shaderSrc_accessors);
 
         // Layer re-ordering function
-        ShaderProgram.addBlock('global', shaderSrc_layerOrder);
+        StyleManager.ShaderProgram.addBlock('global', shaderSrc_layerOrder);
 
         // Feature selection global
-        ShaderProgram.addBlock('global', shaderSrc_selectionGlobals);
+        StyleManager.ShaderProgram.addBlock('global', shaderSrc_selectionGlobals);
 
         // Feature selection vertex shader support
-        ShaderProgram.replaceBlock('setup', shaderSrc_selectionVertex);
+        StyleManager.ShaderProgram.replaceBlock('setup', shaderSrc_selectionVertex);
 
         // Minimum value for float comparisons
-        ShaderProgram.defines.TANGRAM_EPSILON = 0.00001;
+        StyleManager.ShaderProgram.defines.TANGRAM_EPSILON = 0.00001;
 
         // Minimum depth buffer value separating each `order` unit
         // Assume min 16-bit depth buffer, in practice uses 14-bits, 1 extra bit to handle virtual half-layers
         // for outlines (inserted in between layers), another extra bit to prevent precision loss
-        ShaderProgram.defines.TANGRAM_LAYER_DELTA = 1 / (1 << 14);
+        StyleManager.ShaderProgram.defines.TANGRAM_LAYER_DELTA = 1 / (1 << 14);
 
         // Internal tile scale
-        ShaderProgram.defines.TANGRAM_TILE_SCALE =
+        StyleManager.ShaderProgram.defines.TANGRAM_TILE_SCALE =
             `vec3(${Geo.tile_scale}., ${Geo.tile_scale}., u_meters_per_pixel * ${Geo.tile_size}.)`;
 
         // Increases precision for height values
-        ShaderProgram.defines.TANGRAM_HEIGHT_SCALE = Geo.height_scale;
+        StyleManager.ShaderProgram.defines.TANGRAM_HEIGHT_SCALE = Geo.height_scale;
     }
 
     // Destroy all styles for a given GL context

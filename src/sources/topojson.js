@@ -1,7 +1,7 @@
 import DataSource from './data_source';
 import {GeoJSONSource, GeoJSONTileSource} from './geojson';
 
-import * as topojson from 'topojson-client';
+// import * as topojson from 'topojson-client';
 
 /**
  TopoJSON standalone (non-tiled) source
@@ -40,7 +40,7 @@ export class TopoJSONSource extends GeoJSONSource {
 }
 
 function getTopoJSONFeature (topology, object) {
-    let feature = topojson.feature(topology, object);
+    let feature = TopoJSONSource.topojson.feature(topology, object);
 
     // Convert single feature to a feature collection
     if (feature.type === 'Feature') {

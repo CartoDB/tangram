@@ -6,9 +6,10 @@ import Geo from '../../geo';
 import log from '../../utils/log';
 import Thread from '../../utils/thread';
 import WorkerBroker from '../../utils/worker_broker';
-import Collision from '../../labels/collision';
-import TextSettings from '../text/text_settings';
-import CanvasText from '../text/canvas_text';
+// import Collision from '../../labels/collision';
+// import TextSettings from '../text/text_settings';
+// import CanvasText from '../text/canvas_text';
+import Utils from '../../utils/utils';
 
 // namespaces label textures (ensures new texture name when a tile is built multiple times)
 let text_texture_id = 0;
@@ -17,7 +18,7 @@ export const TextLabels = {
 
     resetText () {
         if (Thread.is_main) {
-            this.canvas = new CanvasText();
+            this.canvas = new TextLabels.CanvasText();
         }
         else if (Thread.is_worker) {
             this.texts = {}; // unique texts, grouped by tile, by style
@@ -36,8 +37,8 @@ export const TextLabels = {
         }
 
         // Compute text style and layout settings for this feature label
-        let text_settings = TextSettings.compute(feature, draw, context);
-        let text_settings_key = TextSettings.key(text_settings);
+        let text_settings = TextLabels.TextSettings.compute(feature, draw, context);
+        let text_settings_key = TextLabels.TextSettings.key(text_settings);
         let layout = this.computeTextLayout({}, feature, draw, context, tile, text, text_settings);
 
         // first label in tile, or with this style?
@@ -113,11 +114,11 @@ export const TextLabels = {
 
     collideAndRenderTextLabels (tile, collision_group, labels) {
         if (!labels) {
-            Collision.collide({}, collision_group, tile.key);
+            TextLabels.Collision.collide({}, collision_group, tile.key);
             return Promise.resolve({});
         }
 
-        return Collision.collide(labels, collision_group, tile.key).then(labels => {
+        return TextLabels.Collision.collide(labels, collision_group, tile.key).then(labels => {
             if (tile.canceled) {
                 log('trace', `stop tile build because tile was canceled: ${tile.key}, post-collide()`);
                 return {};
@@ -187,7 +188,7 @@ export const TextLabels = {
 
     // Called on main thread from worker, to create atlas of labels for a tile
     rasterizeTexts (tile_key, texts) {
-        let canvas = new CanvasText();
+        let canvas = new TextLabels.CanvasText();
         canvas.clearTexcoordCache(tile_key);
 
         let texture_size = canvas.setTextureTextPositions(texts, this.max_texture_size, tile_key);
@@ -230,7 +231,7 @@ export const TextLabels = {
         }
 
         // Convert font and text stroke sizes
-        draw.font.px_size = StyleParser.createPropertyCache(draw.font.size || TextSettings.defaults.size, CanvasText.fontPixelSize);
+        draw.font.px_size = StyleParser.createPropertyCache(draw.font.size || TextLabels.TextSettings.defaults.size, fontPixelSize);
         if (draw.font.stroke && draw.font.stroke.width != null) {
             draw.font.stroke.width = StyleParser.createPropertyCache(draw.font.stroke.width, parseFloat);
         }
@@ -277,3 +278,30 @@ export const TextLabels = {
     }
 
 };
+
+// Extract font size and units
+const font_size_re = /((?:[0-9]*\.)?[0-9]+)\s*(px|pt|em|%)?/;
+
+// Convert font CSS-style size ('12px', '14pt', '1.5em', etc.) to pixel size (adjusted for device pixel ratio)
+// Defaults units to pixels if not specified
+function fontPixelSize (size) {
+    if (size == null) {
+        return;
+    }
+    size = (typeof size === 'string') ? size : String(size); // need a string for regex
+
+    let [, px_size, units] = size.match(font_size_re) || [];
+    units = units || 'px';
+
+    if (units === "em") {
+        px_size *= 16;
+    } else if (units === "pt") {
+        px_size /= 0.75;
+    } else if (units === "%") {
+        px_size /= 6.25;
+    }
+
+    px_size = parseFloat(px_size);
+    px_size *= Utils.device_pixel_ratio;
+    return px_size;
+}
