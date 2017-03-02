@@ -5,7 +5,6 @@ uniform vec4 u_tile_origin;
 uniform float u_meters_per_pixel;
 uniform float u_device_pixel_ratio;
 uniform float u_visible_time;
-uniform bool u_tile_fade_in;
 
 uniform mat3 u_normalMatrix;
 uniform mat3 u_inverseNormalMatrix;
@@ -20,6 +19,9 @@ varying float v_sampler;
 varying vec4 v_color;
 varying vec2 v_texcoord;
 varying vec4 v_world_position;
+varying vec4 v_outline_color;
+varying float v_outline_edge;
+varying float v_alpha_factor;
 
 #define TANGRAM_NORMAL vec3(0., 0., 1.)
 
@@ -56,7 +58,17 @@ void main (void) {
             // Draw a point
             vec2 uv = v_texcoord * 2. - 1.; // fade alpha near circle edge
             float point_dist = length(uv);
-            color.a = clamp(color.a - (smoothstep(0., TANGRAM_FADE_RANGE, (point_dist - TANGRAM_FADE_START)) / TANGRAM_FADE_RANGE), 0., color.a);
+
+            #ifdef TANGRAM_POINT_OUTLINE
+                if (v_outline_edge == 0.) {
+                    color.a = clamp(color.a - (smoothstep(0., TANGRAM_FADE_RANGE, (point_dist - TANGRAM_FADE_START)) / TANGRAM_FADE_RANGE), 0., color.a);
+                }
+                else {
+                    color = mix(color, v_outline_color, smoothstep(v_outline_edge, v_outline_edge + ((1. - v_outline_edge) / 2.), point_dist));
+                    color.a = color.a - step(1., point_dist);
+                }
+            #endif
+
         #endif
     #ifdef TANGRAM_MULTI_SAMPLER
     }
@@ -80,19 +92,7 @@ void main (void) {
 
     #pragma tangram: color
 
-    // Fade in (if requested) based on time mesh has been visible
-    #ifdef TANGRAM_FADE_IN_RATE
-    if (u_tile_fade_in) {
-        color.a *= clamp(u_visible_time * TANGRAM_FADE_IN_RATE, 0., 1.);
-    }
-    #endif
-
-    // Fade out when tile is zooming out, e.g. acting as proxy tiles
-    // NB: this is mostly done to compensate for text label collision happening at the label's 1x zoom. As labels
-    // in proxy tiles are scaled down, they begin to overlap, and the fade is a simple way to ease the transition.
-    #ifdef TANGRAM_FADE_ON_ZOOM_OUT
-        color.a *= clamp(1. - TANGRAM_FADE_ON_ZOOM_OUT_RATE * (u_tile_origin.z - u_map_position.z), 0., 1.);
-    #endif
+    color.a *= v_alpha_factor;
 
     #pragma tangram: filter
 

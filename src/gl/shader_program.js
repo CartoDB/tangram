@@ -5,6 +5,7 @@ import log from '../utils/log';
 import GLSL from './glsl';
 import Texture from './texture';
 import getExtension from './extensions';
+import hashString from '../utils/hash';
 
 import strip from 'strip-comments';
 import { default as parseShaderErrors } from 'gl-shader-errors';
@@ -199,6 +200,10 @@ export default class ShaderProgram {
 
             throw(new Error(`ShaderProgram.compile(): program ${this.id} (${this.name}) error:`, error));
         }
+
+        // Discard shader sources after successful compilation
+        this.computed_vertex_source = null;
+        this.computed_fragment_source = null;
 
         this.use();
         this.refreshUniforms();
@@ -664,7 +669,7 @@ ShaderProgram.replaceBlock = function (key, ...blocks) {
 // update a program if one is passed in. Create one if not. Alert and don't update anything if the shaders don't compile.
 ShaderProgram.updateProgram = function (gl, program, vertex_shader_source, fragment_shader_source) {
     // Program with this exact vertex and fragment shader sources already cached?
-    let key = vertex_shader_source + '::' + fragment_shader_source;
+    let key = hashString(gl._tangram_id + '::' + vertex_shader_source + '::' + fragment_shader_source);
     if (ShaderProgram.programs_by_source[key]) {
         log('trace', 'Reusing identical source GL program object');
         return ShaderProgram.programs_by_source[key];
@@ -698,8 +703,7 @@ ShaderProgram.updateProgram = function (gl, program, vertex_shader_source, fragm
 
     gl.linkProgram(program);
 
-    gl.detachShader(program, vertex_shader);
-    gl.detachShader(program, fragment_shader);
+    // TODO: reference count and delete shader objects when no programs reference them
 
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
         let message = new Error(
@@ -723,7 +727,7 @@ ShaderProgram.updateProgram = function (gl, program, vertex_shader_source, fragm
 // Compile a vertex or fragment shader from provided source
 ShaderProgram.createShader = function (gl, source, stype) {
     // Program with identical vertex and fragment shader sources already cached?
-    let key = source;
+    let key = hashString(gl._tangram_id + '::' + source);
     if (ShaderProgram.shaders_by_source[key]) {
         log('trace', 'Reusing identical source GL shader object');
         return ShaderProgram.shaders_by_source[key];

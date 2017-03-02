@@ -1,4 +1,6 @@
 import log from './utils/log';
+import Utils from './utils/utils';
+import mergeObjects from './utils/merge';
 import Geo from './geo';
 import {StyleParser} from './styles/style_parser';
 import Collision from './labels/collision';
@@ -183,8 +185,9 @@ export default class Tile {
     static cancel(tile) {
         if (tile) {
             tile.canceled = true;
-            if (tile.source_data && tile.source_data.request) {
-                tile.source_data.request.abort();
+            if (tile.source_data && tile.source_data.request_id) {
+                Utils.cancelRequest(tile.source_data.request_id); // cancel pending tile network request
+                tile.source_data.request_id = null;
             }
             Tile.abortBuild(tile);
         }
@@ -193,10 +196,10 @@ export default class Tile {
     // Process geometry for tile - called by web worker
     // Returns a set of tile keys that should be sent to the main thread (so that we can minimize data exchange between worker and main thread)
     static buildGeometry (tile, { scene_id, layers, styles, global }) {
-        tile.debug.rendering = +new Date();
-        tile.debug.features = 0;
-
         let data = tile.source_data;
+
+        tile.debug.rendering = +new Date();
+        tile.debug.feature_count = 0;
 
         Collision.startTile(tile.key);
 
@@ -204,18 +207,18 @@ export default class Tile {
         for (let layer_name in layers) {
             let layer = layers[layer_name];
             // Skip layers with no data source defined
-            if (!layer || !layer.config.data) {
+            if (!layer || !layer.config_data) {
                 log('warn', `Layer ${layer_name} was defined without a geometry data source and will not be rendered.`);
                 continue;
             }
 
             // Source names don't match
-            if (layer.config.data.source !== tile.source) {
+            if (layer.config_data.source !== tile.source) {
                 continue;
             }
 
             // Get data for one or more layers from source
-            let source_layers = Tile.getDataForSource(data, layer.config.data, layer_name);
+            let source_layers = Tile.getDataForSource(data, layer.config_data, layer_name);
 
             // Render features in layer
             for (let s=0; s < source_layers.length; s++) {
@@ -263,7 +266,7 @@ export default class Tile {
                         style.addFeature(feature, group, context);
                     }
 
-                    tile.debug.features++;
+                    tile.debug.feature_count++;
                 }
             }
         }
@@ -358,7 +361,7 @@ export default class Tile {
     static getDataForSource (source_data, source_config, default_layer = null) {
         var layers = [];
 
-        if (source_config != null) {
+        if (source_config != null && source_data != null && source_data.layers != null) {
             // If no layer specified, and a default source layer exists
             if (!source_config.layer && source_data.layers._default) {
                 layers.push({
@@ -405,8 +408,10 @@ export default class Tile {
         }
 
         // Debug
-        this.debug.geometries = 0;
-        this.debug.buffer_size = 0;
+        if (progress.start) {
+            this.debug.geometry_count = 0;
+            this.debug.buffer_size = 0;
+        }
 
         // Create VBOs
         let meshes = {}, textures = []; // new data to be added to tile
@@ -414,16 +419,13 @@ export default class Tile {
         if (mesh_data) {
             for (var s in mesh_data) {
                 if (mesh_data[s].vertex_data) {
-                    this.debug.buffer_size += mesh_data[s].vertex_data.byteLength;
-                    if (mesh_data[s].vertex_elements) {
-                        this.debug.buffer_size += mesh_data[s].vertex_elements.byteLength;
-                    }
                     if (!styles[s]) {
                         log('warn', `Could not create mesh because style '${s}' not found, for tile ${this.key}, aborting tile`);
                         break;
                     }
                     meshes[s] = styles[s].makeMesh(mesh_data[s].vertex_data, mesh_data[s].vertex_elements, mesh_data[s]);
-                    this.debug.geometries += meshes[s].geometry_count;
+                    this.debug.buffer_size += meshes[s].buffer_size;
+                    this.debug.geometry_count += meshes[s].geometry_count;
                 }
 
                 // Assign texture ownership to tiles
@@ -470,7 +472,7 @@ export default class Tile {
             this.previous_textures.forEach(t => Texture.release(t));
             this.previous_textures = [];
 
-            this.debug.geom_ratio = (this.debug.geometries / this.debug.features).toFixed(1);
+            this.debug.geometry_ratio = (this.debug.geometry_count / this.debug.feature_count).toFixed(1);
             this.printDebug();
         }
     }
@@ -575,12 +577,13 @@ export default class Tile {
         return tile_subset;
     }
 
-    merge(other) {
-        for (var key in other) {
-            if (key !== 'key') {
-                this[key] = other[key];
-            }
-        }
+    merge (other) {
+        this.loading = other.loading;
+        this.loaded = other.loaded;
+        this.generation = other.loaded;
+        this.error = other.error;
+        this.mesh_data = other.mesh_data;
+        this.debug = mergeObjects(this.debug, other.debug);
         return this;
     }
 

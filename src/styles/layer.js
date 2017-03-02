@@ -2,7 +2,7 @@ import {StyleParser} from './style_parser';
 import Utils from '../utils/utils';
 import log from '../utils/log';
 import mergeObjects from '../utils/merge';
-import {match} from 'match-feature';
+import {buildFilter} from './filter';
 
 export const whiteList = ['filter', 'draw', 'visible', 'data'];
 
@@ -74,7 +74,7 @@ class Layer {
 
     constructor({ layer, name, parent, draw, visible, filter }) {
         this.id = Layer.id++;
-        this.config = layer;
+        this.config_data = layer.data;
         this.parent = parent;
         this.name = name;
         this.full_name = this.parent ? (this.parent.full_name + ':' + this.name) : this.name;
@@ -130,7 +130,7 @@ class Layer {
             this.buildZooms();
             this.buildPropMatches();
             if (this.filter != null && (typeof this.filter === 'function' || Object.keys(this.filter).length > 0)) {
-                this.filter = match(this.filter, FilterOptions);
+                this.filter = buildFilter(this.filter, FilterOptions);
             }
             else {
                 this.filter = null;
