@@ -3,6 +3,7 @@ uniform float u_time;
 uniform vec3 u_map_position;
 uniform vec4 u_tile_origin;
 uniform float u_tile_proxy_depth;
+uniform bool u_tile_fade_in;
 uniform float u_meters_per_pixel;
 uniform float u_device_pixel_ratio;
 uniform float u_visible_time;
@@ -17,17 +18,35 @@ uniform mat3 u_inverseNormalMatrix;
 attribute vec4 a_position;
 attribute vec4 a_shape;
 attribute vec4 a_color;
+attribute float a_outline_edge;
+attribute vec4 a_outline_color;
 attribute vec2 a_texcoord;
 attribute vec2 a_offset;
 
+#define PI 3.14159265359
+
+#ifdef TANGRAM_CURVED_LABEL
+    attribute vec4 a_offsets;
+    attribute vec4 a_pre_angles;
+    attribute vec4 a_angles;
+#endif
+
 #define TANGRAM_NORMAL vec3(0., 0., 1.)
+#define TANGRAM_PX_FADE_RANGE 2.
 
 varying vec4 v_color;
 varying vec2 v_texcoord;
 varying vec4 v_world_position;
+varying float v_alpha_factor;
+varying float v_aa_factor;
+
+#ifdef TANGRAM_SHADER_POINT
+    varying float v_outline_edge;
+    varying vec4 v_outline_color;
+#endif
 
 #ifdef TANGRAM_MULTI_SAMPLER
-varying float v_sampler;
+    varying float v_sampler;
 #endif
 
 #pragma tangram: camera
@@ -41,12 +60,43 @@ vec2 rotate2D(vec2 _st, float _angle) {
                 sin(_angle),cos(_angle)) * _st;
 }
 
+// Assumes stops are [0, 0.33, 0.66, 0.99];
+float mix4linear(float a, float b, float c, float d, float x) {
+    return mix(mix(a, b, 3. * x),
+               mix(b,
+                   mix(c, d, 3. * (max(x, .66) - .66)),
+                   3. * (clamp(x, .33, .66) - .33)),
+               step(0.33, x)
+            );
+}
+
+// Determines if a shader-drawn point is being rendered (vs. a sprite or text label)
+bool isShaderPoint() {
+    #ifdef TANGRAM_SHADER_POINT
+        #ifdef TANGRAM_MULTI_SAMPLER
+            if (v_sampler == 0.) { // sprite sampler
+                return true;
+            }
+        #else
+            return true;
+        #endif
+    #endif
+    return false;
+}
+
 void main() {
     // Initialize globals
     #pragma tangram: setup
 
+    v_alpha_factor = 1.0;
     v_color = a_color;
     v_texcoord = a_texcoord;
+    v_aa_factor = 1. / length(a_shape.xy / 256.) * TANGRAM_PX_FADE_RANGE;
+
+    #ifdef TANGRAM_SHADER_POINT
+        v_outline_color = a_outline_color;
+        v_outline_edge = a_outline_edge;
+    #endif
 
     // Position
     vec4 position = u_modelView * vec4(a_position.xyz, 1.);
@@ -54,14 +104,55 @@ void main() {
     // Apply positioning and scaling in screen space
     vec2 shape = a_shape.xy / 256.;                 // values have an 8-bit fraction
     vec2 offset = vec2(a_offset.x, -a_offset.y);    // flip y to make it point down
-    float theta = a_shape.z / 4096.;                // values have a 12-bit fraction
 
-    #ifdef TANGRAM_MULTI_SAMPLER
-    v_sampler = a_shape.w; // texture sampler
+    float zoom = clamp(u_map_position.z - u_tile_origin.z, 0., 1.); //fract(u_map_position.z);
+    float theta = a_shape.z / 4096.;
+
+    #ifdef TANGRAM_CURVED_LABEL
+        if (a_offsets[0] != 0.){
+            #ifdef TANGRAM_FADE_ON_ZOOM_IN
+                v_alpha_factor *= clamp(1. + TANGRAM_FADE_ON_ZOOM_IN_RATE - TANGRAM_FADE_ON_ZOOM_IN_RATE * (u_map_position.z - u_tile_origin.z), 0., 1.);
+            #endif
+
+            vec4 angles_scaled = (PI / 16384.) * a_angles;
+            vec4 pre_angles_scaled = (PI / 128.) * a_pre_angles;
+            vec4 offsets_scaled = (1. / 64.) * a_offsets;
+
+            float pre_angle = mix4linear(pre_angles_scaled[0], pre_angles_scaled[1], pre_angles_scaled[2], pre_angles_scaled[3], zoom);
+            float angle = mix4linear(angles_scaled[0], angles_scaled[1], angles_scaled[2], angles_scaled[3], zoom);
+            float offset_curve = mix4linear(offsets_scaled[0], offsets_scaled[1], offsets_scaled[2], offsets_scaled[3], zoom);
+
+            shape = rotate2D(shape, pre_angle); // rotate in place
+            shape.x += offset_curve;            // offset for curved label segment
+            shape = rotate2D(shape, angle);     // rotate relative to curved label anchor
+            shape += rotate2D(offset, theta);   // offset if specified in the scene file
+        }
+        else {
+            shape = rotate2D(shape + offset, theta);
+        }
+    #else
+        shape = rotate2D(shape + offset, theta);
     #endif
 
-    shape = rotate2D(shape, theta);     // apply rotation to vertex
-    shape += rotate2D(offset, theta);   // apply offset on rotated axis (e.g. so line labels follow text axis)
+    #ifdef TANGRAM_MULTI_SAMPLER
+        v_sampler = a_shape.w; // texture sampler
+    #endif
+
+    // Fade in (if requested) based on time mesh has been visible.
+    // Value passed to fragment shader in the v_alpha_factor varying
+    #ifdef TANGRAM_FADE_IN_RATE
+        if (u_tile_fade_in) {
+            v_alpha_factor *= clamp(u_visible_time * TANGRAM_FADE_IN_RATE, 0., 1.);
+        }
+    #endif
+
+    // Fade out when tile is zooming out, e.g. acting as proxy tiles
+    // NB: this is mostly done to compensate for text label collision happening at the label's 1x zoom. As labels
+    // in proxy tiles are scaled down, they begin to overlap, and the fade is a simple way to ease the transition.
+    // Value passed to fragment shader in the v_alpha_factor varying
+    #ifdef TANGRAM_FADE_ON_ZOOM_OUT
+        v_alpha_factor *= clamp(1. + TANGRAM_FADE_ON_ZOOM_OUT_RATE * (u_map_position.z - u_tile_origin.z), 0., 1.);
+    #endif
 
     // World coordinates for 3d procedural textures
     v_world_position = u_model * position;
@@ -83,8 +174,9 @@ void main() {
     // Device pixel ratio adjustment is because shape is in logical pixels
     position.xy += shape * position.w * 2. * u_device_pixel_ratio / u_resolution;
 
-    // Snap to pixel grid - only applied to fully upright sprites/labels, while panning is not active
-    if (!u_view_panning && abs(theta) < TANGRAM_EPSILON) {
+    // Snap to pixel grid
+    // Only applied to fully upright sprites/labels (not shader-drawn points), while panning is not active
+    if (!u_view_panning && (abs(theta) < TANGRAM_EPSILON) && !isShaderPoint()) {
         vec2 position_fract = fract((((position.xy / position.w) + 1.) * .5) * u_resolution);
         vec2 position_snap = position.xy + ((step(0.5, position_fract) - position_fract) * position.w * 2. / u_resolution);
 

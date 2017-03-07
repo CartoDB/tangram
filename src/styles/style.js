@@ -9,6 +9,7 @@ import Material from '../material';
 import Light from '../light';
 import {RasterTileSource} from '../sources/raster';
 import log from '../utils/log';
+import mergeObjects from '../utils/merge';
 import Thread from '../utils/thread';
 import WorkerBroker from '../utils/worker_broker';
 
@@ -49,6 +50,8 @@ export var Style = {
         if (this.blend_order == null) { // controls order of rendering for styles w/non-opaque blending
             this.blend_order = -1; // defaults to first
         }
+
+        this.removeShaderBlock('setup'); // clear before material injection
 
         // If the style defines its own material, replace the inherited material instance
         if (!(this.material instanceof Material)) {
@@ -232,6 +235,11 @@ export var Style = {
     preprocess (draw) {
         // Preprocess first time
         if (!draw.preprocessed) {
+            // Apply draw defaults
+            if (this.draw) {
+                mergeObjects(draw, this.draw);
+            }
+
             draw = this._preprocess(draw); // optional subclass implementation
             if (!draw) {
                 return;
