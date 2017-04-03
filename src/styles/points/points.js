@@ -216,6 +216,13 @@ Object.assign(Points, {
             draw.text.visible !== false && // explicitly handle `visible` property for nested text
             this.parseTextFeature(feature, draw.text, context, tile);
 
+        if (Array.isArray(tf)) {
+            tf = null; // NB: boundary labels not supported for point label attachments, should log warning
+            log({ level: 'warn', once: true }, `Layer '${draw.layers[draw.layers.length-1]}': ` +
+                `cannot use boundary labels (e.g. 'text_source: { left: ..., right: ... }') for 'text' labels attached to 'points'; ` +
+                `provided 'text_source' value was '${JSON.stringify(draw.text.text_source)}'`);
+        }
+
         if (tf) {
             tf.layout.parent = style; // parent point will apply additional anchor/offset to text
 
@@ -230,15 +237,7 @@ Object.assign(Points, {
             Collision.addStyle(this.collision_group_text, tile.key);
         }
 
-        // Queue the feature for processing
-        if (!this.tile_data[tile.key] || !this.queues[tile.key]) {
-            this.startData(tile);
-        }
-
-        this.queues[tile.key].push({
-            feature, draw, context, style,
-            text_feature: tf
-        });
+        this.queueFeature({ feature, draw, context, style, text_feature: tf }, tile); // queue the feature for later processing
 
         // Register with collision manager
         Collision.addStyle(this.collision_group_points, tile.key);
@@ -263,6 +262,14 @@ Object.assign(Points, {
         let sprite = StyleParser.evalProperty(draw.sprite, context);
         let sprite_info = this.getSpriteInfo(sprite) || this.getSpriteInfo(draw.sprite_default);
         return sprite_info;
+    },
+
+    // Queue features for deferred processing (collect all features first so we can do collision on the whole group)
+    queueFeature (q, tile) {
+        if (!this.tile_data[tile.key] || !this.queues[tile.key]) {
+            this.startData(tile);
+        }
+        this.queues[tile.key].push(q);
     },
 
     // Override

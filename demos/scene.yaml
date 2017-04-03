@@ -139,8 +139,6 @@ sources:
     mapzen:
         type: TopoJSON
         url: https://tile.mapzen.com/mapzen/vector/v1/all/{z}/{x}/{y}.topojson
-        url_params:
-            api_key: mapzen-T3tPjn7
         max_zoom: 16
         # # Data filtering demo with 'scripts' and 'transform' properties:
         # # Tile data is passed through a 'transform' pre-processing function before Tangram geometry is built.
@@ -184,15 +182,17 @@ layers:
 
     earth:
         data: { source: mapzen }
-        visible: false
-        draw:
-            polygons:
-                order: global.feature_order
-                color: '#f0ebeb'
 
-        continents:
+        fill:
+            filter: { $geometry: polygon }
+            enabled: false
+            draw:
+                polygons:
+                    order: global.feature_order
+                    color: '#f0ebeb'
+
+        labels:
             filter: { kind: continent, $geometry: point }
-            visible: true
             draw:
                 text:
                     text_source: global.language_text_source
@@ -257,7 +257,6 @@ layers:
 
         oceans:
             filter: { kind: ocean }
-            visible: true
             draw:
                 text:
                     font:
@@ -267,7 +266,6 @@ layers:
 
         seas:
             filter: { kind: sea, $zoom: { min: 7 } }
-            visible: true
             draw:
                 text:
                     font:
@@ -473,29 +471,34 @@ layers:
         data: { source: mapzen }
         filter: { $zoom: { min: 14 } }
 
-        draw:
-            polygons:
-                order: global.feature_order
-                color: [.83, .83, .83]
-
-        # turn interactive feature selection on for buildings with names
-        interactive:
-            filter: { name: true }
-            draw: { polygons: { interactive: true } }
-
-        # extrude 3d buildings
-        extruded:
-            filter: { $zoom: { min: 15 } }
+        # building footprints and extrusions
+        polygons:
+            filter: { $geometry: polygon }
             draw:
                 polygons:
-                    style: buildings
-                    extrude: function () { return feature.height > 20 || $zoom >= 16; }
+                    order: global.feature_order
+                    color: [.83, .83, .83]
 
-        high-line:
-            filter: { roof_material: grass }
-            draw:
-                polygons:
-                    color: '#bddec5'
+            # turn interactive feature selection on for buildings with names
+            interactive:
+                filter: { name: true }
+                draw: { polygons: { interactive: true } }
+
+            # extrude 3d buildings
+            extruded:
+                filter: { $zoom: { min: 15 } }
+                draw:
+                    polygons:
+                        style: buildings
+                        extrude: function () { return feature.height > 20 || $zoom >= 16; }
+
+            # grass rooftops, e.g. NYC Highline
+            grass:
+                filter: { roof_material: grass }
+                draw:
+                    polygons:
+                        style: polygons # disable building height shader
+                        color: '#bddec5'
 
         # point labels for buildings
         labels:
@@ -621,29 +624,45 @@ layers:
 
     boundaries:
         data: { source: mapzen}
-        visible: false
+        filter: { maritime_boundary: false }
         draw:
             lines:
+                visible: false
                 order: global.feature_order
                 width: 2px
                 color: wheat
 
         country:
             filter: { kind: country }
-            visible: true
             draw:
                 lines:
+                    visible: true
                     color: [0.824, 0.651, 0.329, 1.00]
-            water:
-                filter: { maritime_boundary: true }
-                visible: false
 
         region:
             filter: { kind: [region, macroregion] }
-            visible: true
-            water:
-                filter: { maritime_boundary: true }
-                visible: false
+            draw: { lines: { visible: true } }
+
+        labels:
+            filter: { kind: [region, macroregion, country] }
+            draw:
+                text:
+                    interactive: true
+                    text_source: global.language_text_source
+                    font:
+                        family: Montserrat
+                        transform: uppercase
+                        fill: black
+
+            # dual-sided border labels where available
+            dual:
+                filter: { 'name:left': true, 'name:right': true }
+                draw:
+                    text:
+                        priority: 1
+                        text_source:
+                            left: ['name:left:en', 'name:left']
+                            right: ['name:right:en', 'name:right']
 
     places:
         data: { source: mapzen }
@@ -654,7 +673,6 @@ layers:
                 kind: locality
                 kind_detail: city
                 $zoom: { max: 11 }
-            visible: true
             draw:
                 points:
                     size: 8px
@@ -676,6 +694,7 @@ layers:
         text-only:
             draw:
                 text:
+                    visible: false
                     text_source: global.language_text_source
                     priority: 1
                     font:
@@ -684,7 +703,6 @@ layers:
                         fill: [0, 0, 0, .8]
                         stroke: { color: white, width: 4 }
                         transform: uppercase
-            visible: false
 
             countries:
                 filter:
@@ -692,10 +710,9 @@ layers:
                     any:
                         - { population: { min: 100000000 } }
                         - { $zoom: { min: 5, max: 8 }, population: { min: 1000000 } }
-                        # - population: { min: 10000000 }
-                visible: true
                 draw:
                     text:
+                        visible: true
                         buffer: 2px
                         font:
                             weight: bold
@@ -706,9 +723,9 @@ layers:
                     kind: region
                     kind_detail: [state, province]
                     $zoom: { min: 5, max: 9 }
-                visible: true
                 draw:
                     text:
+                        visible: true
                         buffer: 2px
                         font:
                             # weight: bold
@@ -726,9 +743,9 @@ layers:
                     kind: locality
                     kind_detail: city
                     $zoom: { min: 11 } # show city point labels below z11
-                visible: true
                 draw:
                     text:
+                        visible: true
                         font:
                             weight: bold
                             size: [[8, 11px], [12, 16px]]
@@ -738,9 +755,9 @@ layers:
                 filter:
                     - { kind: [neighbourhood, macrohood], $zoom: { min: 13 } }
                     - { kind: microhood, $zoom: { min: 15 } }
-                visible: true
                 draw:
                     text:
+                        visible: true
                         font:
                             size: [[13, 11px], [14, 11px], [15, 13px]]
                             style: italic

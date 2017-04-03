@@ -200,8 +200,18 @@ export var Style = {
                 return;
             }
 
-            // Calculate order if it was not cached
+            // Calculate order
             style.order = this.parseOrder(draw.order, context);
+            if (style.order == null && this.blend !== 'overlay') {
+                let msg = `Layer '${draw.layers.join(', ')}', draw group '${draw.group}': `;
+                msg += `'order' parameter is required unless blend mode is 'overlay'`;
+                if (draw.order != null) {
+                    msg += `; 'order' was set to a dynamic value (e.g. string tied to feature property, `;
+                    msg += `or JS function), but evaluated to null for one or more features`;
+                }
+                log({ level: 'warn', once: true }, msg);
+                return;
+            }
 
             // Feature selection (only if style supports it)
             var selectable = false;
@@ -333,10 +343,17 @@ export var Style = {
             selection_defines.TANGRAM_FEATURE_SELECTION = true;
         }
 
-        // Get any custom code blocks, uniform dependencies, etc.
+        // Shader blocks
         var blocks = (this.shaders && this.shaders.blocks);
         var block_scopes = (this.shaders && this.shaders.block_scopes);
+
+        // Uniforms
         var uniforms = Object.assign({}, this.shaders && this.shaders.uniforms);
+        for (let u in uniforms) { // validate uniforms
+            if (uniforms[u] == null) {
+                log({ level: 'warn', once: true }, `Style '${this.name}' has invalid uniform '${u}': uniform values must be non-null`);
+            }
+        }
 
         // Accept a single extension, or an array of extensions
         var extensions = (this.shaders && this.shaders.extensions);

@@ -92,15 +92,22 @@ Object.assign(TextStyle, {
             return;
         }
 
-        q.feature = feature;
-        q.context = context;
-        q.layout.vertex = false; // vertex placement option not applicable to standalone labels
-
-        // Queue the feature for processing
-        if (!this.tile_data[tile.key] || !this.queues[tile.key]) {
-            this.startData(tile);
+        // text can be an array if a `left` or `right` orientation key is defined for the text source
+        // in which case, push both text sources to the queue
+        if (q instanceof Array){
+            q.forEach(q => {
+                q.feature = feature;
+                q.context = context;
+                q.layout.vertex = false; // vertex placement option not applicable to standalone labels
+                this.queueFeature(q, tile); // queue the feature for later processing
+            });
         }
-        this.queues[tile.key].push(q);
+        else {
+            q.feature = feature;
+            q.context = context;
+            q.layout.vertex = false; // vertex placement option not applicable to standalone labels
+            this.queueFeature(q, tile); // queue the feature for later processing
+        }
 
         // Register with collision manager
         Collision.addStyle(this.name, tile.key);
@@ -183,6 +190,9 @@ Object.assign(TextStyle, {
             let fq = feature_queue[f];
             let text_info = this.texts[tile_key][fq.text_settings_key][fq.text];
             let feature_labels;
+
+            fq.layout.vertical_buffer = text_info.vertical_buffer;
+
             if (text_info.text_settings.can_articulate){
                 var sizes = text_info.size.map(function(size){ return size.collision_size; });
                 fq.layout.no_curving = text_info.no_curving;
