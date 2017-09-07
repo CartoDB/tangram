@@ -10,29 +10,21 @@ uniform mat3 u_normalMatrix;
 uniform mat3 u_inverseNormalMatrix;
 
 uniform sampler2D u_texture;
-
-#ifdef TANGRAM_MULTI_SAMPLER
-uniform sampler2D u_label_texture;
-varying float v_sampler;
-#endif
+uniform float u_point_type;
+uniform bool u_apply_color_blocks;
 
 varying vec4 v_color;
 varying vec2 v_texcoord;
 varying vec4 v_world_position;
 varying float v_alpha_factor;
-varying float v_aa_factor;
 
 #ifdef TANGRAM_SHADER_POINT
     varying vec4 v_outline_color;
     varying float v_outline_edge;
+    varying float v_aa_factor;
 #endif
 
 #define TANGRAM_NORMAL vec3(0., 0., 1.)
-
-// Alpha discard threshold (substitute for alpha blending)
-#ifndef TANGRAM_ALPHA_TEST
-#define TANGRAM_ALPHA_TEST 0.5
-#endif
 
 #pragma tangram: camera
 #pragma tangram: material
@@ -40,42 +32,47 @@ varying float v_aa_factor;
 #pragma tangram: raster
 #pragma tangram: global
 
+#ifdef TANGRAM_SHADER_POINT
+    // Draw an SDF-style point
+    void drawPoint (inout vec4 color) {
+        vec2 uv = v_texcoord * 2. - 1.; // fade alpha near circle edge
+        float point_dist = length(uv);
+        color = mix(
+            color,
+            v_outline_color,
+            (1. - smoothstep(v_outline_edge - v_aa_factor, v_outline_edge + v_aa_factor, 1.-point_dist)) * step(.000001, v_outline_edge)
+        );
+        color.a = mix(color.a, 0., (smoothstep(1. - v_aa_factor, 1., point_dist)));
+    }
+#endif
+
 void main (void) {
     // Initialize globals
     #pragma tangram: setup
 
     vec4 color = v_color;
 
-    #ifdef TANGRAM_MULTI_SAMPLER
-    if (v_sampler == 0.) { // sprite sampler
-    #endif
-        #ifdef TANGRAM_TEXTURE_POINT
-            // Draw sprite
-            color *= texture2D(u_texture, v_texcoord);
-        #else
-            // Draw a point
-            vec2 uv = v_texcoord * 2. - 1.; // fade alpha near circle edge
-            float point_dist = length(uv);
-            color = mix(
-                color,
-                v_outline_color,
-                (1. - smoothstep(v_outline_edge - v_aa_factor, v_outline_edge + v_aa_factor, 1.-point_dist)) * step(.000001, v_outline_edge)
-            );
-            color.a = mix(color.a, 0., (smoothstep(1. - v_aa_factor, 1., point_dist)));
-
-        #endif
-    #ifdef TANGRAM_MULTI_SAMPLER
+    if (u_point_type == TANGRAM_POINT_TYPE_TEXTURE) { // sprite texture
+        color *= texture2D(u_texture, v_texcoord);
     }
-    else { // label sampler
-        color = texture2D(u_label_texture, v_texcoord);
+    else if (u_point_type == TANGRAM_POINT_TYPE_LABEL) { // label texture
+        color = texture2D(u_texture, v_texcoord);
         color.rgb /= max(color.a, 0.001); // un-multiply canvas texture
     }
+    #ifdef TANGRAM_SHADER_POINT
+        else if (u_point_type == TANGRAM_POINT_TYPE_SHADER) { // shader point
+            drawPoint(color); // draw a point
+        }
     #endif
 
-    // Manually un-multiply alpha, for cases where texture has pre-multiplied alpha
-    #ifdef TANGRAM_UNMULTIPLY_ALPHA
-        color.rgb /= max(color.a, 0.001);
-    #endif
+    // Shader blocks for color/filter are only applied for sprites, shader points, and standalone text,
+    // NOT for text attached to a point (N.B.: for compatibility with ES)
+    if (u_apply_color_blocks) {
+        #pragma tangram: color
+        #pragma tangram: filter
+    }
+
+    color.a *= v_alpha_factor;
 
     // If blending is off, use alpha discard as a lower-quality substitute
     #if !defined(TANGRAM_BLEND_OVERLAY) && !defined(TANGRAM_BLEND_INLAY)
@@ -83,12 +80,6 @@ void main (void) {
             discard;
         }
     #endif
-
-    #pragma tangram: color
-
-    color.a *= v_alpha_factor;
-
-    #pragma tangram: filter
 
     gl_FragColor = color;
 }

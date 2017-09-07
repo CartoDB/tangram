@@ -9,9 +9,9 @@ We're glad you're interested in how Tangram can be used to make amazing maps!
 
 This demo is meant to show off various visual styles, but it has a really complex setup - we had to jump through a lot of hoops to implement the style-switcher and rebuild the dat.gui interface on the fly, which are things you would probably never have to do in a real-world use case.
 
-So instead of rummaging through this rather confusing example, we recommend you check out our documentation, which is chock-full of specific, targeted demos highlighting all of the nifty features of the Tangram library:
+If you're looking for examples, we recommend you check out our documentation, which is chock-full of specific, targeted demos highlighting all of the nifty features of the Tangram library:
 
-https://github.com/tangrams/tangram/wiki/
+https://mapzen.com/documentation/tangram/
 
 Enjoy!
 - The Mapzen Tangram team
@@ -46,6 +46,9 @@ Enjoy!
             // webGLContextOptions: { // explicitly add/override WebGL context options
             //     antialias: false
             // },
+            // debug: {
+            //     layer_stats: true // enable to collect detailed layer stats, access w/`scene.debug.layerStats()`
+            // },
             logLevel: 'debug',
             attribution: '<a href="https://mapzen.com/tangram" target="_blank">Tangram</a> | &copy; OSM contributors | <a href="https://mapzen.com/" target="_blank">Mapzen</a>'
         });
@@ -72,13 +75,13 @@ Enjoy!
     });
 
     function injectAPIKey(config) {
-        if (config.global.sdk_mapzen_api_key) {
+        if (config.global && config.global.sdk_mapzen_api_key) {
             config.global.sdk_mapzen_api_key = 'mapzen-T3tPjn7';
         }
         else {
             for (var name in config.sources) {
                 var source = config.sources[name];
-                if (source.url.search('mapzen.com')) {
+                if (source.url.search('mapzen.com') > -1) {
                     source.url_params = source.url_params || {};
                     source.url_params.api_key = 'mapzen-T3tPjn7';
                 }
@@ -91,14 +94,14 @@ Enjoy!
     /*** URL parsing ***/
 
     // URL hash pattern is one of:
-    // #[lat],[lng],[zoom]
-    // #[source],[lat],[lng],[zoom] (legacy)
+    // #[zoom],[lat],[lng]
+    // #[source],[zoom],[lat],[lng] (legacy)
     function getValuesFromUrl() {
 
-        url_hash = window.location.hash.slice(1, window.location.hash.length).split(',');
+        url_hash = window.location.hash.slice(1, window.location.hash.length).split('/');
 
         // Get location from URL
-        map_start_location = [40.70531887544228, -74.00976419448853, 16]; // NYC
+        map_start_location = [16, 40.70531887544228, -74.00976419448853]; // NYC
 
         if (url_hash.length >= 3) {
             // Note: backwards compatibility with old demo links, deprecate?
@@ -128,7 +131,7 @@ Enjoy!
         clearTimeout(update_url_timeout);
         update_url_timeout = setTimeout(function() {
             var center = map.getCenter();
-            var url_options = [center.lat, center.lng, map.getZoom()];
+            var url_options = [map.getZoom(), center.lat, center.lng].map(function(v) { return v.toFixed(5); });
 
             if (rS) {
                 url_options.push('rstats');
@@ -138,7 +141,7 @@ Enjoy!
                 url_options.push('style=' + style_options.effect);
             }
 
-            window.location.hash = url_options.join(',');
+            window.location.hash = url_options.join('/');
         }, update_url_throttle);
     }
 
@@ -151,7 +154,7 @@ Enjoy!
 
     // Update URL hash on move
     map.attributionControl.setPrefix('');
-    map.setView(map_start_location.slice(0, 2), map_start_location[2]);
+    map.setView(map_start_location.slice(1, 3), map_start_location[0]);
     map.on('move', updateURL);
 
     // Render/GL stats: http://spite.github.io/rstats/
@@ -378,8 +381,8 @@ Enjoy!
             'Spanish': 'es'
         };
         gui.language = 'en';
-        gui.add(gui, 'language', langs).onChange(function(value) {
-            scene.config.global.language = value;
+        gui.add(gui, 'language', langs).onChange(function(value, key) {
+            scene.config.global.language = (value == 'null') ? null  : value; // dat.gui coerces null to string 'null'
             scene.updateConfig();
         });
 
@@ -499,9 +502,11 @@ Enjoy!
         // Input
         if (key.isPressed('up')) {
             map._move(map.getCenter(), map.getZoom() + zoom_step);
+            map._moveEnd(true);
         }
         else if (key.isPressed('down')) {
             map._move(map.getCenter(), map.getZoom() - zoom_step);
+            map._moveEnd(true);
         }
 
         // Profiling
