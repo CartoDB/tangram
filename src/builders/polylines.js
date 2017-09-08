@@ -78,7 +78,8 @@ export function buildPolylines (lines, width, vertex_data, vertex_template,
         v_scale,
         texcoord_index,
         texcoord_width,
-        texcoord_normalize
+        texcoord_normalize,
+        geom_count: 0
     };
 
     // Buffer for extra lines to process
@@ -89,10 +90,12 @@ export function buildPolylines (lines, width, vertex_data, vertex_template,
         buildPolyline(lines[index], context, extra_lines);
     }
 
-    // Process extra lines
+    // Process extra lines (which are created above if lines need to be mutated for easier processing)
     for (let index = 0; index < extra_lines.length; index++) {
         buildPolyline(extra_lines[index], context, extra_lines);
     }
+
+    return context.geom_count;
 }
 
 function buildPolyline(line, context, extra_lines){
@@ -104,6 +107,8 @@ function buildPolyline(line, context, extra_lines){
     var {join_type, cap_type, closed_polygon, remove_tile_edges, tile_edge_tolerance, v_scale, miter_len_sq} = context;
 
     // Loop backwards through line to a tile boundary if found
+    // since you need to draw lines that are only partially inside the tile,
+    // so we start at the first index where it is safe to loop through to the last index within the tile
     if (closed_polygon && join_type === JOIN_TYPE.miter) {
         var boundaryIndex = getTileBoundaryIndex(line);
         if (boundaryIndex !== 0) {
@@ -409,6 +414,7 @@ function indexPairs(num_pairs, context){
         vertex_elements.push(offset + 2 * i + 2);
         vertex_elements.push(offset + 2 * i + 3);
         vertex_elements.push(offset + 2 * i + 1);
+        context.geom_count += 2;
     }
 }
 
@@ -600,16 +606,13 @@ function addCap (coord, v, normal, type, isBeginning, context) {
     }
 }
 
-// For IE Math.log2 support
-let log2 = Math.log2 || function(x){ return Math.log(x) * Math.LOG2E; };
-
 // Calculate number of triangles for a fan given an angle and line width
 function trianglesPerArc (angle, width) {
     if (angle < 0) {
         angle = -angle;
     }
 
-    var numTriangles = (width > 2 * DEFAULT.MIN_FAN_WIDTH) ? log2(width / DEFAULT.MIN_FAN_WIDTH) : 1;
+    var numTriangles = (width > 2 * DEFAULT.MIN_FAN_WIDTH) ? Math.log2(width / DEFAULT.MIN_FAN_WIDTH) : 1;
     return Math.ceil(angle / Math.PI * numTriangles);
 }
 

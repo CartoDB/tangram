@@ -10,9 +10,9 @@ var SceneLoader;
 export default SceneLoader = {
 
     // Load scenes definitions from URL & proprocess
-    loadScene(url, path = null) {
+    loadScene(url, { path, type } = {}) {
         let errors = [];
-        return this.loadSceneRecursive({ url, path }, null, errors).
+        return this.loadSceneRecursive({ url, path, type }, null, errors).
             then(result => this.finalize(result)).
             then(({ config, bundle }) => {
                 if (!config) {
@@ -238,7 +238,12 @@ export default SceneLoader = {
                     obj = val;
                 }
             }
-            // Loop through object properties
+            // Loop through object keys or array indices
+            else if (Array.isArray(obj)) {
+                for (let p=0; p < obj.length; p++) {
+                    obj[p] = applyGlobals(obj[p], obj, p);
+                }
+            }
             else if (typeof obj === 'object') {
                 for (let p in obj) {
                     obj[p] = applyGlobals(obj[p], obj, p);

@@ -8,16 +8,10 @@ import {buildPolygons, buildExtrudedPolygons} from '../../builders/polygons';
 import Geo from '../../geo';
 
 let fs = require('fs');
-const shaderSrc_polygonsVertex = fs.readFileSync(__dirname + '/polygons_vertex.glsl', 'utf8');
-const shaderSrc_polygonsFragment = fs.readFileSync(__dirname + '/polygons_fragment.glsl', 'utf8');
+export const shaderSrc_polygonsVertex = fs.readFileSync(__dirname + '/polygons_vertex.glsl', 'utf8');
+export const shaderSrc_polygonsFragment = fs.readFileSync(__dirname + '/polygons_fragment.glsl', 'utf8');
 
 export var Polygons = Object.create(Style);
-
-// export shaders for use in lines.js
-export {
-    shaderSrc_polygonsVertex,
-    shaderSrc_polygonsFragment
-};
 
 Object.assign(Polygons, {
     name: 'polygons',
@@ -154,7 +148,7 @@ Object.assign(Polygons, {
 
         // Extruded polygons (e.g. 3D buildings)
         if (style.extrude && style.height) {
-            buildExtrudedPolygons(
+            return buildExtrudedPolygons(
                 polygons,
                 style.z, style.height, style.min_height,
                 vertex_data, vertex_template,
@@ -165,7 +159,7 @@ Object.assign(Polygons, {
         }
         // Regular polygons
         else {
-            buildPolygons(
+            return buildPolygons(
                 polygons,
                 vertex_data, vertex_template,
                 options

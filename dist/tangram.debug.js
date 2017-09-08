@@ -1,4 +1,4 @@
-(function(){var target = (typeof module !== "undefined" && module.exports) || (typeof window !== "undefined");if (target) {var __worker_src__ = arguments.callee.toString();var __worker_src_origin__ = document.currentScript !== undefined ? document.currentScript.src : '';var __worker_src_map__ = 'tangram.debug.js.map';};(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.Tangram = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+(function(){var target = (typeof self === "undefined" || !(typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope)) && ((typeof module !== "undefined" && module.exports) || (typeof window !== "undefined"));if (target) {var __worker_src__ = arguments.callee.toString();var __worker_src_origin__ = typeof document !== "undefined" && document.currentScript !== undefined ? document.currentScript.src : '';var __worker_src_map__ = 'tangram.debug.js.map';};(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.Tangram = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 "use strict";
 
 // rawAsap provides everything we need except exception management.
@@ -330,22 +330,22 @@ function placeHoldersCount (b64) {
 
 function byteLength (b64) {
   // base64 is 4/3 + up to two characters of the original data
-  return b64.length * 3 / 4 - placeHoldersCount(b64)
+  return (b64.length * 3 / 4) - placeHoldersCount(b64)
 }
 
 function toByteArray (b64) {
-  var i, j, l, tmp, placeHolders, arr
+  var i, l, tmp, placeHolders, arr
   var len = b64.length
   placeHolders = placeHoldersCount(b64)
 
-  arr = new Arr(len * 3 / 4 - placeHolders)
+  arr = new Arr((len * 3 / 4) - placeHolders)
 
   // if there are placeholders, only get up to the last complete 4 chars
   l = placeHolders > 0 ? len - 4 : len
 
   var L = 0
 
-  for (i = 0, j = 0; i < l; i += 4, j += 3) {
+  for (i = 0; i < l; i += 4) {
     tmp = (revLookup[b64.charCodeAt(i)] << 18) | (revLookup[b64.charCodeAt(i + 1)] << 12) | (revLookup[b64.charCodeAt(i + 2)] << 6) | revLookup[b64.charCodeAt(i + 3)]
     arr[L++] = (tmp >> 16) & 0xFF
     arr[L++] = (tmp >> 8) & 0xFF
@@ -14716,7 +14716,7 @@ function deflate(input, options) {
   deflator.push(input, true);
 
   // That will never happens, if you don't cheat with options :)
-  if (deflator.err) { throw deflator.msg; }
+  if (deflator.err) { throw deflator.msg || msg[deflator.err]; }
 
   return deflator.result;
 }
@@ -15141,7 +15141,7 @@ function inflate(input, options) {
   inflator.push(input, true);
 
   // That will never happens, if you don't cheat with options :)
-  if (inflator.err) { throw inflator.msg; }
+  if (inflator.err) { throw inflator.msg || msg[inflator.err]; }
 
   return inflator.result;
 }
@@ -15475,6 +15475,25 @@ exports.utf8border = function (buf, max) {
 // It doesn't worth to make additional optimizationa as in original.
 // Small size is preferable.
 
+// (C) 1995-2013 Jean-loup Gailly and Mark Adler
+// (C) 2014-2017 Vitaly Puzrin and Andrey Tupitsin
+//
+// This software is provided 'as-is', without any express or implied
+// warranty. In no event will the authors be held liable for any damages
+// arising from the use of this software.
+//
+// Permission is granted to anyone to use this software for any purpose,
+// including commercial applications, and to alter it and redistribute it
+// freely, subject to the following restrictions:
+//
+// 1. The origin of this software must not be misrepresented; you must not
+//   claim that you wrote the original software. If you use this software
+//   in a product, an acknowledgment in the product documentation would be
+//   appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be
+//   misrepresented as being the original software.
+// 3. This notice may not be removed or altered from any source distribution.
+
 function adler32(adler, buf, len, pos) {
   var s1 = (adler & 0xffff) |0,
       s2 = ((adler >>> 16) & 0xffff) |0,
@@ -15505,6 +15524,24 @@ module.exports = adler32;
 },{}],171:[function(_dereq_,module,exports){
 'use strict';
 
+// (C) 1995-2013 Jean-loup Gailly and Mark Adler
+// (C) 2014-2017 Vitaly Puzrin and Andrey Tupitsin
+//
+// This software is provided 'as-is', without any express or implied
+// warranty. In no event will the authors be held liable for any damages
+// arising from the use of this software.
+//
+// Permission is granted to anyone to use this software for any purpose,
+// including commercial applications, and to alter it and redistribute it
+// freely, subject to the following restrictions:
+//
+// 1. The origin of this software must not be misrepresented; you must not
+//   claim that you wrote the original software. If you use this software
+//   in a product, an acknowledgment in the product documentation would be
+//   appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be
+//   misrepresented as being the original software.
+// 3. This notice may not be removed or altered from any source distribution.
 
 module.exports = {
 
@@ -15561,6 +15598,24 @@ module.exports = {
 // So write code to minimize size - no pregenerated tables
 // and array tools dependencies.
 
+// (C) 1995-2013 Jean-loup Gailly and Mark Adler
+// (C) 2014-2017 Vitaly Puzrin and Andrey Tupitsin
+//
+// This software is provided 'as-is', without any express or implied
+// warranty. In no event will the authors be held liable for any damages
+// arising from the use of this software.
+//
+// Permission is granted to anyone to use this software for any purpose,
+// including commercial applications, and to alter it and redistribute it
+// freely, subject to the following restrictions:
+//
+// 1. The origin of this software must not be misrepresented; you must not
+//   claim that you wrote the original software. If you use this software
+//   in a product, an acknowledgment in the product documentation would be
+//   appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be
+//   misrepresented as being the original software.
+// 3. This notice may not be removed or altered from any source distribution.
 
 // Use ordinary array, since untyped makes no boost here
 function makeTable() {
@@ -15599,6 +15654,25 @@ module.exports = crc32;
 
 },{}],173:[function(_dereq_,module,exports){
 'use strict';
+
+// (C) 1995-2013 Jean-loup Gailly and Mark Adler
+// (C) 2014-2017 Vitaly Puzrin and Andrey Tupitsin
+//
+// This software is provided 'as-is', without any express or implied
+// warranty. In no event will the authors be held liable for any damages
+// arising from the use of this software.
+//
+// Permission is granted to anyone to use this software for any purpose,
+// including commercial applications, and to alter it and redistribute it
+// freely, subject to the following restrictions:
+//
+// 1. The origin of this software must not be misrepresented; you must not
+//   claim that you wrote the original software. If you use this software
+//   in a product, an acknowledgment in the product documentation would be
+//   appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be
+//   misrepresented as being the original software.
+// 3. This notice may not be removed or altered from any source distribution.
 
 var utils   = _dereq_('../utils/common');
 var trees   = _dereq_('./trees');
@@ -17457,6 +17531,24 @@ exports.deflateTune = deflateTune;
 },{"../utils/common":168,"./adler32":170,"./crc32":172,"./messages":178,"./trees":179}],174:[function(_dereq_,module,exports){
 'use strict';
 
+// (C) 1995-2013 Jean-loup Gailly and Mark Adler
+// (C) 2014-2017 Vitaly Puzrin and Andrey Tupitsin
+//
+// This software is provided 'as-is', without any express or implied
+// warranty. In no event will the authors be held liable for any damages
+// arising from the use of this software.
+//
+// Permission is granted to anyone to use this software for any purpose,
+// including commercial applications, and to alter it and redistribute it
+// freely, subject to the following restrictions:
+//
+// 1. The origin of this software must not be misrepresented; you must not
+//   claim that you wrote the original software. If you use this software
+//   in a product, an acknowledgment in the product documentation would be
+//   appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be
+//   misrepresented as being the original software.
+// 3. This notice may not be removed or altered from any source distribution.
 
 function GZheader() {
   /* true if compressed data believed to be text */
@@ -17498,6 +17590,25 @@ module.exports = GZheader;
 
 },{}],175:[function(_dereq_,module,exports){
 'use strict';
+
+// (C) 1995-2013 Jean-loup Gailly and Mark Adler
+// (C) 2014-2017 Vitaly Puzrin and Andrey Tupitsin
+//
+// This software is provided 'as-is', without any express or implied
+// warranty. In no event will the authors be held liable for any damages
+// arising from the use of this software.
+//
+// Permission is granted to anyone to use this software for any purpose,
+// including commercial applications, and to alter it and redistribute it
+// freely, subject to the following restrictions:
+//
+// 1. The origin of this software must not be misrepresented; you must not
+//   claim that you wrote the original software. If you use this software
+//   in a product, an acknowledgment in the product documentation would be
+//   appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be
+//   misrepresented as being the original software.
+// 3. This notice may not be removed or altered from any source distribution.
 
 // See state defs from inflate.js
 var BAD = 30;       /* got a data error -- remain here until reset */
@@ -17827,6 +17938,24 @@ module.exports = function inflate_fast(strm, start) {
 },{}],176:[function(_dereq_,module,exports){
 'use strict';
 
+// (C) 1995-2013 Jean-loup Gailly and Mark Adler
+// (C) 2014-2017 Vitaly Puzrin and Andrey Tupitsin
+//
+// This software is provided 'as-is', without any express or implied
+// warranty. In no event will the authors be held liable for any damages
+// arising from the use of this software.
+//
+// Permission is granted to anyone to use this software for any purpose,
+// including commercial applications, and to alter it and redistribute it
+// freely, subject to the following restrictions:
+//
+// 1. The origin of this software must not be misrepresented; you must not
+//   claim that you wrote the original software. If you use this software
+//   in a product, an acknowledgment in the product documentation would be
+//   appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be
+//   misrepresented as being the original software.
+// 3. This notice may not be removed or altered from any source distribution.
 
 var utils         = _dereq_('../utils/common');
 var adler32       = _dereq_('./adler32');
@@ -19367,6 +19496,24 @@ exports.inflateUndermine = inflateUndermine;
 },{"../utils/common":168,"./adler32":170,"./crc32":172,"./inffast":175,"./inftrees":177}],177:[function(_dereq_,module,exports){
 'use strict';
 
+// (C) 1995-2013 Jean-loup Gailly and Mark Adler
+// (C) 2014-2017 Vitaly Puzrin and Andrey Tupitsin
+//
+// This software is provided 'as-is', without any express or implied
+// warranty. In no event will the authors be held liable for any damages
+// arising from the use of this software.
+//
+// Permission is granted to anyone to use this software for any purpose,
+// including commercial applications, and to alter it and redistribute it
+// freely, subject to the following restrictions:
+//
+// 1. The origin of this software must not be misrepresented; you must not
+//   claim that you wrote the original software. If you use this software
+//   in a product, an acknowledgment in the product documentation would be
+//   appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be
+//   misrepresented as being the original software.
+// 3. This notice may not be removed or altered from any source distribution.
 
 var utils = _dereq_('../utils/common');
 
@@ -19594,10 +19741,8 @@ module.exports = function inflate_table(type, lens, lens_index, codes, table, ta
     return 1;
   }
 
-  var i = 0;
   /* process all codes and make table entries */
   for (;;) {
-    i++;
     /* create table entry */
     here_bits = len - drop;
     if (work[sym] < end) {
@@ -19696,6 +19841,25 @@ module.exports = function inflate_table(type, lens, lens_index, codes, table, ta
 },{"../utils/common":168}],178:[function(_dereq_,module,exports){
 'use strict';
 
+// (C) 1995-2013 Jean-loup Gailly and Mark Adler
+// (C) 2014-2017 Vitaly Puzrin and Andrey Tupitsin
+//
+// This software is provided 'as-is', without any express or implied
+// warranty. In no event will the authors be held liable for any damages
+// arising from the use of this software.
+//
+// Permission is granted to anyone to use this software for any purpose,
+// including commercial applications, and to alter it and redistribute it
+// freely, subject to the following restrictions:
+//
+// 1. The origin of this software must not be misrepresented; you must not
+//   claim that you wrote the original software. If you use this software
+//   in a product, an acknowledgment in the product documentation would be
+//   appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be
+//   misrepresented as being the original software.
+// 3. This notice may not be removed or altered from any source distribution.
+
 module.exports = {
   2:      'need dictionary',     /* Z_NEED_DICT       2  */
   1:      'stream end',          /* Z_STREAM_END      1  */
@@ -19711,6 +19875,24 @@ module.exports = {
 },{}],179:[function(_dereq_,module,exports){
 'use strict';
 
+// (C) 1995-2013 Jean-loup Gailly and Mark Adler
+// (C) 2014-2017 Vitaly Puzrin and Andrey Tupitsin
+//
+// This software is provided 'as-is', without any express or implied
+// warranty. In no event will the authors be held liable for any damages
+// arising from the use of this software.
+//
+// Permission is granted to anyone to use this software for any purpose,
+// including commercial applications, and to alter it and redistribute it
+// freely, subject to the following restrictions:
+//
+// 1. The origin of this software must not be misrepresented; you must not
+//   claim that you wrote the original software. If you use this software
+//   in a product, an acknowledgment in the product documentation would be
+//   appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be
+//   misrepresented as being the original software.
+// 3. This notice may not be removed or altered from any source distribution.
 
 var utils = _dereq_('../utils/common');
 
@@ -20915,6 +21097,24 @@ exports._tr_align = _tr_align;
 },{"../utils/common":168}],180:[function(_dereq_,module,exports){
 'use strict';
 
+// (C) 1995-2013 Jean-loup Gailly and Mark Adler
+// (C) 2014-2017 Vitaly Puzrin and Andrey Tupitsin
+//
+// This software is provided 'as-is', without any express or implied
+// warranty. In no event will the authors be held liable for any damages
+// arising from the use of this software.
+//
+// Permission is granted to anyone to use this software for any purpose,
+// including commercial applications, and to alter it and redistribute it
+// freely, subject to the following restrictions:
+//
+// 1. The origin of this software must not be misrepresented; you must not
+//   claim that you wrote the original software. If you use this software
+//   in a product, an acknowledgment in the product documentation would be
+//   appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be
+//   misrepresented as being the original software.
+// 3. This notice may not be removed or altered from any source distribution.
 
 function ZStream() {
   /* next input byte */
@@ -21883,6 +22083,10 @@ process.off = noop;
 process.removeListener = noop;
 process.removeAllListeners = noop;
 process.emit = noop;
+process.prependListener = noop;
+process.prependOnceListener = noop;
+
+process.listeners = function (name) { return [] }
 
 process.binding = function (name) {
     throw new Error('process.binding is not supported');
@@ -23318,8 +23522,8 @@ var _geo2 = _interopRequireDefault(_geo);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var tile_bounds = exports.tile_bounds = [{ x: 0, y: 0 }, { x: _geo2.default.tile_scale, y: -_geo2.default.tile_scale } // TODO: correct for flipped y-axis?
-]; // Geometry building functions
+var tile_bounds = exports.tile_bounds = [{ x: 0, y: 0 }, { x: _geo2.default.tile_scale, y: -_geo2.default.tile_scale // TODO: correct for flipped y-axis?
+}]; // Geometry building functions
 var default_uvs = exports.default_uvs = [0, 0, 1, 1];
 
 // Tests if a line segment (from point A to B) is outside the tile bounds
@@ -23376,7 +23580,6 @@ function buildQuadsForPoints(points, vertex_data, vertex_template, _ref, _ref2) 
         pre_angles = _ref2.pre_angles,
         angle = _ref2.angle,
         angles = _ref2.angles,
-        shape_w = _ref2.shape_w,
         curve = _ref2.curve,
         texcoord_scale = _ref2.texcoord_scale,
         texcoord_normalize = _ref2.texcoord_normalize,
@@ -23406,6 +23609,7 @@ function buildQuadsForPoints(points, vertex_data, vertex_template, _ref, _ref2) 
         texcoords = [[min_u, min_v], [max_u, min_v], [max_u, max_v], [min_u, max_v]];
     }
 
+    var geom_count = 0;
     var num_points = points.length;
     for (var p = 0; p < num_points; p++) {
         var point = points[p];
@@ -23423,7 +23627,6 @@ function buildQuadsForPoints(points, vertex_data, vertex_template, _ref, _ref2) 
             vertex_template[shape_index + 0] = scaling[pos][0];
             vertex_template[shape_index + 1] = scaling[pos][1];
             vertex_template[shape_index + 2] = angle;
-            vertex_template[shape_index + 3] = shape_w;
 
             vertex_template[offset_index + 0] = offset[0];
             vertex_template[offset_index + 1] = offset[1];
@@ -23464,7 +23667,10 @@ function buildQuadsForPoints(points, vertex_data, vertex_template, _ref, _ref2) 
         vertex_elements.push(element_offset + 0);
 
         element_offset += 4;
+        geom_count += 2;
     }
+
+    return geom_count;
 }
 
 },{"./common":197}],199:[function(_dereq_,module,exports){
@@ -23520,6 +23726,7 @@ function buildPolygons(polygons, vertex_data, vertex_template, _ref) {
             max_v = _ref3[3];
     }
 
+    var geom_count = 0;
     var num_polygons = polygons.length;
     for (var p = 0; p < num_polygons; p++) {
         var element_offset = vertex_data.vertex_count;
@@ -23564,7 +23771,9 @@ function buildPolygons(polygons, vertex_data, vertex_template, _ref) {
         for (var _i = 0; _i < indices.length; _i++) {
             vertex_elements.push(element_offset + indices[_i]);
         }
+        geom_count += indices.length / 3;
     }
+    return geom_count;
 }
 
 // Tesselate and extrude a flat 2D polygon into a simple 3D model with fixed height and add to GL vertex buffer
@@ -23581,7 +23790,7 @@ function buildExtrudedPolygons(polygons, z, height, min_height, vertex_data, ver
     var min_z = z + (min_height || 0);
     var max_z = z + height;
     vertex_template[2] = max_z;
-    buildPolygons(polygons, vertex_data, vertex_template, { texcoord_index: texcoord_index, texcoord_scale: texcoord_scale, texcoord_normalize: texcoord_normalize });
+    var geom_count = buildPolygons(polygons, vertex_data, vertex_template, { texcoord_index: texcoord_index, texcoord_scale: texcoord_scale, texcoord_normalize: texcoord_normalize });
 
     var vertex_elements = vertex_data.vertex_elements;
     var element_offset = vertex_data.vertex_count;
@@ -23657,9 +23866,11 @@ function buildExtrudedPolygons(polygons, z, height, min_height, vertex_data, ver
                 vertex_elements.push(element_offset + 0);
 
                 element_offset += 4;
+                geom_count += 2;
             }
         }
     }
+    return geom_count;
 }
 
 // Triangulation using earcut
@@ -23668,7 +23879,7 @@ function triangulatePolygon(data) {
     return (0, _earcut2.default)(data.vertices, data.holes, data.dimensions);
 }
 
-},{"../geo":202,"../vector":271,"./common":197,"earcut":73}],200:[function(_dereq_,module,exports){
+},{"../geo":202,"../vector":273,"./common":197,"earcut":73}],200:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23764,7 +23975,8 @@ function buildPolylines(lines, width, vertex_data, vertex_template, _ref) {
         v_scale: v_scale,
         texcoord_index: texcoord_index,
         texcoord_width: texcoord_width,
-        texcoord_normalize: texcoord_normalize
+        texcoord_normalize: texcoord_normalize,
+        geom_count: 0
     };
 
     // Buffer for extra lines to process
@@ -23775,10 +23987,12 @@ function buildPolylines(lines, width, vertex_data, vertex_template, _ref) {
         buildPolyline(lines[index], context, extra_lines);
     }
 
-    // Process extra lines
+    // Process extra lines (which are created above if lines need to be mutated for easier processing)
     for (var _index = 0; _index < extra_lines.length; _index++) {
         buildPolyline(extra_lines[_index], context, extra_lines);
     }
+
+    return context.geom_count;
 }
 
 function buildPolyline(line, context, extra_lines) {
@@ -23796,6 +24010,8 @@ function buildPolyline(line, context, extra_lines) {
         miter_len_sq = context.miter_len_sq;
 
     // Loop backwards through line to a tile boundary if found
+    // since you need to draw lines that are only partially inside the tile,
+    // so we start at the first index where it is safe to loop through to the last index within the tile
 
     if (closed_polygon && join_type === JOIN_TYPE.miter) {
         var boundaryIndex = getTileBoundaryIndex(line);
@@ -24075,6 +24291,7 @@ function indexPairs(num_pairs, context) {
         vertex_elements.push(offset + 2 * i + 2);
         vertex_elements.push(offset + 2 * i + 3);
         vertex_elements.push(offset + 2 * i + 1);
+        context.geom_count += 2;
     }
 }
 
@@ -24258,18 +24475,13 @@ function addCap(coord, v, normal, type, isBeginning, context) {
     }
 }
 
-// For IE Math.log2 support
-var log2 = Math.log2 || function (x) {
-    return Math.log(x) * Math.LOG2E;
-};
-
 // Calculate number of triangles for a fan given an angle and line width
 function trianglesPerArc(angle, width) {
     if (angle < 0) {
         angle = -angle;
     }
 
-    var numTriangles = width > 2 * DEFAULT.MIN_FAN_WIDTH ? log2(width / DEFAULT.MIN_FAN_WIDTH) : 1;
+    var numTriangles = width > 2 * DEFAULT.MIN_FAN_WIDTH ? Math.log2(width / DEFAULT.MIN_FAN_WIDTH) : 1;
     return Math.ceil(angle / Math.PI * numTriangles);
 }
 
@@ -24287,7 +24499,7 @@ function permuteLine(line, startIndex) {
     return newLine;
 }
 
-},{"../geo":202,"../vector":271,"./common":197}],201:[function(_dereq_,module,exports){
+},{"../geo":202,"../vector":273,"./common":197}],201:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24654,7 +24866,7 @@ var FlatCamera = function (_IsometricCamera) {
     return FlatCamera;
 }(IsometricCamera);
 
-},{"./gl/shader_program":208,"./utils/gl-matrix":258,"./utils/utils":268}],202:[function(_dereq_,module,exports){
+},{"./gl/shader_program":208,"./utils/gl-matrix":258,"./utils/utils":270}],202:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24778,6 +24990,57 @@ Geo.latLngToMeters = function (_ref6) {
     return [x, y];
 };
 
+// Transform from local tile coordinats to lat lng
+Geo.tileSpaceToLatlng = function (geometry, z, min, max) {
+    var units_per_meter = Geo.unitsPerMeter(z);
+    Geo.transformGeometry(geometry, function (coord) {
+        coord[0] = coord[0] / units_per_meter + min.x;
+        coord[1] = coord[1] / units_per_meter + min.y;
+
+        var _Geo$metersToLatLng = Geo.metersToLatLng(coord),
+            _Geo$metersToLatLng2 = _slicedToArray(_Geo$metersToLatLng, 2),
+            x = _Geo$metersToLatLng2[0],
+            y = _Geo$metersToLatLng2[1];
+
+        coord[0] = x;
+        coord[1] = y;
+    });
+    return geometry;
+};
+
+// Copy GeoJSON geometry
+Geo.copyGeometry = function (geometry) {
+    if (geometry == null) {
+        return; // skip if missing geometry (valid GeoJSON)
+    }
+
+    var copy = { type: geometry.type };
+
+    if (geometry.type === 'Point') {
+        copy.coordinates = [geometry.coordinates[0], geometry.coordinates[1]];
+    } else if (geometry.type === 'LineString' || geometry.type === 'MultiPoint') {
+        copy.coordinates = geometry.coordinates.map(function (c) {
+            return [c[0], c[1]];
+        });
+    } else if (geometry.type === 'Polygon' || geometry.type === 'MultiLineString') {
+        copy.coordinates = geometry.coordinates.map(function (ring) {
+            return ring.map(function (c) {
+                return [c[0], c[1]];
+            });
+        });
+    } else if (geometry.type === 'MultiPolygon') {
+        copy.coordinates = geometry.coordinates.map(function (polygon) {
+            return polygon.map(function (ring) {
+                return ring.map(function (c) {
+                    return [c[0], c[1]];
+                });
+            });
+        });
+    }
+    // TODO: support GeometryCollection
+    return copy;
+};
+
 // Run an in-place transform function on each cooordinate in a GeoJSON geometry
 Geo.transformGeometry = function (geometry, transform) {
     if (geometry == null) {
@@ -24789,13 +25052,13 @@ Geo.transformGeometry = function (geometry, transform) {
     } else if (geometry.type === 'LineString' || geometry.type === 'MultiPoint') {
         geometry.coordinates.forEach(transform);
     } else if (geometry.type === 'Polygon' || geometry.type === 'MultiLineString') {
-        geometry.coordinates.forEach(function (coordinates) {
-            return coordinates.forEach(transform);
+        geometry.coordinates.forEach(function (ring) {
+            return ring.forEach(transform);
         });
     } else if (geometry.type === 'MultiPolygon') {
         geometry.coordinates.forEach(function (polygon) {
-            polygon.forEach(function (coordinates) {
-                return coordinates.forEach(transform);
+            polygon.forEach(function (ring) {
+                return ring.forEach(transform);
             });
         });
     }
@@ -24847,17 +25110,29 @@ Geo.geometryType = function (type) {
     }
 };
 
+// Geometric / weighted centroid of polygon
+// Adapted from https://github.com/Leaflet/Leaflet/blob/c10f405a112142b19785967ce0e142132a6095ad/src/layer/vector/Polygon.js#L57
 Geo.centroid = function (polygon) {
+    var relative = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+
     if (!polygon || polygon.length === 0) {
         return;
     }
 
-    // Adapted from https://github.com/Leaflet/Leaflet/blob/c10f405a112142b19785967ce0e142132a6095ad/src/layer/vector/Polygon.js#L57
     var x = 0,
         y = 0,
         area = 0;
     var ring = polygon[0]; // only use first ring for now
     var len = ring.length;
+
+    // optionally calculate relative to first coordinate to avoid precision issues w/small polygons
+    var origin = void 0;
+    if (relative) {
+        origin = ring[0];
+        ring = ring.map(function (v) {
+            return [v[0] - origin[0], v[1] - origin[1]];
+        });
+    }
 
     for (var i = 0, j = len - 1; i < len; j = i, i++) {
         var p0 = ring[i];
@@ -24869,7 +25144,12 @@ Geo.centroid = function (polygon) {
         area += f * 3;
     }
 
-    return [x / area, y / area];
+    var c = [x / area, y / area];
+    if (relative) {
+        c[0] += origin[0];
+        c[1] += origin[1];
+    }
+    return c;
 };
 
 Geo.multiCentroid = function (polygons) {
@@ -25660,8 +25940,7 @@ var ShaderProgram = function () {
                         e.block = _this.block(error.type, e.line);
                     });
                 }
-
-                throw new Error('ShaderProgram.compile(): program ' + this.id + ' (' + this.name + ') error:', error);
+                throw error;
             }
 
             // Discard shader sources after successful compilation
@@ -26210,13 +26489,8 @@ ShaderProgram.updateProgram = function (gl, program, vertex_shader_source, fragm
         return ShaderProgram.programs_by_source[key];
     }
 
-    try {
-        var vertex_shader = ShaderProgram.createShader(gl, vertex_shader_source, gl.VERTEX_SHADER);
-        var fragment_shader = ShaderProgram.createShader(gl, fragment_shader_source, gl.FRAGMENT_SHADER);
-    } catch (err) {
-        (0, _log2.default)('error', err.message);
-        throw err;
-    }
+    var vertex_shader = ShaderProgram.createShader(gl, vertex_shader_source, gl.VERTEX_SHADER);
+    var fragment_shader = ShaderProgram.createShader(gl, fragment_shader_source, gl.FRAGMENT_SHADER);
 
     gl.useProgram(null);
     if (program != null) {
@@ -26242,9 +26516,7 @@ ShaderProgram.updateProgram = function (gl, program, vertex_shader_source, fragm
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
         var message = new Error('WebGL program error:\n            VALIDATE_STATUS: ' + gl.getProgramParameter(program, gl.VALIDATE_STATUS) + '\n            ERROR: ' + gl.getError() + '\n            --- Vertex Shader ---\n            ' + vertex_shader_source + '\n            --- Fragment Shader ---\n            ' + fragment_shader_source);
 
-        var error = { type: 'program', message: message };
-        (0, _log2.default)('error', error.message);
-        throw error;
+        throw Object.assign(new Error(message), { type: 'program' });
     }
 
     ShaderProgram.programs_by_source[key] = program; // cache by exact source
@@ -26269,7 +26541,7 @@ ShaderProgram.createShader = function (gl, source, stype) {
         var type = stype === gl.VERTEX_SHADER ? 'vertex' : 'fragment';
         var message = gl.getShaderInfoLog(shader);
         var errors = (0, _glShaderErrors2.default)(message);
-        throw { type: type, message: message, errors: errors };
+        throw Object.assign(new Error(message), { type: type, errors: errors });
     }
 
     ShaderProgram.shaders_by_source[key] = shader; // cache by exact source
@@ -26313,6 +26585,7 @@ var Texture = function () {
 
         _classCallCheck(this, Texture);
 
+        options = Texture.sliceOptions(options); // exclude any non-texture-specific props
         this.gl = gl;
         this.texture = gl.createTexture();
         if (this.texture) {
@@ -26723,6 +26996,25 @@ Texture.createDefault = function (gl) {
     return Texture.create(gl, Texture.default);
 };
 
+// Only include texture-specific properties (avoid faulty equality comparisons between
+// textures when caller may include other ancillary props)
+Texture.sliceOptions = function (options) {
+    return {
+        filtering: options.filtering,
+        sprites: options.sprites,
+        url: options.url,
+        element: options.element,
+        data: options.data,
+        width: options.width,
+        height: options.height,
+        repeat: options.repeat,
+        TEXTURE_WRAP_S: options.TEXTURE_WRAP_S,
+        TEXTURE_WRAP_T: options.TEXTURE_WRAP_T,
+        UNPACK_FLIP_Y_WEBGL: options.UNPACK_FLIP_Y_WEBGL,
+        UNPACK_PREMULTIPLY_ALPHA_WEBGL: options.UNPACK_PREMULTIPLY_ALPHA_WEBGL
+    };
+};
+
 // Indicate if a texture definition would be a change from the current cache
 Texture.changed = function (name, config) {
     var texture = Texture.textures[name];
@@ -26734,6 +27026,7 @@ Texture.changed = function (name, config) {
         }
 
         // compare definitions
+        config = Texture.sliceOptions(config); // exclude any non-texture-specific props
         if (Texture.texture_configs[name] === JSON.stringify(Object.assign({ name: name }, config))) {
             return false;
         }
@@ -26809,7 +27102,7 @@ Texture.activeUnit = null;
 _worker_broker2.default.addTarget('Texture', Texture);
 (0, _subscribe2.default)(Texture);
 
-},{"../utils/log":260,"../utils/subscribe":265,"../utils/utils":268,"../utils/worker_broker":270}],210:[function(_dereq_,module,exports){
+},{"../utils/log":260,"../utils/subscribe":266,"../utils/utils":270,"../utils/worker_broker":272}],210:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -27099,8 +27392,6 @@ var _vertex_elements2 = _interopRequireDefault(_vertex_elements);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; } // web workers don't have access to GL context, so import all GL constants
@@ -27122,26 +27413,24 @@ var VertexData = function () {
 
         this.vertex_layout = vertex_layout;
         this.vertex_elements = new _vertex_elements2.default();
+        this.stride = this.vertex_layout.stride;
 
         if (VertexData.array_pool.length > 0) {
             this.vertex_buffer = VertexData.array_pool.pop();
             this.byte_length = this.vertex_buffer.byteLength;
-            this.size = Math.floor(this.byte_length / this.vertex_layout.stride);
+            this.size = Math.floor(this.byte_length / this.stride);
             (0, _log2.default)('trace', 'VertexData: reused buffer of bytes ' + this.byte_length + ', ' + this.size + ' vertices');
         } else {
             this.size = prealloc; // # of vertices to allocate
-            this.byte_length = this.vertex_layout.stride * this.size;
+            this.byte_length = this.stride * this.size;
             this.vertex_buffer = new Uint8Array(this.byte_length);
         }
         this.offset = 0; // byte offset into currently allocated buffer
 
-        this.components = [];
-        for (var c = 0; c < this.vertex_layout.components.length; c++) {
-            this.components.push([].concat(_toConsumableArray(this.vertex_layout.components[c])));
-        }
         this.vertex_count = 0;
         this.realloc_count = 0;
         this.setBufferViews();
+        this.setAddVertexFunction();
     }
 
     // (Re-)allocate typed views into the main buffer - only create the types we need for this layout
@@ -27161,12 +27450,6 @@ var VertexData = function () {
                     this.views[attrib.type] = new array_type(this.vertex_buffer.buffer);
                 }
             }
-
-            // Update component buffer pointers
-            for (var c = 0; c < this.components.length; c++) {
-                var component = this.components[c];
-                component[1] = this.views[component[0]];
-            }
         }
 
         // Check allocated buffer size, expand/realloc buffer if needed
@@ -27174,10 +27457,10 @@ var VertexData = function () {
     }, {
         key: 'checkBufferSize',
         value: function checkBufferSize() {
-            if (this.offset + this.vertex_layout.stride > this.byte_length) {
+            if (this.offset + this.stride > this.byte_length) {
                 this.size = Math.floor(this.size * 1.5);
                 this.size -= this.size % 4;
-                this.byte_length = this.vertex_layout.stride * this.size;
+                this.byte_length = this.stride * this.size;
                 var new_view = new Uint8Array(this.byte_length);
                 new_view.set(this.vertex_buffer); // copy existing data to new buffer
                 VertexData.array_pool.push(this.vertex_buffer); // save previous buffer for use by next tile
@@ -27188,24 +27471,22 @@ var VertexData = function () {
             }
         }
 
-        // Add a vertex, copied from a plain JS array of elements matching the order of the vertex layout.
-        // Note: uses pre-calculated info about each attribute, including pointer to appropriate typed array
-        // view and offset into it. This was the fastest method profiled so far for filling a mixed-type
-        // vertex layout (though still slower than the previous method that only supported Float32Array attributes).
+        // Initialize the add vertex function (lazily compiled by vertex layout)
+
+    }, {
+        key: 'setAddVertexFunction',
+        value: function setAddVertexFunction() {
+            this.vertexLayoutAddVertex = this.vertex_layout.getAddVertexFunction();
+        }
+
+        // Add a vertex, copied from a plain JS array of elements matching the order of the vertex layout
 
     }, {
         key: 'addVertex',
         value: function addVertex(vertex) {
             this.checkBufferSize();
-            var i = 0;
-
-            var clen = this.components.length;
-            for (var c = 0; c < clen; c++) {
-                var component = this.components[c];
-                component[1][(this.offset >> component[2]) + component[3]] = vertex[i++];
-            }
-
-            this.offset += this.vertex_layout.stride;
+            this.vertexLayoutAddVertex(vertex, this.views, this.offset);
+            this.offset += this.stride;
             this.vertex_count++;
         }
 
@@ -27233,7 +27514,7 @@ exports.default = VertexData;
 VertexData.array_pool = []; // pool of currently available (previously used) buffers (uint8)
 
 },{"../utils/log":260,"./constants":203,"./vertex_elements":213}],213:[function(_dereq_,module,exports){
-'use strict';
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
     value: true
@@ -27241,16 +27522,10 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _worker_broker = _dereq_('../utils/worker_broker');
-
-var _worker_broker2 = _interopRequireDefault(_worker_broker);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var MAX_VALUE = Math.pow(2, 16) - 1;
-var Uint32_flag = false;
+var has_element_index_uint = false;
 
 var VertexElements = function () {
     function VertexElements() {
@@ -27261,17 +27536,17 @@ var VertexElements = function () {
     }
 
     _createClass(VertexElements, [{
-        key: 'push',
+        key: "push",
         value: function push(value) {
             // If values have overflown and no Uint32 option is available, do not push values
-            if (this.has_overflown && !Uint32_flag) {
+            if (this.has_overflown && !has_element_index_uint) {
                 return;
             }
 
             // Trigger overflow if value is greater than Uint16 max
             if (value > MAX_VALUE) {
                 this.has_overflown = true;
-                if (!Uint32_flag) {
+                if (!has_element_index_uint) {
                     return;
                 }
             }
@@ -27279,7 +27554,7 @@ var VertexElements = function () {
             this.array.push(value);
         }
     }, {
-        key: 'end',
+        key: "end",
         value: function end() {
             if (this.array.length) {
                 var buffer = createBuffer(this.array, this.has_overflown);
@@ -27298,18 +27573,16 @@ var VertexElements = function () {
 exports.default = VertexElements;
 
 
-VertexElements.setUint32Flag = function (flag) {
-    Uint32_flag = flag;
+VertexElements.setElementIndexUint = function (flag) {
+    has_element_index_uint = flag;
 };
 
 function createBuffer(array, overflown) {
-    var typedArray = overflown && Uint32_flag ? Uint32Array : Uint16Array;
+    var typedArray = overflown && has_element_index_uint ? Uint32Array : Uint16Array;
     return new typedArray(array);
 }
 
-_worker_broker2.default.addTarget('VertexElements', VertexElements);
-
-},{"../utils/worker_broker":270}],214:[function(_dereq_,module,exports){
+},{}],214:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -27327,7 +27600,13 @@ var _vertex_data = _dereq_('./vertex_data');
 
 var _vertex_data2 = _interopRequireDefault(_vertex_data);
 
+var _hash = _dereq_('../utils/hash');
+
+var _hash2 = _interopRequireDefault(_hash);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -27345,7 +27624,8 @@ var VertexLayout = function () {
         // Calc vertex stride
         this.stride = 0;
 
-        var count = 0;
+        var index = 0,
+            count = 0;
         for (var a = 0; a < this.attribs.length; a++) {
             var attrib = this.attribs[a];
             attrib.offset = this.stride;
@@ -27367,28 +27647,27 @@ var VertexLayout = function () {
             }
 
             // Force 4-byte alignment on attributes
-            this.stride += attrib.byte_size;
-            if (this.stride & 3) {
+            if (attrib.byte_size & 3) {
                 // pad to multiple of 4 bytes
-                this.stride += 4 - (this.stride & 3);
+                attrib.byte_size += 4 - (attrib.byte_size & 3);
             }
+            this.stride += attrib.byte_size;
 
-            // Add info to list of attribute components
-            // Used to build the vertex data, provides pointers and offsets into each typed array view
-            // Each component is an array of:
-            // [GL attrib type, pointer to typed array view, bits to shift right to determine buffer offset, additional buffer offset for the component]
+            // Add info to list of attribute components (e.g. float is 1 component, vec3 is 3 separate components)
+            // Used to map plain JS array to typed arrays
             var offset_typed = attrib.offset >> shift;
-            if (attrib.size > 1) {
-                for (var s = 0; s < attrib.size; s++) {
-                    this.components.push([attrib.type, null, shift, offset_typed++]);
-                }
-            } else {
-                this.components.push([attrib.type, null, shift, offset_typed]);
+            for (var s = 0; s < attrib.size; s++) {
+                this.components.push({
+                    type: attrib.type,
+                    shift: shift,
+                    offset: offset_typed++,
+                    index: count++
+                });
             }
 
             // Provide an index into the vertex data buffer for each attribute component
-            this.index[attrib.name] = count;
-            count += attrib.size;
+            this.index[attrib.name] = index;
+            index += attrib.size;
         }
     }
 
@@ -27439,6 +27718,58 @@ var VertexLayout = function () {
         value: function createVertexData() {
             return new _vertex_data2.default(this);
         }
+
+        // Lazily create the add vertex function
+
+    }, {
+        key: 'getAddVertexFunction',
+        value: function getAddVertexFunction() {
+            if (this.addVertex == null) {
+                this.createAddVertexFunction();
+            }
+            return this.addVertex;
+        }
+
+        // Dynamically compile a function to add a plain JS vertex array to this layout's typed VBO arrays
+
+    }, {
+        key: 'createAddVertexFunction',
+        value: function createAddVertexFunction() {
+            var key = (0, _hash2.default)(JSON.stringify(this.attribs));
+            if (VertexLayout.add_vertex_funcs[key] == null) {
+                // `t` = current typed array to write to
+                // `o` = current offset into VBO, in current type size (e.g. divide 2 for shorts, divide by 4 for floats, etc.)
+                // `v` = plain JS array containing vertex data
+                // `vs` = typed arrays (one per GL type needed for this vertex layout)
+                // `off` = current offset into VBO, in bytes
+                var src = ['var t, o;'];
+
+                // Sort by array type to reduce redundant array look-up and offset calculation
+                var last_type = void 0;
+                var components = [].concat(_toConsumableArray(this.components));
+                components.sort(function (a, b) {
+                    return a.type !== b.type ? a.type - b.type : a.index - b.index;
+                });
+
+                for (var c = 0; c < components.length; c++) {
+                    var component = components[c];
+
+                    if (last_type !== component.type) {
+                        src.push('t = vs[' + component.type + '];');
+                        src.push('o = off' + (component.shift ? ' >> ' + component.shift : '') + ';');
+                        last_type = component.type;
+                    }
+
+                    src.push('t[o + ' + component.offset + '] = v[' + component.index + '];');
+                }
+
+                src = src.join('\n');
+                var func = new Function('v', 'vs', 'off', src); // jshint ignore:line
+                VertexLayout.add_vertex_funcs[key] = func;
+            }
+
+            this.addVertex = VertexLayout.add_vertex_funcs[key];
+        }
     }]);
 
     return VertexLayout;
@@ -27451,7 +27782,10 @@ var VertexLayout = function () {
 exports.default = VertexLayout;
 VertexLayout.enabled_attribs = {};
 
-},{"./constants":203,"./vertex_data":212}],215:[function(_dereq_,module,exports){
+// Functions to add plain JS vertex array to typed VBO arrays
+VertexLayout.add_vertex_funcs = {}; // keyed by unique set of attributes
+
+},{"../utils/hash":259,"./constants":203,"./vertex_data":212}],215:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -27486,13 +27820,21 @@ exports.default = Collision = {
         };
 
         // Promise resolved when all registered styles have added objects
-        state.complete = new Promise(function (resolve, reject) {
-            state.resolve = resolve;
-            state.reject = reject;
-        });
+        if (state.complete == null) {
+            state.complete = new Promise(function (resolve, reject) {
+                state.resolve = resolve;
+                state.reject = reject;
+            });
+        }
     },
     resetTile: function resetTile(tile) {
         delete this.tiles[tile];
+    },
+    abortTile: function abortTile(tile) {
+        if (this.tiles[tile] && this.tiles[tile].resolve) {
+            this.tiles[tile].resolve([]);
+        }
+        this.resetTile(tile);
     },
 
 
@@ -27528,6 +27870,7 @@ exports.default = Collision = {
 
         // Wait for objects to be added from all styles
         return state.complete.then(function () {
+            state.resolve = null;
             return state.keep[style] || [];
         });
     },
@@ -27804,7 +28147,7 @@ exports.default = Label;
 
 Label.epsilon = 0.9999; // tolerance around collision boxes, prevent perfectly adjacent objects from colliding
 
-},{"../utils/obb":263,"../utils/utils":268,"./intersect":216,"./point_anchor":220}],218:[function(_dereq_,module,exports){
+},{"../utils/obb":263,"../utils/utils":270,"./intersect":216,"./point_anchor":220}],218:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -27837,20 +28180,21 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var STOPS = [0, 0.33, 0.66, 0.99]; // zoom levels for curved label snapshot data (offsets and angles)
 var LINE_EXCEED_STRAIGHT = 1.5; // minimal ratio for straight labels (label length) / (line length)
-var LINE_EXCEED_STRAIGHT_NO_CURVE = 1.8; // minimal ratio for straight labels that have no curved option
+var LINE_EXCEED_STRAIGHT_NO_CURVE = 1.8; // minimal ratio for straight labels that have no curved option (like Arabic)
 var LINE_EXCEED_STAIGHT_LOOSE = 2.3; // 2nd pass minimal ratio for straight labels
-var STRAIGHT_ANGLE_TOLERANCE = 0.1; // multiple "almost straight" segments within this angle tolerance can be considered one straight segment
-var CURVE_MIN_TOTAL_COST = 1.3; // curved line total curvature tolerance (sum)
+var STRAIGHT_ANGLE_TOLERANCE = 0.1; // multiple "almost straight" segments within this angle tolerance can be considered one straight segment (in radians)
+var CURVE_MIN_TOTAL_COST = 1.3; // curved line total curvature tolerance (sum in radians)
 var CURVE_MIN_AVG_COST = 0.4; // curved line average curvature tolerance (mean)
-var CURVE_MAX_ANGLE = 1; // curved line singular curvature tolerance (value)
+var CURVE_MAX_ANGLE = 1; // curved line singular curvature tolerance (value in radians)
 var ORIENTED_LABEL_OFFSET_FACTOR = 1.2; // multiply offset by this amount to avoid linked label collision
 var VERTICAL_ANGLE_TOLERANCE = 0.01; // nearly vertical lines considered vertical within this angle tolerance
 
 var LabelLine = {
-    // Given a label's bounding box size and size broken up into individual segments
-    // return a label that fits along a line geometry
+    // Given a label's bounding box size and size of broken up individual segments
+    // return a label that fits along the line geometry that is either straight (preferred) or curved (if straight tolerances aren't met)
     create: function create(segment_size, total_size, line, layout) {
         // The passes done for fitting a label, and provided tolerances for each pass
+        // First straight is chosen with a low tolerance. Then curved. Then straight with a higher tolerance.
         var passes = [{ type: 'straight', tolerance: layout.no_curving ? LINE_EXCEED_STRAIGHT_NO_CURVE : LINE_EXCEED_STRAIGHT }, { type: 'curved' }, { type: 'straight', tolerance: LINE_EXCEED_STAIGHT_LOOSE }];
 
         // loop through passes. first label found wins.
@@ -27874,7 +28218,7 @@ var LabelLine = {
 
 exports.default = LabelLine;
 
-// Base class for a LabelLine
+// Base class for a labels.
 
 var LabelLineBase = function () {
     function LabelLineBase(layout) {
@@ -27887,18 +28231,19 @@ var LabelLineBase = function () {
         this.obbs = [];
         this.aabbs = [];
         this.type = ''; // "curved" or "straight" to be set by parent class
+        this.throw_away = false; // boolean that determines if label should be discarded
     }
 
     // Given a line, find the longest series of segments that maintains a constant orientation in the x-direction.
     // This assures us that the line has no orientation flip, so text would not appear upside-down.
+    // If the line's orientation is reversed, the flip return value will be true, otherwise false
 
 
     _createClass(LabelLineBase, [{
         key: 'add',
 
 
-        // Adds each segment to the collision pass as its own bounding box
-        // TODO: label group
+        // Add each bounding box to the collision pass
         value: function add(bboxes) {
             this.placed = true;
             for (var i = 0; i < this.aabbs.length; i++) {
@@ -27910,7 +28255,6 @@ var LabelLineBase = function () {
         }
 
         // Checks each segment to see if it should be discarded (via collision). If any segment fails this test, they all fail.
-        // TODO: label group
 
     }, {
         key: 'discard',
@@ -27935,7 +28279,6 @@ var LabelLineBase = function () {
         }
 
         // Checks each segment to see if it is within the tile. If any segment fails this test, they all fail.
-        // TODO: label group
 
     }, {
         key: 'inTileBounds',
@@ -27952,6 +28295,8 @@ var LabelLineBase = function () {
         }
 
         // Method to calculate oriented bounding box
+        // "angle" is the angle of the text, "angle_offset" is the angle applied to the offset.
+        // This distinction is necessary for labels with "left" (inner) or "right" (outer) offsets
 
     }], [{
         key: 'splitLineByOrientation',
@@ -27999,7 +28344,7 @@ var LabelLineBase = function () {
                             flip = true;
                         }
                     } else {
-                        // add lines is reverse order
+                        // prepend points (reverse order)
                         current_line = [pt, prev_pt];
                         current_length = length;
                         if (current_length > max_length) {
@@ -28051,7 +28396,8 @@ var LabelLineBase = function () {
     return LabelLineBase;
 }();
 
-// Class for straight labels
+// Class for straight labels.
+// Extends base LabelLine class.
 
 
 var LabelLineStraight = function (_LabelLineBase) {
@@ -28067,41 +28413,43 @@ var LabelLineStraight = function (_LabelLineBase) {
         return _this;
     }
 
-    // Determine if the label can fit the geometry within provided tolerances
-    // A straight label will "look ahead" to future segments if they are within an angle bound given by STRAIGHT_ANGLE_TOLERANCE
+    // Determine if the label can fit the geometry within provided tolerance
+    // A straight label is generally placed at segment midpoints, but can "look ahead" to further segments
+    // if they are within an angle bound given by STRAIGHT_ANGLE_TOLERANCE and place at the midpoint between non-consecutive segments
 
 
     _createClass(LabelLineStraight, [{
         key: 'fit',
         value: function fit(size, line, layout, tolerance) {
             var upp = layout.units_per_pixel;
-            var flipped = void 0;
+            var flipped = void 0; // boolean indicating if orientation of line is changed
 
+            // Make new copy of line, with consistent orientation
+
+            // matches for "left" or "right" labels where the offset angle is dependent on the geometry
             var _LabelLineBase$splitL = LabelLineBase.splitLineByOrientation(line);
 
             var _LabelLineBase$splitL2 = _slicedToArray(_LabelLineBase$splitL, 2);
 
             line = _LabelLineBase$splitL2[0];
             flipped = _LabelLineBase$splitL2[1];
-
-
             if (typeof layout.orientation === 'number') {
                 this.offset[1] += ORIENTED_LABEL_OFFSET_FACTOR * (size[1] - layout.vertical_buffer);
-            }
 
-            var offset = this.offset.slice();
+                // if line is flipped, or the orientation is "left" (-1), flip the offset's y-axis
+                if (flipped) {
+                    this.offset[1] *= -1;
+                }
 
-            if (flipped) {
-                this.offset[1] *= -1;
-            }
-
-            if (layout.orientation === -1) {
-                this.offset[1] *= -1;
+                if (layout.orientation === -1) {
+                    this.offset[1] *= -1;
+                }
             }
 
             var line_lengths = getLineLengths(line);
             var label_length = size[0] * upp;
 
+            // loop through line looking for a placement for the label
             for (var i = 0; i < line.length - 1; i++) {
                 var curr = line[i];
 
@@ -28110,7 +28458,7 @@ var LabelLineStraight = function (_LabelLineBase) {
                 var ahead_index = i + 1;
                 var prev_angle = void 0;
 
-                // Look ahead to further line segments within an angle tolerance
+                // look ahead to further line segments within an angle tolerance
                 while (ahead_index < line.length) {
                     var ahead_curr = line[ahead_index - 1];
                     var ahead_next = line[ahead_index];
@@ -28121,38 +28469,46 @@ var LabelLineStraight = function (_LabelLineBase) {
                         curve_tolerance += getAbsAngleDiff(next_angle, prev_angle);
                     }
 
+                    // if curve tolerance is exceeded, break out of loop
                     if (Math.abs(curve_tolerance) > STRAIGHT_ANGLE_TOLERANCE) {
                         break;
                     }
 
                     length += line_lengths[ahead_index - 1];
 
+                    // check if label fits geometry
                     if (calcFitness(length, label_length) < tolerance) {
-                        var currMid = _vector2.default.mult(_vector2.default.add(curr, ahead_next), 0.5);
+                        var curr_midpt = _vector2.default.mult(_vector2.default.add(curr, ahead_next), 0.5);
 
                         // TODO: modify angle if line chosen within curve_angle_tolerance
+                        // Currently line angle is the same as the starting angle, perhaps it should average across segments?
                         this.angle = -next_angle;
                         var angle_offset = this.angle;
 
-                        if (flipped) {
-                            angle_offset += Math.PI;
+                        // if line is flipped, or the orientation is "left" (-1), rotate the angle of the offset 180 deg
+                        if (typeof layout.orientation === 'number') {
+                            if (flipped) {
+                                angle_offset += Math.PI;
+                            }
+
+                            if (layout.orientation === -1) {
+                                angle_offset += Math.PI;
+                            }
                         }
 
-                        if (layout.orientation === -1) {
-                            angle_offset += Math.PI;
-                        }
-
-                        // all vertical labels point up (not down)
+                        // ensure that all vertical labels point up (not down) by snapping angles close to pi/2 to -pi/2
                         if (Math.abs(this.angle - Math.PI / 2) < VERTICAL_ANGLE_TOLERANCE) {
                             // flip angle and offset
                             this.angle = -Math.PI / 2;
-                            offset[1] *= -1;
-                            this.offset[1] *= -1;
+
+                            if (typeof layout.orientation === 'number') {
+                                this.offset[1] *= -1;
+                            }
                         }
 
-                        this.position = currMid;
+                        this.position = curr_midpt;
 
-                        this.updateBBoxes(this.position, size, this.angle, angle_offset, offset);
+                        this.updateBBoxes(this.position, size, this.angle, this.angle, this.offset);
 
                         if (this.inTileBounds()) {
                             return true;
@@ -28192,6 +28548,10 @@ var LabelLineStraight = function (_LabelLineBase) {
     return LabelLineStraight;
 }(LabelLineBase);
 
+// Class for curved labels
+// Extends base LabelLine class to support angles, pre_angles, offsets as arrays for each segment
+
+
 var LabelLineCurved = function (_LabelLineBase2) {
     _inherits(LabelLineCurved, _LabelLineBase2);
 
@@ -28212,32 +28572,36 @@ var LabelLineCurved = function (_LabelLineBase2) {
         return _this2;
     }
 
+    // Determine if the curved label can fit the geometry.
+    // No tolerance is provided because the label must fit entirely within the line geometry.
+
+
     _createClass(LabelLineCurved, [{
         key: 'fit',
         value: function fit(size, line, layout) {
             var upp = layout.units_per_pixel;
-            var flipped = void 0;
+            var flipped = void 0; // boolean determining if the line orientation is reversed
 
+            // Make new copy of line, with consistent orientation
+
+            // matches for "left" or "right" labels where the offset angle is dependent on the geometry
             var _LabelLineBase$splitL3 = LabelLineBase.splitLineByOrientation(line);
 
             var _LabelLineBase$splitL4 = _slicedToArray(_LabelLineBase$splitL3, 2);
 
             line = _LabelLineBase$splitL4[0];
             flipped = _LabelLineBase$splitL4[1];
-
-
             if (typeof layout.orientation === 'number') {
                 this.offset[1] += ORIENTED_LABEL_OFFSET_FACTOR * (size[1] - layout.vertical_buffer);
-            }
 
-            var offset = this.offset.slice();
+                // if line is flipped, or the orientation is "left" (-1), flip the offset's y-axis
+                if (flipped) {
+                    this.offset[1] *= -1;
+                }
 
-            if (flipped) {
-                this.offset[1] *= -1;
-            }
-
-            if (layout.orientation === -1) {
-                this.offset[1] *= -1;
+                if (layout.orientation === -1) {
+                    this.offset[1] *= -1;
+                }
             }
 
             var line_lengths = getLineLengths(line);
@@ -28252,12 +28616,16 @@ var LabelLineCurved = function (_LabelLineBase2) {
                 return prev + next;
             }, 0);
 
+            // if label displacement is longer than the line, no fit can be possible
             if (total_label_length > total_line_length) {
                 return false;
             }
 
-            // starting position
             var height = size[0][1] * upp;
+
+            // find start and end indices that the label can fit on without overlapping tile boundaries
+            // TODO: there is a small probability of a tile boundary crossing on an internal line segment
+            // another option is to create a buffer around the line and check if it overlaps a tile boundary
 
             var _LabelLineCurved$chec = LabelLineCurved.checkTileBoundary(line, line_lengths, height, this.offset, upp),
                 _LabelLineCurved$chec2 = _slicedToArray(_LabelLineCurved$chec, 2),
@@ -28271,24 +28639,31 @@ var LabelLineCurved = function (_LabelLineBase2) {
                 return false;
             }
 
+            // all positional offsets of the label are relative to the anchor
             var anchor_index = LabelLineCurved.curvaturePlacement(line, total_line_length, line_lengths, total_label_length, start_index, end_index);
+            var anchor = line[anchor_index];
 
+            // if anchor not found, or greater than the end_index, no fit possible
             if (anchor_index === -1 || end_index - anchor_index < 2) {
                 return false;
             }
 
-            var anchor = line[anchor_index];
+            // set start position at anchor position
             this.position = anchor;
 
-            // Can be made faster since we are computing every segment for every zoom stop
+            // Loop through labels at each zoom level stop
+            // TODO: Can be made faster since we are computing every segment for every zoom stop
             // We can skip a segment's calculation once a segment's angle equals its fully zoomed angle
             for (var i = 0; i < label_lengths.length; i++) {
                 this.offsets[i] = [];
                 this.angles[i] = [];
                 this.pre_angles[i] = [];
 
+                // loop through stops (z = [0, .33, .66, .99] + base zoom)
                 for (var j = 0; j < STOPS.length; j++) {
                     var stop = STOPS[j];
+
+                    // scale the line geometry by the zoom magnification
 
                     var _LabelLineCurved$scal = LabelLineCurved.scaleLine(stop, line),
                         _LabelLineCurved$scal2 = _slicedToArray(_LabelLineCurved$scal, 2),
@@ -28297,22 +28672,29 @@ var LabelLineCurved = function (_LabelLineBase2) {
 
                     anchor = new_line[anchor_index];
 
+                    // calculate label data relative to anchor position
+
                     var _LabelLineCurved$plac = LabelLineCurved.placeAtIndex(anchor_index, new_line, _line_lengths, label_lengths),
                         positions = _LabelLineCurved$plac.positions,
                         offsets = _LabelLineCurved$plac.offsets,
                         angles = _LabelLineCurved$plac.angles,
                         pre_angles = _LabelLineCurved$plac.pre_angles;
 
+                    // translate 2D offsets into "polar coordinates"" (1D distances with angles)
+
+
                     var offsets1d = offsets.map(function (offset) {
                         return Math.sqrt(offset[0] * offset[0] + offset[1] * offset[1]) / upp;
                     });
 
-                    // use average angle for offsets (if offset is used)
-                    this.angle = 1 / angles.length * angles.reduce(function (prev, next) {
-                        return prev + next;
-                    });
-
+                    // Calculate everything that is independent of zoom level (angle for offset, bounding boxes, etc)
                     if (stop === 0) {
+                        // use average angle for a global label offset (if offset is specified)
+                        this.angle = 1 / angles.length * angles.reduce(function (prev, next) {
+                            return prev + next;
+                        });
+
+                        // calculate bounding boxes for zollision at zoom level 0
                         for (var _i2 = 0; _i2 < positions.length; _i2++) {
                             var position = positions[_i2];
                             var pre_angle = pre_angles[_i2];
@@ -28320,15 +28702,17 @@ var LabelLineCurved = function (_LabelLineBase2) {
                             var angle_curve = pre_angle + angles[_i2];
                             var angle_offset = this.angle;
 
-                            if (flipped) {
-                                angle_offset += Math.PI;
+                            if (typeof layout.orientation === 'number') {
+                                if (flipped) {
+                                    angle_offset += Math.PI;
+                                }
+
+                                if (layout.orientation === -1) {
+                                    angle_offset += Math.PI;
+                                }
                             }
 
-                            if (layout.orientation === -1) {
-                                angle_offset += Math.PI;
-                            }
-
-                            var obb = LabelLineCurved.createOBB(position, width, height, offset, angle_offset, angle_curve, upp);
+                            var obb = LabelLineCurved.createOBB(position, width, height, this.offset, angle_offset, angle_curve, upp);
                             var aabb = obb.getExtent();
 
                             this.obbs.push(obb);
@@ -28336,6 +28720,7 @@ var LabelLineCurved = function (_LabelLineBase2) {
                         }
                     }
 
+                    // push offsets/angles/pre_angles for each zoom and for each label segment
                     this.offsets[i].push(offsets1d[i]);
                     this.angles[i].push(angles[i]);
                     this.pre_angles[i].push(pre_angles[i]);
@@ -28417,6 +28802,7 @@ var LabelLineCurved = function (_LabelLineBase2) {
                 var curvature = _vector2.default.angleBetween(norm_1, norm_2);
 
                 // If curvature at a vertex is greater than the tolerance, remove it from consideration
+                // by giving it an infinite penalty
                 if (curvature > CURVE_MAX_ANGLE) {
                     curvature = Infinity;
                 }
@@ -28475,6 +28861,7 @@ var LabelLineCurved = function (_LabelLineBase2) {
                 return -1;
             }
 
+            // calculate min cost and avg cost to determine if label can fit within curvatures tolerances
             var min_total_cost = Math.min.apply(null, total_costs);
             var min_index = total_costs.indexOf(min_total_cost);
             var min_avg_cost = avg_costs[min_index];
@@ -28489,6 +28876,7 @@ var LabelLineCurved = function (_LabelLineBase2) {
         }
 
         // Scale the line by a scale factor (used for computing the angles and offsets are fractional zoom levels)
+        // Return the new line positions and their lengths
 
     }, {
         key: 'scaleLine',
@@ -28510,7 +28898,7 @@ var LabelLineCurved = function (_LabelLineBase2) {
             return [new_line, line_lengths];
         }
 
-        // Place a label at a given index
+        // Place a label at a given line index
 
     }, {
         key: 'placeAtIndex',
@@ -28713,7 +29101,7 @@ function getAbsAngleDiff(angle1, angle2) {
     return Math.abs(big - small);
 }
 
-},{"../utils/obb":263,"../vector":271,"./label":217}],219:[function(_dereq_,module,exports){
+},{"../utils/obb":263,"../vector":273,"./label":217}],219:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -29141,6 +29529,8 @@ function norm(p, q) {
     return Math.sqrt(Math.pow(p[0] - q[0], 2) + Math.pow(p[1] - q[1], 2));
 }
 
+// TODO: can be optimized.
+// you don't have to start from the first index every time for placement
 function interpolateLine(line, distance, min_length, options) {
     var sum = 0;
     var position = void 0,
@@ -29303,9 +29693,6 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 exports.LeafletLayer = undefined;
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
 exports.leafletLayer = leafletLayer;
 
 var _thread = _dereq_('./utils/thread');
@@ -29323,6 +29710,8 @@ var _geo2 = _interopRequireDefault(_geo);
 var _debounce = _dereq_('./utils/debounce');
 
 var _debounce2 = _interopRequireDefault(_debounce);
+
+var _debug_settings = _dereq_('./utils/debug_settings');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -29342,491 +29731,497 @@ function extendLeaflet(options) {
 
     // Leaflet layer functionality is only defined in main thread
     if (_thread2.default.is_main) {
-        var _ret = function () {
 
-            var L = options.leaflet || window.L;
-
-            // Determine if we are extending the leaflet 0.7.x TileLayer class, or the newer
-            // leaflet 1.x GridLayer class.
-            var layerBaseClass = L.GridLayer ? L.GridLayer : L.TileLayer;
-            var leafletVersion = layerBaseClass === L.GridLayer ? '1.x' : '0.7.x';
-            var layerClassConfig = {};
-            var setZoomAroundNoMoveEnd = void 0,
-                debounceMoveEnd = void 0; // alternate zoom functions defined below
-
-            // If extending leaflet 0.7.x TileLayer, additional modifications are needed
-            if (layerBaseClass === L.TileLayer) {
-                layerClassConfig._addTile = function () {};
-                layerClassConfig._removeTile = function () {};
-                layerClassConfig._reset = function () {
-                    layerBaseClass.prototype._reset.apply(this, arguments);
-                    // re-add the canvas since base class `viewreset` event can remove it
-                    if (this.scene && this.scene.container && this.scene.canvas) {
-                        this.scene.container.appendChild(this.scene.canvas);
-                    }
-                };
-            }
-
-            // Define custom layer methods
-            Object.assign(layerClassConfig, {
-                initialize: function initialize(options) {
-                    // Defaults
-                    options.showDebug = !options.showDebug ? false : true;
-
-                    L.setOptions(this, options);
-                    this.createScene();
-                    this.hooks = {};
-                    this._updating_tangram = false;
-                    this._zoomAnimated = false; // turn leaflet zoom animations off for this layer
-                },
-                createScene: function createScene() {
-                    this.scene = _scene2.default.create(this.options.scene, {
-                        numWorkers: this.options.numWorkers,
-                        preUpdate: this.options.preUpdate,
-                        postUpdate: this.options.postUpdate,
-                        continuousZoom: LeafletLayer.leafletVersion === '1.x',
-                        wrapView: this.options.noWrap === true ? false : true,
-                        highDensityDisplay: this.options.highDensityDisplay,
-                        logLevel: this.options.logLevel,
-                        introspection: this.options.introspection,
-                        webGLContextOptions: this.options.webGLContextOptions, // override/supplement WebGL context options
-                        disableRenderLoop: this.options.disableRenderLoop // app must call scene.update() per frame
-                    });
-                },
-
-
-                // Finish initializing scene and setup events when layer is added to map
-                onAdd: function onAdd(map) {
-                    var _this = this;
-
-                    if (!this.scene) {
-                        this.createScene();
-                    }
-
-                    layerBaseClass.prototype.onAdd.apply(this, arguments);
-
-                    this.hooks.resize = function () {
-                        _this._updating_tangram = true;
-                        _this.updateSize();
-                        _this._updating_tangram = false;
-                    };
-                    map.on('resize', this.hooks.resize);
-
-                    this.hooks.move = function () {
-                        if (_this._updating_tangram) {
-                            return;
-                        }
-                        _this._updating_tangram = true;
-
-                        _this.scene.view.setPanning(true);
-                        var view = map.getCenter();
-                        view.zoom = Math.max(Math.min(map.getZoom(), map.getMaxZoom() || _geo2.default.default_view_max_zoom), map.getMinZoom());
-
-                        _this.scene.view.setView(view);
-                        if (_this._mapLayerCount > 1) {
-                            // if there are other map pane layers active, redraw immediately to stay in better visual sync
-                            // otherwise, wait until next regular animation loop iteration
-                            _this.scene.immediateRedraw();
-                        }
-                        _this.reverseTransform();
-
-                        _this._updating_tangram = false;
-                    };
-                    map.on('move', this.hooks.move);
-
-                    this.hooks.zoomstart = function () {
-                        if (_this._updating_tangram) {
-                            return;
-                        }
-
-                        _this._updating_tangram = true;
-                        _this.scene.view.startZoom();
-                        _this._updating_tangram = false;
-                    };
-                    map.on('zoomstart', this.hooks.zoomstart);
-
-                    this.hooks.moveend = function () {
-                        _this.scene.view.setPanning(false);
-                        _this.scene.requestRedraw();
-                    };
-                    map.on('moveend', this.hooks.moveend);
-
-                    // Modify default Leaflet behaviors
-                    this.modifyScrollWheelBehavior(map);
-                    this.modifyDoubleClickZoom(map);
-                    debounceMoveEnd = (0, _debounce2.default)(function (map) {
-                        map._moveEnd(true);
-                        map.fire('viewreset'); // keep other leaflet layers in sync
-                    }, map.options.wheelDebounceTime * 2);
-                    this.trackMapLayerCounts(map);
-
-                    // Setup feature selection
-                    this.setupSelectionEventHandlers(map);
-                    this.setSelectionEvents(this.options.events);
-
-                    // Add GL canvas to layer container
-                    this.scene.container = this.getContainer();
-                    this.updateSize();
-
-                    // Initial view
-                    this.updateView();
-                    this.resizeOnFirstVisible();
-
-                    // Subscribe to tangram events
-                    this.scene.subscribe({
-                        move: this.onTangramViewUpdate.bind(this)
-                    });
-
-                    // Use leaflet's existing event system as the callback mechanism
-                    this.scene.load(this.options.scene, { config_path: this.options.sceneBasePath, blocking: false }).then(function () {
-
-                        _this._updating_tangram = true;
-
-                        _this.updateSize();
-                        _this.updateView();
-                        _this.reverseTransform();
-
-                        _this._updating_tangram = false;
-
-                        _this.fire('init');
-                    }).catch(function (error) {
-                        _this.fire('error', error);
-                    });
-                },
-                onRemove: function onRemove(map) {
-                    layerBaseClass.prototype.onRemove.apply(this, arguments);
-
-                    map.off('layeradd layerremove overlayadd overlayremove', this._updateMapLayerCount);
-                    map.off('resize', this.hooks.resize);
-                    map.off('move', this.hooks.move);
-                    map.off('zoomstart', this.hooks.zoomstart);
-                    map.off('moveend', this.hooks.moveend);
-                    map.off('click', this.hooks.click);
-                    map.off('mousemove', this.hooks.mousemove);
-                    map.off('mouseout', this.hooks.mouseout);
-                    document.removeEventListener('visibilitychange', this.hooks.visibilitychange);
-                    this.hooks = {};
-
-                    if (this.scene) {
-                        this.scene.destroy();
-                        this.scene = null;
-                    }
-                },
-                createTile: function createTile(coords) {
-                    var key = coords.x + '/' + coords.y + '/' + coords.z;
-                    var div = document.createElement('div');
-                    div.setAttribute('data-tile-key', key);
-                    div.style.width = '256px';
-                    div.style.height = '256px';
-
-                    if (this.options.showDebug) {
-                        var debug_overlay = document.createElement('div');
-                        debug_overlay.textContent = key;
-                        debug_overlay.style.position = 'absolute';
-                        debug_overlay.style.left = 0;
-                        debug_overlay.style.top = 0;
-                        debug_overlay.style.color = 'white';
-                        debug_overlay.style.fontSize = '16px';
-                        debug_overlay.style.textOutline = '1px #000000';
-                        debug_overlay.style.padding = '8px';
-
-                        div.appendChild(debug_overlay);
-                        div.style.borderStyle = 'solid';
-                        div.style.borderColor = 'white';
-                        div.style.borderWidth = '1px';
-                    }
-
-                    return div;
-                },
-
-
-                // Modify leaflet's default scroll wheel behavior to render frames more frequently
-                // (should generally lead to smoother scroll with Tangram frame re-render)
-                modifyScrollWheelBehavior: function modifyScrollWheelBehavior(map) {
-                    if (this.scene.view.continuous_zoom && map.scrollWheelZoom && this.options.modifyScrollWheel !== false) {
-                        map.options.zoomSnap = 0;
-
-                        var enabled = map.scrollWheelZoom.enabled();
-                        map.scrollWheelZoom.disable();
-
-                        // Chrome and Safari have smoother scroll-zoom without actively throttling the mouse wheel,
-                        // while FF and Edge/IE do better with throttling.
-                        // TODO: may be related to syncing differences with requestAnimationFrame loop, investigate further
-                        if (L.Browser.chrome || L.Browser.safari) {
-                            map.scrollWheelZoom._onWheelScroll = function (e) {
-                                var delta = L.DomEvent.getWheelDelta(e);
-                                this._delta += delta;
-                                this._lastMousePos = this._map.mouseEventToContainerPoint(e);
-                                this._performZoom();
-                                L.DomEvent.stop(e);
-                            };
-                        } else {
-                            map.options.wheelDebounceTime = 20; // better default for FF and Edge/IE
-                        }
-
-                        map.scrollWheelZoom._performZoom = function () {
-                            var map = this._map,
-                                zoom = map.getZoom();
-
-                            map._stop(); // stop panning and fly animations if any
-
-                            var delta = this._delta / (this._map.options.wheelPxPerZoomLevel * 4);
-                            this._delta = 0;
-
-                            if (zoom + delta >= this._map.getMaxZoom()) {
-                                delta = this._map.getMaxZoom() - zoom; // don't go past max zoom
-                            } else if (zoom + delta <= this._map.getMinZoom()) {
-                                delta = this._map.getMinZoom() - zoom; // don't go past min zoom
-                            }
-
-                            if (!delta) {
-                                return;
-                            }
-
-                            if (map.options.scrollWheelZoom === 'center') {
-                                setZoomAroundNoMoveEnd(map, map.getCenter(), zoom + delta);
-                            } else {
-                                setZoomAroundNoMoveEnd(map, this._lastMousePos, zoom + delta);
-                            }
-                            debounceMoveEnd(map);
-                        };
-
-                        if (enabled) {
-                            map.scrollWheelZoom.enable();
-                        }
-                    }
-                },
-
-
-                // Modify leaflet's default double-click zoom behavior, to match typical vector basemap products
-                modifyDoubleClickZoom: function modifyDoubleClickZoom(map) {
-                    if (this.scene.view.continuous_zoom && map.doubleClickZoom && this.options.modifyDoubleClickZoom !== false) {
-                        (function () {
-
-                            // Simplified version of Leaflet's flyTo, for short animations zooming around a point
-                            var flyAround = function flyAround(map, targetCenter, targetZoom, options) {
-                                options = options || {};
-                                if (options.animate === false || !L.Browser.any3d) {
-                                    return map.setView(targetCenter, targetZoom, options);
-                                }
-
-                                map._stop();
-
-                                var startZoom = map._zoom;
-
-                                targetCenter = L.latLng(targetCenter);
-                                targetZoom = targetZoom === undefined ? startZoom : targetZoom;
-                                targetZoom = Math.min(targetZoom, map.getMaxZoom()); // don't go past max zoom
-
-                                var from = map.project(map.getCenter(), startZoom),
-                                    to = map.project(targetCenter, startZoom);
-
-                                var start = Date.now(),
-                                    duration = options.duration ? 1000 * options.duration : 75;
-
-                                function frame() {
-                                    var t = (Date.now() - start) / duration;
-
-                                    if (t <= 1) {
-                                        // reuse internal flyTo frame to ensure these animations are canceled like others
-                                        map._flyToFrame = L.Util.requestAnimFrame(frame, map);
-
-                                        var center = from.add(to.subtract(from).multiplyBy(t));
-                                        center = [center.x, center.y];
-                                        center = _geo2.default.metersToLatLng(center);
-                                        setZoomAroundNoMoveEnd(map, targetCenter, startZoom + (targetZoom - startZoom) * t);
-                                    } else {
-                                        setZoomAroundNoMoveEnd(map, targetCenter, targetZoom)._moveEnd(true);
-                                    }
-                                }
-
-                                map._moveStart(true);
-
-                                frame.call(map);
-                                return map;
-                            };
-
-                            // Modify the double-click zoom handler to do a short zoom animation
-                            var enabled = map.doubleClickZoom.enabled();
-                            map.doubleClickZoom.disable();
-
-                            map.doubleClickZoom._onDoubleClick = function (e) {
-                                var map = this._map,
-                                    oldZoom = map.getZoom(),
-                                    delta = map.options.zoomDelta,
-                                    zoom = e.originalEvent.shiftKey ? oldZoom - delta : oldZoom + delta;
-
-                                if (map.options.doubleClickZoom === 'center') {
-                                    flyAround(map, map.getCenter(), zoom);
-                                } else {
-                                    flyAround(map, map.containerPointToLatLng(e.containerPoint), zoom);
-                                }
-                            };
-
-                            if (enabled) {
-                                map.doubleClickZoom.enable();
-                            }
-                        })();
-                    }
-                },
-                updateView: function updateView() {
-                    var view = this._map.getCenter();
-                    view.zoom = Math.max(Math.min(this._map.getZoom(), this._map.getMaxZoom() || _geo2.default.default_view_max_zoom), this._map.getMinZoom());
-                    this.scene.view.setView(view);
-                },
-                updateSize: function updateSize() {
-                    var size = this._map.getSize();
-                    this.scene.resizeMap(size.x, size.y);
-                },
-                resizeOnFirstVisible: function resizeOnFirstVisible() {
-                    var _this2 = this;
-
-                    var first_visibility = true;
-                    this.hooks.visibilitychange = function () {
-                        if (first_visibility) {
-                            first_visibility = false;
-                            _this2.updateSize();
-                        }
-                    };
-
-                    document.addEventListener('visibilitychange', this.hooks.visibilitychange);
-                },
-                onTangramViewUpdate: function onTangramViewUpdate() {
-                    if (!this._map || this._updating_tangram) {
-                        return;
-                    }
-
-                    // View changed?
-                    var map_center = this._map.getCenter();
-                    var view_center = this.scene.view.center;
-                    if (map_center.lng === view_center.lng && map_center.lat === view_center.lat && this._map.getZoom() === this.scene.view.zoom) {
-                        return;
-                    }
-
-                    this._updating_tangram = true;
-                    this._map.setView([this.scene.view.center.lat, this.scene.view.center.lng], this.scene.view.zoom, { animate: false });
-                    this.reverseTransform();
-                    this._updating_tangram = false;
-                },
-                render: function render() {
-                    if (!this.scene) {
-                        return;
-                    }
-                    this.scene.update();
-                },
-
-
-                // Reverse the CSS positioning Leaflet applies to the layer, since Tangram's WebGL canvas
-                // is expected to be 'absolutely' positioned.
-                reverseTransform: function reverseTransform() {
-                    if (!this._map || !this.scene || !this.scene.container) {
-                        return;
-                    }
-
-                    var top_left = this._map.containerPointToLayerPoint([0, 0]);
-                    L.DomUtil.setPosition(this.scene.container, top_left);
-                },
-
-
-                // Tie Leaflet event handlers to Tangram feature selection
-                setupSelectionEventHandlers: function setupSelectionEventHandlers(map) {
-                    var _this3 = this;
-
-                    this._selection_events = {};
-
-                    this.hooks.click = function (event) {
-                        if (typeof _this3._selection_events.click === 'function') {
-                            _this3.scene.getFeatureAt(event.containerPoint).then(function (selection) {
-                                var results = Object.assign({}, selection, { leaflet_event: event });
-                                _this3._selection_events.click(results);
-                            });
-                        }
-                    };
-                    map.on('click', this.hooks.click);
-
-                    this.hooks.mousemove = function (event) {
-                        if (typeof _this3._selection_events.hover === 'function') {
-                            _this3.scene.getFeatureAt(event.containerPoint).then(function (selection) {
-                                var results = Object.assign({}, selection, { leaflet_event: event });
-                                _this3._selection_events.hover(results);
-                            });
-                        }
-                    };
-                    map.on('mousemove', this.hooks.mousemove);
-
-                    this.hooks.mouseout = function (event) {
-                        // When mouse leaves map, send an additional selection event to indicate no feature is selected
-                        if (typeof _this3._selection_events.hover === 'function') {
-                            _this3._selection_events.hover({ changed: true, leaflet_event: event });
-                        }
-                    };
-                    map.on('mouseout', this.hooks.mouseout);
-                },
-
-
-                // Set user-defined handlers for feature selection events
-                // Currently only one handler can be defined for each event type
-                // Event types are: `click`, `hover` (leaflet `mousemove`)
-                setSelectionEvents: function setSelectionEvents(events) {
-                    this._selection_events = Object.assign(this._selection_events, events);
-                },
-
-
-                // Track the # of layers in the map pane
-                // Used to optimize Tangram redraw sensitivity (redraw more frequently when needing to sync w/other layers)
-                trackMapLayerCounts: function trackMapLayerCounts(map) {
-                    var _this4 = this;
-
-                    this._updateMapLayerCount = function () {
-                        var nodes = map.getPanes().mapPane.childNodes;
-                        _this4._mapLayerCount = 0;
-                        for (var i = 0; i < nodes.length; i++) {
-                            _this4._mapLayerCount += nodes[i].childNodes.length;
-                        }
-                    };
-
-                    map.on('layeradd layerremove overlayadd overlayremove', this._updateMapLayerCount);
-                    this._updateMapLayerCount();
+        var L = options.leaflet || window.L;
+
+        // Determine if we are extending the leaflet 0.7.x TileLayer class, or the newer
+        // leaflet 1.x GridLayer class.
+        var layerBaseClass = L.GridLayer ? L.GridLayer : L.TileLayer;
+        var leafletVersion = layerBaseClass === L.GridLayer ? '1.x' : '0.7.x';
+        var layerClassConfig = {};
+        var setZoomAroundNoMoveEnd = void 0,
+            debounceMoveEnd = void 0; // alternate zoom functions defined below
+
+        // If extending leaflet 0.7.x TileLayer, additional modifications are needed
+        if (layerBaseClass === L.TileLayer) {
+            layerClassConfig._addTile = function () {};
+            layerClassConfig._removeTile = function () {};
+            layerClassConfig._reset = function () {
+                layerBaseClass.prototype._reset.apply(this, arguments);
+                // re-add the canvas since base class `viewreset` event can remove it
+                if (this.scene && this.scene.container && this.scene.canvas) {
+                    this.scene.container.appendChild(this.scene.canvas);
                 }
-            });
-
-            // Modified version of Leaflet's setZoomAround that doesn't trigger a moveEnd event
-            setZoomAroundNoMoveEnd = function setZoomAroundNoMoveEnd(map, latlng, zoom) {
-                var scale = map.getZoomScale(zoom),
-                    viewHalf = map.getSize().divideBy(2),
-                    containerPoint = latlng instanceof L.Point ? latlng : map.latLngToContainerPoint(latlng),
-                    centerOffset = containerPoint.subtract(viewHalf).multiplyBy(1 - 1 / scale),
-                    newCenter = map.containerPointToLatLng(viewHalf.add(centerOffset));
-
-                return map._move(newCenter, zoom, { flyTo: true });
             };
+        }
 
-            // Create the layer class
-            exports.LeafletLayer = LeafletLayer = layerBaseClass.extend(layerClassConfig);
+        // Define custom layer methods
+        Object.assign(layerClassConfig, {
+            initialize: function initialize(options) {
+                // Defaults
+                options.showDebug = !options.showDebug ? false : true;
 
-            // Polyfill some 1.0 methods
-            if (typeof LeafletLayer.remove !== 'function') {
-                LeafletLayer.prototype.remove = function () {
-                    if (this._map) {
-                        this._map.removeLayer(this);
-                    }
-                    this.fire('remove');
+                L.setOptions(this, options);
+                this.updateTangramDebugSettings();
+                this.createScene();
+                this.hooks = {};
+                this._updating_tangram = false;
+                this._zoomAnimated = false; // turn leaflet zoom animations off for this layer
+            },
+            createScene: function createScene() {
+                this.scene = _scene2.default.create(this.options.scene, {
+                    numWorkers: this.options.numWorkers,
+                    preUpdate: this.options.preUpdate,
+                    postUpdate: this.options.postUpdate,
+                    continuousZoom: LeafletLayer.leafletVersion === '1.x',
+                    wrapView: this.options.noWrap === true ? false : true,
+                    highDensityDisplay: this.options.highDensityDisplay,
+                    logLevel: this.options.logLevel,
+                    introspection: this.options.introspection,
+                    webGLContextOptions: this.options.webGLContextOptions, // override/supplement WebGL context options
+                    disableRenderLoop: this.options.disableRenderLoop // app must call scene.update() per frame
+                });
+            },
+
+
+            // Finish initializing scene and setup events when layer is added to map
+            onAdd: function onAdd(map) {
+                var _this = this;
+
+                if (!this.scene) {
+                    this.createScene();
+                }
+
+                layerBaseClass.prototype.onAdd.apply(this, arguments);
+
+                this.hooks.resize = function () {
+                    _this._updating_tangram = true;
+                    _this.updateSize();
+                    _this._updating_tangram = false;
                 };
+                map.on('resize', this.hooks.resize);
+
+                this.hooks.move = function () {
+                    if (_this._updating_tangram) {
+                        return;
+                    }
+                    _this._updating_tangram = true;
+
+                    _this.scene.view.setPanning(true);
+                    var view = map.getCenter();
+                    view.zoom = Math.max(Math.min(map.getZoom(), map.getMaxZoom() || _geo2.default.default_view_max_zoom), map.getMinZoom());
+
+                    _this.scene.view.setView(view);
+                    if (_this._mapLayerCount > 1) {
+                        // if there are other map pane layers active, redraw immediately to stay in better visual sync
+                        // otherwise, wait until next regular animation loop iteration
+                        _this.scene.immediateRedraw();
+                    }
+                    _this.reverseTransform();
+
+                    _this._updating_tangram = false;
+                };
+                map.on('move', this.hooks.move);
+
+                this.hooks.moveend = function () {
+                    _this.scene.view.setPanning(false);
+                    _this.scene.requestRedraw();
+                };
+                map.on('moveend', this.hooks.moveend);
+
+                this.hooks.drag = function () {
+                    _this.scene.view.markUserInput();
+                };
+                map.on('drag', this.hooks.drag);
+
+                // Modify default Leaflet behaviors
+                this.modifyScrollWheelBehavior(map);
+                this.modifyDoubleClickZoom(map);
+                debounceMoveEnd = (0, _debounce2.default)(function (map) {
+                    map._moveEnd(true);
+                    map.fire('viewreset'); // keep other leaflet layers in sync
+                }, map.options.wheelDebounceTime * 2);
+                this.trackMapLayerCounts(map);
+
+                // Setup feature selection
+                this.setupSelectionEventHandlers(map);
+                this.setSelectionEvents(this.options.events, { radius: this.options.selectionRadius });
+
+                // Add GL canvas to layer container
+                this.scene.container = this.getContainer();
+                this.updateSize();
+
+                // Initial view
+                this.updateView();
+                this.resizeOnFirstVisible();
+
+                // Subscribe to tangram events
+                this.scene.subscribe({
+                    move: this.onTangramViewUpdate.bind(this)
+                });
+
+                // Use leaflet's existing event system as the callback mechanism
+                this.scene.load(this.options.scene, {
+                    base_path: this.options.sceneBasePath,
+                    file_type: this.options.sceneFileType,
+                    blocking: false
+                }).then(function () {
+
+                    _this._updating_tangram = true;
+
+                    _this.updateSize();
+                    _this.updateView();
+                    _this.reverseTransform();
+
+                    _this._updating_tangram = false;
+
+                    _this.fire('init');
+                }).catch(function (error) {
+                    _this.fire('error', error);
+                });
+            },
+            onRemove: function onRemove(map) {
+                layerBaseClass.prototype.onRemove.apply(this, arguments);
+
+                map.off('layeradd layerremove overlayadd overlayremove', this._updateMapLayerCount);
+                map.off('resize', this.hooks.resize);
+                map.off('move', this.hooks.move);
+                map.off('moveend', this.hooks.moveend);
+                map.off('drag', this.hooks.drag);
+                map.off('click', this.hooks.click);
+                map.off('mousemove', this.hooks.mousemove);
+                map.off('mouseout', this.hooks.mouseout);
+                document.removeEventListener('visibilitychange', this.hooks.visibilitychange);
+                this.hooks = {};
+
+                if (this.scene) {
+                    this.scene.destroy();
+                    this.scene = null;
+                }
+            },
+            createTile: function createTile(coords) {
+                var key = coords.x + '/' + coords.y + '/' + coords.z;
+                var div = document.createElement('div');
+                div.setAttribute('data-tile-key', key);
+                div.style.width = '256px';
+                div.style.height = '256px';
+
+                if (this.options.showDebug) {
+                    var debug_overlay = document.createElement('div');
+                    debug_overlay.textContent = key;
+                    debug_overlay.style.position = 'absolute';
+                    debug_overlay.style.left = 0;
+                    debug_overlay.style.top = 0;
+                    debug_overlay.style.color = 'white';
+                    debug_overlay.style.fontSize = '16px';
+                    debug_overlay.style.textOutline = '1px #000000';
+                    debug_overlay.style.padding = '8px';
+
+                    div.appendChild(debug_overlay);
+                    div.style.borderStyle = 'solid';
+                    div.style.borderColor = 'white';
+                    div.style.borderWidth = '1px';
+                }
+
+                return div;
+            },
+
+
+            // Modify leaflet's default scroll wheel behavior to render frames more frequently
+            // (should generally lead to smoother scroll with Tangram frame re-render)
+            modifyScrollWheelBehavior: function modifyScrollWheelBehavior(map) {
+                if (this.scene.view.continuous_zoom && map.scrollWheelZoom && this.options.modifyScrollWheel !== false) {
+                    map.options.zoomSnap = 0;
+
+                    var enabled = map.scrollWheelZoom.enabled();
+                    map.scrollWheelZoom.disable();
+
+                    // Chrome and Safari have smoother scroll-zoom without actively throttling the mouse wheel,
+                    // while FF and Edge/IE do better with throttling.
+                    // TODO: may be related to syncing differences with requestAnimationFrame loop, investigate further
+                    if (L.Browser.chrome || L.Browser.safari) {
+                        map.scrollWheelZoom._onWheelScroll = function (e) {
+                            var delta = L.DomEvent.getWheelDelta(e);
+                            this._delta += delta;
+                            this._lastMousePos = this._map.mouseEventToContainerPoint(e);
+                            this._performZoom();
+                            L.DomEvent.stop(e);
+                        };
+                    } else {
+                        map.options.wheelDebounceTime = 20; // better default for FF and Edge/IE
+                    }
+
+                    var layer = this;
+                    map.scrollWheelZoom._performZoom = function () {
+                        var map = this._map,
+                            zoom = map.getZoom();
+
+                        map._stop(); // stop panning and fly animations if any
+
+                        var delta = this._delta / (this._map.options.wheelPxPerZoomLevel * 4);
+                        this._delta = 0;
+
+                        if (zoom + delta >= this._map.getMaxZoom()) {
+                            delta = this._map.getMaxZoom() - zoom; // don't go past max zoom
+                        } else if (zoom + delta <= this._map.getMinZoom()) {
+                            delta = this._map.getMinZoom() - zoom; // don't go past min zoom
+                        }
+
+                        if (!delta) {
+                            return;
+                        }
+
+                        if (map.options.scrollWheelZoom === 'center') {
+                            setZoomAroundNoMoveEnd(layer, map.getCenter(), zoom + delta);
+                        } else {
+                            setZoomAroundNoMoveEnd(layer, this._lastMousePos, zoom + delta);
+                        }
+                        debounceMoveEnd(map);
+                    };
+
+                    if (enabled) {
+                        map.scrollWheelZoom.enable();
+                    }
+                }
+            },
+
+
+            // Modify leaflet's default double-click zoom behavior, to match typical vector basemap products
+            modifyDoubleClickZoom: function modifyDoubleClickZoom(map) {
+                if (this.scene.view.continuous_zoom && map.doubleClickZoom && this.options.modifyDoubleClickZoom !== false) {
+
+                    // Simplified version of Leaflet's flyTo, for short animations zooming around a point
+                    var flyAround = function flyAround(layer, targetCenter, targetZoom, options) {
+                        options = options || {};
+                        if (options.animate === false || !L.Browser.any3d) {
+                            return map.setView(targetCenter, targetZoom, options);
+                        }
+
+                        map._stop();
+
+                        var startZoom = map._zoom;
+
+                        targetCenter = L.latLng(targetCenter);
+                        targetZoom = targetZoom === undefined ? startZoom : targetZoom;
+                        targetZoom = Math.min(targetZoom, map.getMaxZoom()); // don't go past max zoom
+
+                        var from = map.project(map.getCenter(), startZoom),
+                            to = map.project(targetCenter, startZoom);
+
+                        var start = Date.now(),
+                            duration = options.duration ? 1000 * options.duration : 75;
+
+                        function frame() {
+                            var t = (Date.now() - start) / duration;
+
+                            if (t <= 1) {
+                                // reuse internal flyTo frame to ensure these animations are canceled like others
+                                map._flyToFrame = L.Util.requestAnimFrame(frame, map);
+
+                                var center = from.add(to.subtract(from).multiplyBy(t));
+                                center = [center.x, center.y];
+                                center = _geo2.default.metersToLatLng(center);
+                                setZoomAroundNoMoveEnd(layer, targetCenter, startZoom + (targetZoom - startZoom) * t);
+                            } else {
+                                setZoomAroundNoMoveEnd(layer, targetCenter, targetZoom)._moveEnd(true);
+                            }
+                        }
+
+                        map._moveStart(true);
+
+                        frame.call(map);
+                        return map;
+                    };
+
+                    // Modify the double-click zoom handler to do a short zoom animation
+                    var enabled = map.doubleClickZoom.enabled();
+                    map.doubleClickZoom.disable();
+
+                    var layer = this;
+                    map.doubleClickZoom._onDoubleClick = function (e) {
+                        var map = this._map,
+                            oldZoom = map.getZoom(),
+                            delta = map.options.zoomDelta,
+                            zoom = e.originalEvent.shiftKey ? oldZoom - delta : oldZoom + delta;
+
+                        if (map.options.doubleClickZoom === 'center') {
+                            flyAround(layer, map.getCenter(), zoom);
+                        } else {
+                            flyAround(layer, map.containerPointToLatLng(e.containerPoint), zoom);
+                        }
+                    };
+
+                    if (enabled) {
+                        map.doubleClickZoom.enable();
+                    }
+                }
+            },
+            updateView: function updateView() {
+                var view = this._map.getCenter();
+                view.zoom = Math.max(Math.min(this._map.getZoom(), this._map.getMaxZoom() || _geo2.default.default_view_max_zoom), this._map.getMinZoom());
+                this.scene.view.setView(view);
+            },
+            updateSize: function updateSize() {
+                var size = this._map.getSize();
+                this.scene.resizeMap(size.x, size.y);
+            },
+            resizeOnFirstVisible: function resizeOnFirstVisible() {
+                var _this2 = this;
+
+                var first_visibility = true;
+                this.hooks.visibilitychange = function () {
+                    if (first_visibility) {
+                        first_visibility = false;
+                        _this2.updateSize();
+                    }
+                };
+
+                document.addEventListener('visibilitychange', this.hooks.visibilitychange);
+            },
+            onTangramViewUpdate: function onTangramViewUpdate() {
+                if (!this._map || this._updating_tangram) {
+                    return;
+                }
+
+                // View changed?
+                var map_center = this._map.getCenter();
+                var view_center = this.scene.view.center;
+                if (map_center.lng === view_center.lng && map_center.lat === view_center.lat && this._map.getZoom() === this.scene.view.zoom) {
+                    return;
+                }
+
+                this._updating_tangram = true;
+                this._map.setView([this.scene.view.center.lat, this.scene.view.center.lng], this.scene.view.zoom, { animate: false });
+                this.reverseTransform();
+                this._updating_tangram = false;
+            },
+            render: function render() {
+                if (!this.scene) {
+                    return;
+                }
+                this.scene.update();
+            },
+
+
+            // Reverse the CSS positioning Leaflet applies to the layer, since Tangram's WebGL canvas
+            // is expected to be 'absolutely' positioned.
+            reverseTransform: function reverseTransform() {
+                if (!this._map || !this.scene || !this.scene.container) {
+                    return;
+                }
+
+                var top_left = this._map.containerPointToLayerPoint([0, 0]);
+                L.DomUtil.setPosition(this.scene.container, top_left);
+            },
+
+
+            // Tie Leaflet event handlers to Tangram feature selection
+            setupSelectionEventHandlers: function setupSelectionEventHandlers(map) {
+                var _this3 = this;
+
+                this._selection_events = {};
+                this._selection_radius = null; // optional radius
+
+                this.hooks.click = function (event) {
+                    if (typeof _this3._selection_events.click === 'function') {
+                        _this3.scene.getFeatureAt(event.containerPoint, { radius: _this3._selection_radius }).then(function (selection) {
+                            var results = Object.assign({}, selection, { leaflet_event: event });
+                            _this3._selection_events.click(results);
+                        });
+                    }
+                };
+                map.on('click', this.hooks.click);
+
+                this.hooks.mousemove = function (event) {
+                    if (typeof _this3._selection_events.hover === 'function') {
+                        _this3.scene.getFeatureAt(event.containerPoint, { radius: _this3._selection_radius }).then(function (selection) {
+                            var results = Object.assign({}, selection, { leaflet_event: event });
+                            _this3._selection_events.hover(results);
+                        });
+                    }
+                };
+                map.on('mousemove', this.hooks.mousemove);
+
+                this.hooks.mouseout = function (event) {
+                    // When mouse leaves map, send an additional selection event to indicate no feature is selected
+                    if (typeof _this3._selection_events.hover === 'function') {
+                        _this3._selection_events.hover({ changed: true, leaflet_event: event });
+                    }
+                };
+                map.on('mouseout', this.hooks.mouseout);
+            },
+
+
+            // Set user-defined handlers for feature selection events
+            // Currently only one handler can be defined for each event type
+            // Event types are: `click`, `hover` (leaflet `mousemove`)
+            setSelectionEvents: function setSelectionEvents(events) {
+                var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+                    radius = _ref.radius;
+
+                this._selection_events = Object.assign(this._selection_events, events);
+                this._selection_radius = radius !== undefined ? radius : this._selection_radius;
+            },
+
+
+            // Track the # of layers in the map pane
+            // Used to optimize Tangram redraw sensitivity (redraw more frequently when needing to sync w/other layers)
+            trackMapLayerCounts: function trackMapLayerCounts(map) {
+                var _this4 = this;
+
+                this._updateMapLayerCount = function () {
+                    var nodes = map.getPanes().mapPane.childNodes;
+                    _this4._mapLayerCount = 0;
+                    for (var i = 0; i < nodes.length; i++) {
+                        _this4._mapLayerCount += nodes[i].childNodes.length;
+                    }
+                };
+
+                map.on('layeradd layerremove overlayadd overlayremove', this._updateMapLayerCount);
+                this._updateMapLayerCount();
+            },
+            updateTangramDebugSettings: function updateTangramDebugSettings() {
+                (0, _debug_settings.mergeDebugSettings)(this.options.debug || {});
             }
+        });
 
-            LeafletLayer.layerBaseClass = layerBaseClass;
-            LeafletLayer.leafletVersion = leafletVersion;
+        // Modified version of Leaflet's setZoomAround that doesn't trigger a moveEnd event
+        setZoomAroundNoMoveEnd = function setZoomAroundNoMoveEnd(layer, latlng, zoom) {
+            var map = layer._map,
+                scene = layer.scene,
+                scale = map.getZoomScale(zoom),
+                viewHalf = map.getSize().divideBy(2),
+                containerPoint = latlng instanceof L.Point ? latlng : map.latLngToContainerPoint(latlng),
+                centerOffset = containerPoint.subtract(viewHalf).multiplyBy(1 - 1 / scale),
+                newCenter = map.containerPointToLatLng(viewHalf.add(centerOffset));
 
-            return {
-                v: new LeafletLayer(options)
+            if (scene) {
+                scene.view.markUserInput();
+            }
+            return map._move(newCenter, zoom, { flyTo: true });
+        };
+
+        // Create the layer class
+        exports.LeafletLayer = LeafletLayer = layerBaseClass.extend(layerClassConfig);
+
+        // Polyfill some 1.0 methods
+        if (typeof LeafletLayer.remove !== 'function') {
+            LeafletLayer.prototype.remove = function () {
+                if (this._map) {
+                    this._map.removeLayer(this);
+                }
+                this.fire('remove');
             };
-        }();
+        }
 
-        if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
+        LeafletLayer.layerBaseClass = layerBaseClass;
+        LeafletLayer.leafletVersion = leafletVersion;
+
+        return new LeafletLayer(options);
     }
 }
 
-},{"./geo":202,"./scene":227,"./utils/debounce":255,"./utils/thread":266}],224:[function(_dereq_,module,exports){
+},{"./geo":202,"./scene":227,"./utils/debounce":255,"./utils/debug_settings":256,"./utils/thread":268}],224:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -30259,7 +30654,7 @@ var SpotLight = function (_PointLight) {
 
 Light.types['spotlight'] = SpotLight;
 
-},{"./geo":202,"./gl/glsl":206,"./gl/shader_program":208,"./styles/style_parser":246,"./vector":271}],225:[function(_dereq_,module,exports){
+},{"./geo":202,"./gl/glsl":206,"./gl/shader_program":208,"./styles/style_parser":246,"./vector":273}],225:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -30582,7 +30977,7 @@ module.exports = {
     version: _version2.default
 };
 
-},{"./geo":202,"./gl/glsl":206,"./gl/shader_program":208,"./gl/texture":209,"./gl/vertex_data":212,"./labels/collision":215,"./leaflet_layer":223,"./light":224,"./material":225,"./scene":227,"./scene_worker":230,"./selection":231,"./sources/data_source":232,"./sources/geojson":233,"./sources/mvt":234,"./sources/raster":235,"./sources/topojson":236,"./styles/layer":238,"./styles/style_manager":245,"./styles/style_parser":246,"./styles/text/canvas_text":247,"./utils/debug_settings":256,"./utils/log":260,"./utils/polyfills":264,"./utils/thread":266,"./utils/utils":268,"./utils/version":269,"./utils/worker_broker":270,"./vector":271,"js-yaml":97,"jszip":133}],227:[function(_dereq_,module,exports){
+},{"./geo":202,"./gl/glsl":206,"./gl/shader_program":208,"./gl/texture":209,"./gl/vertex_data":212,"./labels/collision":215,"./leaflet_layer":223,"./light":224,"./material":225,"./scene":227,"./scene_worker":230,"./selection":231,"./sources/data_source":232,"./sources/geojson":233,"./sources/mvt":234,"./sources/raster":235,"./sources/topojson":236,"./styles/layer":238,"./styles/style_manager":245,"./styles/style_parser":246,"./styles/text/canvas_text":247,"./utils/debug_settings":256,"./utils/log":260,"./utils/polyfills":264,"./utils/thread":268,"./utils/utils":270,"./utils/version":271,"./utils/worker_broker":272,"./vector":273,"js-yaml":97,"jszip":133}],227:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -30601,6 +30996,10 @@ var _utils = _dereq_('./utils/utils');
 
 var _utils2 = _interopRequireDefault(_utils);
 
+var _debug_settings = _dereq_('./utils/debug_settings');
+
+var _debug_settings2 = _interopRequireDefault(_debug_settings);
+
 var _urls = _dereq_('./utils/urls');
 
 var URLs = _interopRequireWildcard(_urls);
@@ -30609,9 +31008,17 @@ var _worker_broker = _dereq_('./utils/worker_broker');
 
 var _worker_broker2 = _interopRequireDefault(_worker_broker);
 
+var _task = _dereq_('./utils/task');
+
+var _task2 = _interopRequireDefault(_task);
+
 var _subscribe = _dereq_('./utils/subscribe');
 
 var _subscribe2 = _interopRequireDefault(_subscribe);
+
+var _slice = _dereq_('./utils/slice');
+
+var _slice2 = _interopRequireDefault(_slice);
 
 var _context = _dereq_('./gl/context');
 
@@ -30646,6 +31053,10 @@ var _view2 = _interopRequireDefault(_view);
 var _light = _dereq_('./light');
 
 var _light2 = _interopRequireDefault(_light);
+
+var _tile = _dereq_('./tile');
+
+var _tile2 = _interopRequireDefault(_tile);
 
 var _tile_manager = _dereq_('./tile_manager');
 
@@ -30716,9 +31127,17 @@ var Scene = function () {
 
         this.building = null; // tracks current scene building state (tiles being built, etc.)
         this.dirty = true; // request a redraw
-        this.animated = false; // request redraw every frame
-        this.preUpdate = options.preUpdate; // optional pre-render loop hook
-        this.postUpdate = options.postUpdate; // optional post-render loop hook
+
+        if (options.preUpdate) {
+            // optional pre-render loop hook
+            this.subscribe({ 'preUpdate': options.preUpdate });
+        }
+
+        if (options.postUpdate) {
+            // optional post-render loop hook
+            this.subscribe({ 'postUpdate': options.postUpdate });
+        }
+
         this.render_loop = !options.disableRenderLoop; // disable render loop - app will have to manually call Scene.render() per frame
         this.render_loop_active = false;
         this.render_loop_stop = false;
@@ -30730,7 +31149,7 @@ var Scene = function () {
         this.last_selection_render = -1; // frame counter for last selection render pass
         this.media_capture = new _media_capture2.default();
         this.selection = null;
-        this.introspection = false;
+        this.introspection = options.introspection === true ? true : false;
         this.resetTime();
 
         this.container = options.container;
@@ -30757,7 +31176,7 @@ var Scene = function () {
 
         // Load scene (or reload existing scene if no new source specified)
         // Options:
-        //   `config_path`: base URL against which roo scene resources should be resolved (useful for Play) (default nulll)
+        //   `base_path`: base URL against which scene resources should be resolved (useful for Play) (default nulll)
         //   `blocking`: should rendering block on scene load completion (default true)
         value: function load() {
             var _this = this;
@@ -30774,17 +31193,20 @@ var Scene = function () {
             this.initialized = false;
             this.initial_build_time = null;
 
-            // Backwards compatibilty for passing `config_path` string as second argument
+            // Backwards compatibilty for passing `base_path` string as second argument
             // (since transitioned to using options argument to accept more parameters)
-            options = typeof options === 'string' ? { config_path: options } : options;
-            var config_path = options.config_path;
+            options = typeof options === 'string' ? { base_path: options } : options;
 
             // Should rendering block on load (not desirable for initial load, often desired for live style-switching)
             options.blocking = options.blocking !== undefined ? options.blocking : true;
 
+            if (this.render_loop !== false) {
+                this.setupRenderLoop();
+            }
+
             // Load scene definition (sources, styles, etc.), then create styles & workers
             this.createCanvas();
-            this.initializing = this.loadScene(config_source, config_path).then(function () {
+            this.initializing = this.loadScene(config_source, options).then(function () {
                 return _this.createWorkers();
             }).then(function () {
                 _this.resetFeatureSelection();
@@ -30793,7 +31215,7 @@ var Scene = function () {
                 // which need to be serialized, while one loaded only from a URL does not.
                 var serialize_funcs = _typeof(_this.config_source) === 'object' || _this.hasSubscribersFor('load');
 
-                var updating = _this.updateConfig({ serialize_funcs: serialize_funcs, load_event: true, fade_in: true });
+                var updating = _this.updateConfig({ serialize_funcs: serialize_funcs, normalize: false, load_event: true, fade_in: true });
                 if (options.blocking === true) {
                     return updating;
                 }
@@ -30802,11 +31224,8 @@ var Scene = function () {
                 _this.initializing = null;
                 _this.initialized = true;
                 _this.last_valid_config_source = _this.config_source;
-                _this.last_valid_config_path = _this.config_path;
+                _this.last_valid_options = { base_path: options.base_path, file_type: options.file_type };
 
-                if (_this.render_loop !== false) {
-                    _this.setupRenderLoop();
-                }
                 _this.requestRedraw();
             }).catch(function (error) {
                 _this.initializing = null;
@@ -30828,7 +31247,7 @@ var Scene = function () {
                 if (_this.last_valid_config_source) {
                     (0, _log2.default)('warn', message, error);
                     (0, _log2.default)('info', 'Scene.load() reverting to last valid configuration');
-                    return _this.load(_this.last_valid_config_source, _this.last_valid_config_path);
+                    return _this.load(_this.last_valid_config_source, _this.last_valid_base_path);
                 }
                 (0, _log2.default)('error', message, error);
                 throw error;
@@ -30906,7 +31325,7 @@ var Scene = function () {
             this.resizeMap(this.container.clientWidth, this.container.clientHeight);
             _vao2.default.init(this.gl);
             this.render_states = new _render_state2.default(this.gl);
-            this.media_capture.setCanvas(this.canvas);
+            this.media_capture.setCanvas(this.canvas, this.gl);
         }
 
         // Get the URL to load the web worker from
@@ -30919,7 +31338,7 @@ var Scene = function () {
             // ignore uninitialized worker src variable (defined in parent scope)
             if (typeof __worker_src__ !== "undefined") {
                 var source = '(' + __worker_src__ + ')()';
-                if (__worker_src_origin__) {
+                if (__worker_src_origin__ && __worker_src_map__ !== '') {
                     var origin = __worker_src_origin__.slice(0, __worker_src_origin__.lastIndexOf('/') + 1);
                     source += '\n//#' + ' sourceMappingURL=' + origin + __worker_src_map__;
                 }
@@ -30991,8 +31410,10 @@ var Scene = function () {
         value: function makeWorkers(url) {
             var _this3 = this;
 
-            var queue = [];
+            // Let VertexElements know if 32 bit indices for element arrays are available
+            var has_element_index_uint = this.gl.getExtension("OES_element_index_uint") ? true : false;
 
+            var queue = [];
             this.workers = [];
 
             var _loop = function _loop() {
@@ -31004,7 +31425,7 @@ var Scene = function () {
 
                 (0, _log2.default)('debug', 'Scene.makeWorkers: initializing worker ' + id);
                 var _id = id;
-                queue.push(_worker_broker2.default.postMessage(worker, 'self.init', _this3.id, id, _this3.num_workers, _this3.log_level, _utils2.default.device_pixel_ratio).then(function (id) {
+                queue.push(_worker_broker2.default.postMessage(worker, 'self.init', _this3.id, id, _this3.num_workers, _this3.log_level, _utils2.default.device_pixel_ratio, has_element_index_uint).then(function (id) {
                     (0, _log2.default)('debug', 'Scene.makeWorkers: initialized worker ' + id);
                     return id;
                 }, function (error) {
@@ -31023,10 +31444,6 @@ var Scene = function () {
             return Promise.all(queue).then(function () {
                 _log2.default.setWorkers(_this3.workers);
 
-                // Let VertexElements know if 32 bit indices for element arrays are available
-                var Uint32_flag = _this3.gl.getExtension("OES_element_index_uint") ? true : false;
-                _worker_broker2.default.postMessage(_this3.workers, 'VertexElements.setUint32Flag', Uint32_flag);
-
                 // Free memory after worker initialization
                 URLs.revokeObjectURL(url);
             });
@@ -31041,26 +31458,6 @@ var Scene = function () {
                 });
                 this.workers = null;
             }
-        }
-
-        // Assign tile to worker thread based on data source
-
-    }, {
-        key: 'getWorkerForDataSource',
-        value: function getWorkerForDataSource(source) {
-            var worker = void 0;
-
-            if (source.tiled) {
-                // Round robin tiled sources across all workers
-                worker = this.workers[this.next_worker];
-                this.next_worker = (this.next_worker + 1) % this.workers.length;
-            } else {
-                // Pin all tiles from each non-tiled source to a single worker
-                // Prevents data for these sources from being loaded more than once
-                worker = this.workers[source.id % this.workers.length];
-            }
-
-            return worker;
         }
 
         // Scene is ready for rendering
@@ -31131,6 +31528,10 @@ var Scene = function () {
                 this.update();
             }
 
+            // Pending background tasks
+            _task2.default.setState({ user_moving_view: this.view.user_input_active });
+            _task2.default.processAll();
+
             // Request the next frame if not scheduled to stop
             if (!this.render_loop_stop) {
                 window.requestAnimationFrame(this.renderLoop.bind(this));
@@ -31162,9 +31563,10 @@ var Scene = function () {
             var will_render = !(main === false && selection === false || this.initialized === false || this.updating > 0 || this.ready() === false);
 
             // Pre-render loop hook
-            if (typeof this.preUpdate === 'function') {
-                this.preUpdate(will_render);
-            }
+            this.trigger('preUpdate', will_render);
+
+            // Update view (needs to update user input timer even if no render will occur)
+            this.view.update();
 
             // Bail if no need to render
             if (!will_render) {
@@ -31179,9 +31581,7 @@ var Scene = function () {
             this.media_capture.completeScreenshot(); // completes screenshot capture if requested
 
             // Post-render loop hook
-            if (typeof this.postUpdate === 'function') {
-                this.postUpdate(will_render);
-            }
+            this.trigger('postUpdate', will_render);
 
             // Redraw every frame if animating
             if (this.animated === true || this.view.isAnimating()) {
@@ -31206,7 +31606,6 @@ var Scene = function () {
             var gl = this.gl;
 
             // Update styles, camera, lights
-            this.view.update();
             Object.keys(this.lights).forEach(function (i) {
                 return _this6.lights[i].update();
             });
@@ -31219,7 +31618,7 @@ var Scene = function () {
 
             // Render selection pass (if needed)
             if (selection) {
-                if (this.view.panning || this.view.zooming) {
+                if (this.view.panning || this.view.user_input_active) {
                     this.selection.clearPendingRequests();
                     return;
                 }
@@ -31234,6 +31633,7 @@ var Scene = function () {
                     // Reset to screen buffer
                     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
                     gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+                    gl.clearColor.apply(gl, _toConsumableArray(this.background.color)); // restore scene background color
                     this.last_selection_render = this.frame;
                 }
 
@@ -31291,8 +31691,8 @@ var Scene = function () {
                 // Only update render state when blend mode changes
                 if (style.blend !== last_blend) {
                     var state = Object.assign({}, _style.Style.render_states[style.blend], // render state for blend mode
-                    { blend: allow_blend && style.blend } // enable/disable blending (e.g. no blend for selection)
-                    );
+                    { blend: allow_blend && style.blend // enable/disable blending (e.g. no blend for selection)
+                    });
                     this.setRenderState(state);
                 }
                 count += this.renderStyle(style.name, program_key);
@@ -31304,6 +31704,8 @@ var Scene = function () {
     }, {
         key: 'renderStyle',
         value: function renderStyle(style_name, program_key) {
+            var _this8 = this;
+
             var style = this.styles[style_name];
             var first_for_style = true;
             var render_count = 0;
@@ -31339,14 +31741,12 @@ var Scene = function () {
                 this.view.setupTile(tile, program);
 
                 // Render tile
-                var mesh = tile.meshes[style_name];
-                if (style.render(mesh)) {
-                    // Don't incur additional renders while viewport is moving
-                    if (!(this.view.panning || this.view.zooming)) {
-                        this.requestRedraw();
+                tile.meshes[style_name].forEach(function (mesh) {
+                    if (style.render(mesh)) {
+                        _this8.requestRedraw();
                     }
-                }
-                render_count += mesh.geometry_count;
+                    render_count += mesh.geometry_count;
+                });
             }
 
             return render_count;
@@ -31476,21 +31876,95 @@ var Scene = function () {
     }, {
         key: 'getFeatureAt',
         value: function getFeatureAt(pixel) {
+            var _ref6 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+                radius = _ref6.radius;
+
             if (!this.initialized) {
                 (0, _log2.default)('debug', "Scene.getFeatureAt() called before scene was initialized");
                 return Promise.resolve();
             }
 
-            // Point scaled to [0..1] range
+            // Scale point and radius to [0..1] range
             var point = {
-                x: pixel.x * _utils2.default.device_pixel_ratio / this.view.size.device.width,
-                y: pixel.y * _utils2.default.device_pixel_ratio / this.view.size.device.height
+                x: pixel.x / this.view.size.css.width,
+                y: pixel.y / this.view.size.css.height
             };
 
-            return this.selection.getFeatureAt(point).then(function (selection) {
+            if (radius > 0) {
+                radius = {
+                    x: radius / this.view.size.css.width,
+                    y: radius / this.view.size.css.height
+                };
+            } else {
+                radius = null;
+            }
+
+            return this.selection.getFeatureAt(point, { radius: radius }).then(function (selection) {
                 return Object.assign(selection, { pixel: pixel });
             }).catch(function (error) {
                 return Promise.resolve({ error: error });
+            });
+        }
+
+        // Query features within visible tiles, with optional filter conditions
+
+    }, {
+        key: 'queryFeatures',
+        value: function queryFeatures() {
+            var _ref7 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+                filter = _ref7.filter,
+                _ref7$unique = _ref7.unique,
+                unique = _ref7$unique === undefined ? true : _ref7$unique,
+                _ref7$group_by = _ref7.group_by,
+                group_by = _ref7$group_by === undefined ? null : _ref7$group_by,
+                _ref7$visible = _ref7.visible,
+                visible = _ref7$visible === undefined ? null : _ref7$visible,
+                _ref7$geometry = _ref7.geometry,
+                geometry = _ref7$geometry === undefined ? false : _ref7$geometry;
+
+            filter = _utils2.default.serializeWithFunctions(filter);
+            var tile_keys = this.tile_manager.getRenderableTiles().map(function (t) {
+                return t.key;
+            });
+            return _worker_broker2.default.postMessage(this.workers, 'self.queryFeatures', { filter: filter, visible: visible, geometry: geometry, tile_keys: tile_keys }).then(function (results) {
+                var features = [];
+                var keys = {};
+                var groups = {};
+
+                // Optional uniqueify criteria
+                // Valid values: true, false/null, single property name, or array of property names
+                unique = typeof unique === 'string' ? [unique] : unique;
+                var uniqueify = unique && function (obj) {
+                    return JSON.stringify(Array.isArray(unique) ? (0, _slice2.default)(obj, unique) : obj);
+                };
+
+                // Optional grouping criteria
+                // Valid values: false/null, single property name, or array of property names
+                group_by = (typeof group_by === 'string' || Array.isArray(group_by)) && group_by;
+                var group = group_by && function (obj) {
+                    return Array.isArray(group_by) ? JSON.stringify((0, _slice2.default)(obj, group_by)) : obj[group_by];
+                };
+
+                results.forEach(function (r) {
+                    return r.forEach(function (feature) {
+                        if (uniqueify) {
+                            var str = uniqueify(feature);
+                            if (keys[str]) {
+                                return;
+                            }
+                            keys[str] = true;
+                        }
+
+                        if (group) {
+                            var _str = group(feature.properties);
+                            groups[_str] = groups[_str] || [];
+                            groups[_str].push(feature);
+                        } else {
+                            features.push(feature);
+                        }
+                    });
+                });
+                return group ? groups : features; // returned grouped results, or all results
             });
         }
 
@@ -31501,64 +31975,71 @@ var Scene = function () {
     }, {
         key: 'rebuild',
         value: function rebuild() {
-            var _this8 = this;
+            var _this9 = this;
 
-            var _ref6 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-                _ref6$sync = _ref6.sync,
-                sync = _ref6$sync === undefined ? true : _ref6$sync,
-                _ref6$sources = _ref6.sources,
-                sources = _ref6$sources === undefined ? null : _ref6$sources,
-                serialize_funcs = _ref6.serialize_funcs,
-                _ref6$profile = _ref6.profile,
-                profile = _ref6$profile === undefined ? false : _ref6$profile,
-                _ref6$fade_in = _ref6.fade_in,
-                fade_in = _ref6$fade_in === undefined ? false : _ref6$fade_in;
+            var _ref8 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+                _ref8$new_generation = _ref8.new_generation,
+                new_generation = _ref8$new_generation === undefined ? true : _ref8$new_generation,
+                _ref8$sources = _ref8.sources,
+                sources = _ref8$sources === undefined ? null : _ref8$sources,
+                serialize_funcs = _ref8.serialize_funcs,
+                _ref8$profile = _ref8.profile,
+                profile = _ref8$profile === undefined ? false : _ref8$profile,
+                _ref8$fade_in = _ref8.fade_in,
+                fade_in = _ref8$fade_in === undefined ? false : _ref8$fade_in;
 
             return new Promise(function (resolve, reject) {
                 // Skip rebuild if already in progress
-                if (_this8.building) {
+                if (_this9.building) {
                     // Queue up to one rebuild call at a time, only save last request
-                    if (_this8.building.queued && _this8.building.queued.reject) {
+                    if (_this9.building.queued && _this9.building.queued.reject) {
                         // notify previous request that it did not complete
                         (0, _log2.default)('debug', 'Scene.rebuild: request superceded by a newer call');
-                        _this8.building.queued.resolve(false); // false flag indicates rebuild request was superceded
+                        _this9.building.queued.resolve(false); // false flag indicates rebuild request was superceded
                     }
 
                     // Save queued request
-                    var options = { sync: sync, sources: sources, serialize_funcs: serialize_funcs, profile: profile, fade_in: fade_in };
-                    _this8.building.queued = { resolve: resolve, reject: reject, options: options };
+                    var options = { new_generation: new_generation, sources: sources, serialize_funcs: serialize_funcs, profile: profile, fade_in: fade_in };
+                    _this9.building.queued = { resolve: resolve, reject: reject, options: options };
                     (0, _log2.default)('trace', 'Scene.rebuild(): queuing request');
                     return;
                 }
 
                 // Track tile build state
-                _this8.building = { resolve: resolve, reject: reject };
+                _this9.building = { resolve: resolve, reject: reject };
 
                 // Profiling
                 if (profile) {
-                    _this8._profile('Scene.rebuild');
+                    _this9._profile('Scene.rebuild');
+                }
+
+                // Increment generation to ensure style/tile building stay in sync
+                // (skipped if calling function already incremented)
+                if (new_generation) {
+                    _this9.generation = ++Scene.generation;
+                    for (var style in _this9.styles) {
+                        _this9.styles[style].setGeneration(_this9.generation);
+                    }
                 }
 
                 // Update config (in case JS objects were manipulated directly)
-                if (sync) {
-                    _this8.syncConfigToWorker({ serialize_funcs: serialize_funcs });
-                }
-                _this8.resetFeatureSelection();
-                _this8.resetTime();
+                _this9.syncConfigToWorker({ serialize_funcs: serialize_funcs });
+                _this9.resetFeatureSelection(sources);
+                _this9.resetTime();
 
                 // Rebuild visible tiles
-                _this8.tile_manager.pruneToVisibleTiles();
-                _this8.tile_manager.forEachTile(function (tile) {
+                _this9.tile_manager.pruneToVisibleTiles();
+                _this9.tile_manager.forEachTile(function (tile) {
                     if (!sources || sources.indexOf(tile.source.name) > -1) {
-                        _this8.tile_manager.buildTile(tile, { fade_in: fade_in });
+                        _this9.tile_manager.buildTile(tile, { fade_in: fade_in });
                     }
                 });
-                _this8.tile_manager.updateTilesForView(); // picks up additional tiles for any new/changed data sources
-                _this8.tile_manager.checkBuildQueue(); // resolve immediately if no tiles to build
+                _this9.tile_manager.updateTilesForView(); // picks up additional tiles for any new/changed data sources
+                _this9.tile_manager.checkBuildQueue(); // resolve immediately if no tiles to build
             }).then(function () {
                 // Profiling
                 if (profile) {
-                    _this8._profileEnd('Scene.rebuild');
+                    _this9._profileEnd('Scene.rebuild');
                 }
             });
         }
@@ -31569,6 +32050,8 @@ var Scene = function () {
     }, {
         key: 'tileManagerBuildDone',
         value: function tileManagerBuildDone() {
+            _canvas_text2.default.pruneTextCache();
+
             if (this.building) {
                 (0, _log2.default)('info', 'Scene: build geometry finished');
                 if (this.building.resolve) {
@@ -31597,27 +32080,34 @@ var Scene = function () {
     }, {
         key: 'loadScene',
         value: function loadScene() {
-            var _this9 = this;
+            var _this10 = this;
 
             var config_source = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-            var config_path = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+
+            var _ref9 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+                base_path = _ref9.base_path,
+                file_type = _ref9.file_type;
 
             this.config_source = config_source || this.config_source;
             this.config_globals_applied = [];
 
             if (typeof this.config_source === 'string') {
-                this.config_path = URLs.pathForURL(config_path || this.config_source);
+                this.base_path = URLs.pathForURL(base_path || this.config_source);
             } else {
-                this.config_path = URLs.pathForURL(config_path);
+                this.base_path = URLs.pathForURL(base_path);
             }
 
-            return _scene_loader2.default.loadScene(this.config_source, this.config_path).then(function (_ref7) {
-                var config = _ref7.config,
-                    bundle = _ref7.bundle;
+            // backwards compatibility for accessing base path under previous name
+            // TODO: schedule for deprecation
+            this.config_path = this.base_path;
 
-                _this9.config = config;
-                _this9.config_bundle = bundle;
-                return _this9.config;
+            return _scene_loader2.default.loadScene(this.config_source, { path: this.base_path, type: file_type }).then(function (_ref10) {
+                var config = _ref10.config,
+                    bundle = _ref10.bundle;
+
+                _this10.config = config;
+                _this10.config_bundle = bundle;
+                return _this10.config;
             });
         }
 
@@ -31652,9 +32142,6 @@ var Scene = function () {
                 delete source.data;
             }
 
-            // Resolve paths relative to root scene bundle
-            _scene_loader2.default.normalizeDataSource(source, this.config_bundle);
-
             if (load) {
                 return this.updateConfig({ rebuild: { sources: [name] } });
             } else {
@@ -31664,7 +32151,7 @@ var Scene = function () {
     }, {
         key: 'createDataSources',
         value: function createDataSources() {
-            var _this10 = this;
+            var _this11 = this;
 
             var reset = []; // sources to reset
             var prev_source_names = Object.keys(this.sources);
@@ -31695,8 +32182,8 @@ var Scene = function () {
 
             // Sources that were removed
             prev_source_names.forEach(function (s) {
-                if (!_this10.config.sources[s]) {
-                    delete _this10.sources[s]; // TODO: remove from workers too?
+                if (!_this11.config.sources[s]) {
+                    delete _this11.sources[s]; // TODO: remove from workers too?
                     reset.push(s);
                 }
             });
@@ -31712,7 +32199,7 @@ var Scene = function () {
             // (all except those that are only raster sources attached to other sources)
             for (var ln in this.config.layers) {
                 var layer = this.config.layers[ln];
-                if (layer.data && this.sources[layer.data.source]) {
+                if (layer.enabled !== false && layer.data && this.sources[layer.data.source]) {
                     this.sources[layer.data.source].builds_geometry_tiles = true;
                 }
             }
@@ -31723,10 +32210,10 @@ var Scene = function () {
     }, {
         key: 'loadTextures',
         value: function loadTextures() {
-            var _this11 = this;
+            var _this12 = this;
 
             return _texture2.default.createFromObject(this.gl, this.config.textures).then(function () {
-                return _texture2.default.createDefault(_this11.gl);
+                return _texture2.default.createDefault(_this12.gl);
             }); // create a 'default' texture for placeholders
         }
 
@@ -31735,8 +32222,6 @@ var Scene = function () {
     }, {
         key: 'updateStyles',
         value: function updateStyles() {
-            var _this12 = this;
-
             if (!this.initialized && !this.initializing) {
                 throw new Error('Scene.updateStyles() called before scene was initialized');
             }
@@ -31750,18 +32235,16 @@ var Scene = function () {
                 this.styles[style].setGL(this.gl);
             }
 
-            // Use explicitly set scene animation flag if defined, otherwise turn on animation if there are any animated styles
-            this.animated = this.config.scene.animated !== undefined ? this.config.scene.animated : Object.keys(this.styles).some(function (s) {
-                return _this12.styles[s].animated;
-            });
-
             this.dirty = true;
         }
 
-        // Get active camera - for public API
+        // Is scene currently animating?
 
     }, {
         key: 'getActiveCamera',
+
+
+        // Get active camera - for public API
         value: function getActiveCamera() {
             return this.view.getActiveCamera();
         }
@@ -31831,7 +32314,7 @@ var Scene = function () {
 
             this.introspection = val || false;
             this.updating++;
-            return this.updateConfig().then(function () {
+            return this.updateConfig({ normalize: false }).then(function () {
                 return _this13.updating--;
             });
         }
@@ -31842,19 +32325,24 @@ var Scene = function () {
     }, {
         key: 'updateConfig',
         value: function updateConfig() {
-            var _ref8 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-                _ref8$load_event = _ref8.load_event,
-                load_event = _ref8$load_event === undefined ? false : _ref8$load_event,
-                _ref8$rebuild = _ref8.rebuild,
-                rebuild = _ref8$rebuild === undefined ? true : _ref8$rebuild,
-                serialize_funcs = _ref8.serialize_funcs,
-                _ref8$fade_in = _ref8.fade_in,
-                fade_in = _ref8$fade_in === undefined ? false : _ref8$fade_in;
+            var _ref11 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+                _ref11$load_event = _ref11.load_event,
+                load_event = _ref11$load_event === undefined ? false : _ref11$load_event,
+                _ref11$rebuild = _ref11.rebuild,
+                rebuild = _ref11$rebuild === undefined ? true : _ref11$rebuild,
+                serialize_funcs = _ref11.serialize_funcs,
+                _ref11$normalize = _ref11.normalize,
+                normalize = _ref11$normalize === undefined ? true : _ref11$normalize,
+                _ref11$fade_in = _ref11.fade_in,
+                fade_in = _ref11$fade_in === undefined ? false : _ref11$fade_in;
 
             this.generation = ++Scene.generation;
             this.updating++;
 
             this.config = _scene_loader2.default.applyGlobalProperties(this.config, this.config_globals_applied);
+            if (normalize) {
+                _scene_loader2.default.normalize(this.config, this.config_bundle);
+            }
             this.trigger(load_event ? 'load' : 'update', { config: this.config });
 
             _scene_loader2.default.hoistTextures(this.config); // move inline textures into global texture set
@@ -31870,7 +32358,7 @@ var Scene = function () {
             this.updateStyles();
 
             // Optionally rebuild geometry
-            var done = rebuild ? this.rebuild(Object.assign({ serialize_funcs: serialize_funcs, fade_in: fade_in }, (typeof rebuild === 'undefined' ? 'undefined' : _typeof(rebuild)) === 'object' && rebuild)) : this.syncConfigToWorker({ serialize_funcs: serialize_funcs }); // rebuild() also syncs config
+            var done = rebuild ? this.rebuild(Object.assign({ new_generation: false, serialize_funcs: serialize_funcs, fade_in: fade_in }, (typeof rebuild === 'undefined' ? 'undefined' : _typeof(rebuild)) === 'object' && rebuild)) : this.syncConfigToWorker({ serialize_funcs: serialize_funcs }); // rebuild() also syncs config
 
             // Finish by updating bounds and re-rendering
             this.updating--;
@@ -31885,9 +32373,9 @@ var Scene = function () {
     }, {
         key: 'syncConfigToWorker',
         value: function syncConfigToWorker() {
-            var _ref9 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-                _ref9$serialize_funcs = _ref9.serialize_funcs,
-                serialize_funcs = _ref9$serialize_funcs === undefined ? true : _ref9$serialize_funcs;
+            var _ref12 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+                _ref12$serialize_func = _ref12.serialize_funcs,
+                serialize_funcs = _ref12$serialize_func === undefined ? true : _ref12$serialize_func;
 
             // Tell workers we're about to rebuild (so they can update styles, etc.)
             var config_serialized = serialize_funcs ? _utils2.default.serializeWithFunctions(this.config) : JSON.stringify(this.config);
@@ -31895,7 +32383,7 @@ var Scene = function () {
                 config: config_serialized,
                 generation: this.generation,
                 introspection: this.introspection
-            });
+            }, _debug_settings2.default);
         }
 
         // Listen to related objects
@@ -31945,12 +32433,14 @@ var Scene = function () {
         value: function resetFeatureSelection() {
             var _this15 = this;
 
+            var sources = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+
             if (!this.selection) {
                 this.selection = new _selection2.default(this.gl, this.workers, function () {
                     return _this15.building;
                 });
             } else if (this.workers) {
-                _worker_broker2.default.postMessage(this.workers, 'self.resetFeatureSelection');
+                _worker_broker2.default.postMessage(this.workers, 'self.resetFeatureSelection', sources);
             }
         }
 
@@ -31989,7 +32479,6 @@ var Scene = function () {
         value: function updateViewComplete() {
             if ((this.render_count_changed || this.generation !== this.last_complete_generation) && !this.tile_manager.isLoadingVisibleTiles()) {
                 this.last_complete_generation = this.generation;
-                _canvas_text2.default.pruneTextCache();
                 this.trigger('view_complete');
             }
         }
@@ -32006,8 +32495,12 @@ var Scene = function () {
     }, {
         key: 'screenshot',
         value: function screenshot() {
+            var _ref13 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+                _ref13$background = _ref13.background,
+                background = _ref13$background === undefined ? 'white' : _ref13$background;
+
             this.requestRedraw();
-            return this.media_capture.screenshot();
+            return this.media_capture.screenshot({ background: background });
         }
     }, {
         key: 'startVideoCapture',
@@ -32074,9 +32567,15 @@ var Scene = function () {
                 geometryCountByStyle: function geometryCountByStyle() {
                     var counts = {};
                     scene.tile_manager.getRenderableTiles().forEach(function (tile) {
-                        for (var style in tile.meshes) {
+                        var _loop2 = function _loop2(style) {
                             counts[style] = counts[style] || 0;
-                            counts[style] += tile.meshes[style].geometry_count;
+                            tile.meshes[style].forEach(function (mesh) {
+                                counts[style] += mesh.geometry_count;
+                            });
+                        };
+
+                        for (var style in tile.meshes) {
+                            _loop2(style);
                         }
                     });
                     return counts;
@@ -32094,9 +32593,15 @@ var Scene = function () {
                 geometrySizeByStyle: function geometrySizeByStyle() {
                     var sizes = {};
                     scene.tile_manager.getRenderableTiles().forEach(function (tile) {
-                        for (var style in tile.meshes) {
+                        var _loop3 = function _loop3(style) {
                             sizes[style] = sizes[style] || 0;
-                            sizes[style] += tile.meshes[style].buffer_size;
+                            tile.meshes[style].forEach(function (mesh) {
+                                sizes[style] += mesh.buffer_size;
+                            });
+                        };
+
+                        for (var style in tile.meshes) {
+                            _loop3(style);
                         }
                     });
                     return sizes;
@@ -32111,10 +32616,28 @@ var Scene = function () {
                     }
                     return sizes;
                 },
+                layerStats: function layerStats() {
+                    if (_debug_settings2.default.layer_stats) {
+                        return _tile2.default.debugSumLayerStats(scene.tile_manager.getRenderableTiles());
+                    } else {
+                        (0, _log2.default)('warn', 'Enable the \'layer_stats\' debug setting to collect layer stats');
+                        return {};
+                    }
+                },
                 renderableTilesCount: function renderableTilesCount() {
                     return scene.tile_manager.getRenderableTiles().length;
                 }
             };
+        }
+    }, {
+        key: 'animated',
+        get: function get() {
+            var _this17 = this;
+
+            // Use explicitly set scene animation flag if defined, otherwise enabled animation if any animated styles are in view
+            return this.config.scene.animated !== undefined ? this.config.scene.animated : this.tile_manager.getActiveStyles().some(function (s) {
+                return _this17.styles[s].animated;
+            });
         }
     }], [{
         key: 'create',
@@ -32134,7 +32657,7 @@ exports.default = Scene;
 Scene.id = 0; // unique id for a scene instance
 Scene.generation = 0; // id that is incremented each time a scene config is re-parsed
 
-},{"./gl/context":204,"./gl/render_state":207,"./gl/shader_program":208,"./gl/texture":209,"./gl/vao":210,"./light":224,"./scene_loader":229,"./selection":231,"./sources/data_source":232,"./styles/style":244,"./styles/style_manager":245,"./styles/style_parser":246,"./styles/text/canvas_text":247,"./styles/text/font_manager":248,"./tile_manager":253,"./utils/log":260,"./utils/media_capture":261,"./utils/subscribe":265,"./utils/urls":267,"./utils/utils":268,"./utils/worker_broker":270,"./view":272}],228:[function(_dereq_,module,exports){
+},{"./gl/context":204,"./gl/render_state":207,"./gl/shader_program":208,"./gl/texture":209,"./gl/vao":210,"./light":224,"./scene_loader":229,"./selection":231,"./sources/data_source":232,"./styles/style":244,"./styles/style_manager":245,"./styles/style_parser":246,"./styles/text/canvas_text":247,"./styles/text/font_manager":248,"./tile":252,"./tile_manager":253,"./utils/debug_settings":256,"./utils/log":260,"./utils/media_capture":261,"./utils/slice":265,"./utils/subscribe":266,"./utils/task":267,"./utils/urls":269,"./utils/utils":270,"./utils/worker_broker":272,"./view":274}],228:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -32410,7 +32933,7 @@ var ZipSceneBundle = exports.ZipSceneBundle = function (_SceneBundle) {
 function createSceneBundle(url, path, parent) {
     var type = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
 
-    if (type === 'zip' || typeof url === 'string' && !URLs.isLocalURL(url) && URLs.extensionForURL(url) === 'zip') {
+    if (type != null && type === 'zip' || typeof url === 'string' && !URLs.isLocalURL(url) && URLs.extensionForURL(url) === 'zip') {
         return new ZipSceneBundle(url, path, parent);
     }
     return new SceneBundle(url, path, parent);
@@ -32450,12 +32973,15 @@ function loadResource(source) {
                 }
             }, reject);
         } else {
+            // shallow copy to avoid modifying provided object, allowing a single config object to be loaded multiple times
+            // TODO: address possible modifications to nested properties (mostly harmless / due to data normalization)
+            source = Object.assign({}, source);
             resolve(source);
         }
     });
 }
 
-},{"./utils/urls":267,"./utils/utils":268,"js-yaml":97,"jszip":133}],229:[function(_dereq_,module,exports){
+},{"./utils/urls":269,"./utils/utils":270,"js-yaml":97,"jszip":133}],229:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -32500,14 +33026,16 @@ exports.default = SceneLoader = {
     loadScene: function loadScene(url) {
         var _this = this;
 
-        var path = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+        var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+            path = _ref.path,
+            type = _ref.type;
 
         var errors = [];
-        return this.loadSceneRecursive({ url: url, path: path }, null, errors).then(function (result) {
+        return this.loadSceneRecursive({ url: url, path: path, type: type }, null, errors).then(function (result) {
             return _this.finalize(result);
-        }).then(function (_ref) {
-            var config = _ref.config,
-                bundle = _ref.bundle;
+        }).then(function (_ref2) {
+            var config = _ref2.config,
+                bundle = _ref2.bundle;
 
             if (!config) {
                 // root scene failed to load, reject with first error
@@ -32529,10 +33057,10 @@ exports.default = SceneLoader = {
     // Optional *initial* path only (won't be passed to recursive 'import' calls)
     // Useful for loading resources in base scene file from a separate location
     // (e.g. in Tangram Play, when modified local scene should still refer to original resource URLs)
-    loadSceneRecursive: function loadSceneRecursive(_ref2, parent) {
-        var url = _ref2.url,
-            path = _ref2.path,
-            type = _ref2.type;
+    loadSceneRecursive: function loadSceneRecursive(_ref3, parent) {
+        var url = _ref3.url,
+            path = _ref3.path,
+            type = _ref3.type;
 
         var _this2 = this;
 
@@ -32675,11 +33203,11 @@ exports.default = SceneLoader = {
 
                 // Shader uniforms
                 if (style.shaders && style.shaders.uniforms) {
-                    _glsl2.default.parseUniforms(style.shaders.uniforms).forEach(function (_ref3) {
-                        var type = _ref3.type,
-                            value = _ref3.value,
-                            key = _ref3.key,
-                            uniforms = _ref3.uniforms;
+                    _glsl2.default.parseUniforms(style.shaders.uniforms).forEach(function (_ref4) {
+                        var type = _ref4.type,
+                            value = _ref4.value,
+                            key = _ref4.key,
+                            uniforms = _ref4.uniforms;
 
                         // Texture by URL (string-named texture not referencing existing texture definition)
                         if (type === 'sampler2D' && typeof value === 'string' && !config.textures[value] && !(0, _scene_bundle.isGlobal)(value)) {
@@ -32715,10 +33243,10 @@ exports.default = SceneLoader = {
         // at run-time. Once a global property substitution has been recorderd, it will always be re-applied
         // on subsequent scene updates, even if the target property was updated to another literal value.
         // This is unlikely to be a common occurrence an acceptable limitation for now.
-        applied.forEach(function (_ref4) {
-            var prop = _ref4.prop,
-                target = _ref4.target,
-                key = _ref4.key;
+        applied.forEach(function (_ref5) {
+            var prop = _ref5.prop,
+                target = _ref5.target,
+                key = _ref5.key;
 
             if (target) {
                 target[key] = props[prop];
@@ -32762,10 +33290,14 @@ exports.default = SceneLoader = {
                     obj = val;
                 }
             }
-            // Loop through object properties
-            else if ((typeof obj === 'undefined' ? 'undefined' : _typeof(obj)) === 'object') {
-                    for (var p in obj) {
+            // Loop through object keys or array indices
+            else if (Array.isArray(obj)) {
+                    for (var p = 0; p < obj.length; p++) {
                         obj[p] = applyGlobals(obj[p], obj, p);
+                    }
+                } else if ((typeof obj === 'undefined' ? 'undefined' : _typeof(obj)) === 'object') {
+                    for (var _p in obj) {
+                        obj[_p] = applyGlobals(obj[_p], obj, _p);
                     }
                 }
             return obj;
@@ -32810,11 +33342,11 @@ exports.default = SceneLoader = {
 
                 // Shader uniforms
                 if (style.shaders && style.shaders.uniforms) {
-                    _glsl2.default.parseUniforms(style.shaders.uniforms).forEach(function (_ref5) {
-                        var type = _ref5.type,
-                            value = _ref5.value,
-                            key = _ref5.key,
-                            uniforms = _ref5.uniforms;
+                    _glsl2.default.parseUniforms(style.shaders.uniforms).forEach(function (_ref6) {
+                        var type = _ref6.type,
+                            value = _ref6.value,
+                            key = _ref6.key,
+                            uniforms = _ref6.uniforms;
 
                         // Texture by URL (string-named texture not referencing existing texture definition)
                         if (type === 'sampler2D' && typeof value === 'string' && !config.textures[value]) {
@@ -32835,9 +33367,9 @@ exports.default = SceneLoader = {
 
 
     // Normalize some scene-wide settings that apply to the final, merged scene
-    finalize: function finalize(_ref6) {
-        var config = _ref6.config,
-            bundle = _ref6.bundle;
+    finalize: function finalize(_ref7) {
+        var config = _ref7.config,
+            bundle = _ref7.bundle;
 
         if (!config) {
             return {};
@@ -32897,7 +33429,7 @@ function flattenProperties(obj) {
 
 (0, _subscribe2.default)(SceneLoader);
 
-},{"./gl/glsl":206,"./scene_bundle":228,"./utils/log":260,"./utils/merge":262,"./utils/subscribe":265,"./utils/urls":267}],230:[function(_dereq_,module,exports){
+},{"./gl/glsl":206,"./scene_bundle":228,"./utils/log":260,"./utils/merge":262,"./utils/subscribe":266,"./utils/urls":269}],230:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -32913,6 +33445,8 @@ var _utils = _dereq_('./utils/utils');
 
 var _utils2 = _interopRequireDefault(_utils);
 
+var _debug_settings = _dereq_('./utils/debug_settings');
+
 var _log = _dereq_('./utils/log');
 
 var _log2 = _interopRequireDefault(_log);
@@ -32924,6 +33458,10 @@ var _worker_broker2 = _interopRequireDefault(_worker_broker);
 var _tile = _dereq_('./tile');
 
 var _tile2 = _interopRequireDefault(_tile);
+
+var _geo = _dereq_('./geo');
+
+var _geo2 = _interopRequireDefault(_geo);
 
 var _data_source = _dereq_('./sources/data_source');
 
@@ -32939,9 +33477,15 @@ var _style_manager = _dereq_('./styles/style_manager');
 
 var _layer = _dereq_('./styles/layer');
 
+var _filter = _dereq_('./styles/filter');
+
 var _texture = _dereq_('./gl/texture');
 
 var _texture2 = _interopRequireDefault(_texture);
+
+var _vertex_elements = _dereq_('./gl/vertex_elements');
+
+var _vertex_elements2 = _interopRequireDefault(_vertex_elements);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -32964,12 +33508,13 @@ if (_thread2.default.is_worker) {
         tiles: {},
 
         // Initialize worker
-        init: function init(scene_id, worker_id, num_workers, log_level, device_pixel_ratio) {
+        init: function init(scene_id, worker_id, num_workers, log_level, device_pixel_ratio, has_element_index_unit) {
             self.scene_id = scene_id;
             self._worker_id = worker_id;
             self.num_workers = num_workers;
             _log2.default.setLevel(log_level);
             _utils2.default.device_pixel_ratio = device_pixel_ratio;
+            _vertex_elements2.default.setElementIndexUint(has_element_index_unit);
             _selection2.default.setPrefix(self._worker_id);
             self.style_manager = new _style_manager.StyleManager();
             return worker_id;
@@ -32977,12 +33522,13 @@ if (_thread2.default.is_worker) {
 
 
         // Starts a config refresh
-        updateConfig: function updateConfig(_ref) {
+        updateConfig: function updateConfig(_ref, debug) {
             var config = _ref.config,
                 generation = _ref.generation,
                 introspection = _ref.introspection;
 
             config = JSON.parse(config);
+            (0, _debug_settings.mergeDebugSettings)(debug);
 
             self.generation = generation;
             self.introspection = introspection;
@@ -33167,11 +33713,75 @@ if (_thread2.default.is_worker) {
         },
 
 
+        // Query features within visible tiles, with optional filter conditions
+        queryFeatures: function queryFeatures(_ref3) {
+            var filter = _ref3.filter,
+                visible = _ref3.visible,
+                geometry = _ref3.geometry,
+                tile_keys = _ref3.tile_keys;
+
+            var features = [];
+            var tiles = tile_keys.map(function (t) {
+                return self.tiles[t];
+            }).filter(function (t) {
+                return t;
+            });
+
+            // Compile feature filter
+            if (filter != null) {
+                filter = ['{', '['].indexOf(filter[0]) > -1 ? JSON.parse(filter) : filter; // de-serialize if looks like an object
+                filter = _utils2.default.stringsToFunctions(filter, _style_parser.StyleParser.wrapFunction);
+            }
+            filter = (0, _filter.buildFilter)(filter, _layer.FilterOptions);
+
+            tiles.forEach(function (tile) {
+                var _loop = function _loop(layer) {
+                    var data = tile.source_data.layers[layer];
+                    data.features.forEach(function (feature) {
+                        // Optionally check if feature is visible (e.g. was rendered for current generation)
+                        if (visible === true && feature.generation !== self.generation || visible === false && feature.generation === self.generation) {
+                            return;
+                        }
+
+                        // Apply feature filter
+                        var context = _style_parser.StyleParser.getFeatureParseContext(feature, tile, self.global);
+                        context.source = tile.source; // add data source name
+                        context.layer = layer; // add data source layer name
+
+                        if (!filter(context)) {
+                            return;
+                        }
+
+                        // Info to return with each feature
+                        var subset = {
+                            type: feature.type,
+                            properties: feature.properties
+                        };
+
+                        // Optionally include geometry in response
+                        if (geometry === true) {
+                            // Transform back to lat lng (copy geometry to avoid local modification)
+                            subset.geometry = _geo2.default.copyGeometry(feature.geometry);
+                            _geo2.default.tileSpaceToLatlng(subset.geometry, tile.coords.z, tile.min, tile.max);
+                        }
+
+                        features.push(subset);
+                    });
+                };
+
+                for (var layer in tile.source_data.layers) {
+                    _loop(layer);
+                }
+            });
+            return features;
+        },
+
+
         // Get a feature from the selection map
         getFeatureSelection: function getFeatureSelection() {
-            var _ref3 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-                id = _ref3.id,
-                key = _ref3.key;
+            var _ref4 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+                id = _ref4.id,
+                key = _ref4.key;
 
             var selection = _selection2.default.map[key];
 
@@ -33184,7 +33794,9 @@ if (_thread2.default.is_worker) {
 
         // Resets the feature selection state
         resetFeatureSelection: function resetFeatureSelection() {
-            _selection2.default.reset();
+            var sources = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+
+            _selection2.default.reset(sources);
         },
 
 
@@ -33227,7 +33839,7 @@ if (_thread2.default.is_worker) {
     _worker_broker2.default.addTarget('self', self);
 }
 
-},{"./gl/texture":209,"./selection":231,"./sources/data_source":232,"./styles/layer":238,"./styles/style_manager":245,"./styles/style_parser":246,"./tile":252,"./utils/log":260,"./utils/thread":266,"./utils/utils":268,"./utils/worker_broker":270}],231:[function(_dereq_,module,exports){
+},{"./geo":202,"./gl/texture":209,"./gl/vertex_elements":213,"./selection":231,"./sources/data_source":232,"./styles/filter":237,"./styles/layer":238,"./styles/style_manager":245,"./styles/style_parser":246,"./tile":252,"./utils/debug_settings":256,"./utils/log":260,"./utils/thread":268,"./utils/utils":270,"./utils/worker_broker":272}],231:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -33250,6 +33862,8 @@ var _worker_broker2 = _interopRequireDefault(_worker_broker);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var FeatureSelection = function () {
@@ -33270,16 +33884,13 @@ var FeatureSelection = function () {
             this.feature = null; // currently selected feature
             this.read_delay = 0; // delay time from selection render to framebuffer sample, to avoid CPU/GPU sync lock
             this.read_delay_timer = null; // current timer (setTimeout) for delayed selection reads
-
-            this.pixel = new Uint8Array(4);
-            this.pixel32 = new Float32Array(this.pixel.buffer);
+            this.pixels = null; // allocated lazily on request
 
             // Frame buffer for selection
             // TODO: initiate lazily in case we don't need to do any selection
             this.fbo = this.gl.createFramebuffer();
             this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.fbo);
             this.fbo_size = { width: 256, height: 256 }; // TODO: make configurable / adaptive based on canvas size
-            this.fbo_size.aspect = this.fbo_size.width / this.fbo_size.height;
 
             // Texture for the FBO color attachment
             var fbo_texture = _texture2.default.create(this.gl, 'selection_fbo', { filtering: 'nearest' });
@@ -33311,9 +33922,12 @@ var FeatureSelection = function () {
     }, {
         key: 'bind',
         value: function bind() {
+            var _gl;
+
             // Switch to FBO
             this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.fbo);
             this.gl.viewport(0, 0, this.fbo_size.width, this.fbo_size.height);
+            (_gl = this.gl).clearColor.apply(_gl, _toConsumableArray(FeatureSelection.defaultColor));
         }
 
         // Request feature selection
@@ -33321,8 +33935,10 @@ var FeatureSelection = function () {
 
     }, {
         key: 'getFeatureAt',
-        value: function getFeatureAt(point) {
+        value: function getFeatureAt(point, _ref) {
             var _this = this;
+
+            var radius = _ref.radius;
 
             // ensure requested point is in canvas bounds
             if (!point || point.x < 0 || point.y < 0 || point.x > 1 || point.y > 1) {
@@ -33335,6 +33951,7 @@ var FeatureSelection = function () {
                 _this.requests[_this.selection_request_id] = {
                     id: _this.selection_request_id,
                     point: point,
+                    radius: radius,
                     resolve: resolve,
                     reject: reject
                 };
@@ -33402,11 +34019,71 @@ var FeatureSelection = function () {
                     }
 
                     // Check selection map against FBO
-                    gl.readPixels(Math.floor(request.point.x * _this2.fbo_size.width), Math.floor((1 - request.point.y) * _this2.fbo_size.height), 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, _this2.pixel);
-                    var feature_key = _this2.pixel[0] + (_this2.pixel[1] << 8) + (_this2.pixel[2] << 16) + (_this2.pixel[3] << 24) >>> 0;
+                    var feature_key = void 0,
+                        worker_id = 255;
+                    var point = request.point,
+                        radius = request.radius;
+
+                    var diam_px = void 0;
+
+                    if (!radius) {
+                        radius = { x: 0, y: 0 };
+                        diam_px = { x: 1, y: 1 };
+                    } else {
+                        // diameter in selection buffer pixels
+                        var max_radius = Math.min(_this2.fbo_size.width, _this2.fbo_size.height);
+                        diam_px = {
+                            x: Math.min(Math.ceil(radius.x * 2 * _this2.fbo_size.width), max_radius),
+                            y: Math.min(Math.ceil(radius.y * 2 * _this2.fbo_size.height), max_radius)
+                        };
+                    }
+
+                    // allocate or resize
+                    if (_this2.pixels == null || _this2.pixels.byteLength < diam_px.x * diam_px.y * 4) {
+                        _this2.pixels = new Uint8Array(diam_px.x * diam_px.y * 4);
+                    }
+
+                    // clear pixels
+                    if (_this2.pixels.fill instanceof Function) {
+                        _this2.pixels.fill(0); // native typed array fill
+                    } else {
+                        for (var _p = 0; _p < _this2.pixels.length; _p++) {
+                            _this2.pixels[_p] = 0;
+                        }
+                    }
+
+                    // capture pixels
+                    gl.readPixels(Math.round((point.x - radius.x) * _this2.fbo_size.width), Math.round((1 - point.y - radius.y) * _this2.fbo_size.height), diam_px.x, diam_px.y, gl.RGBA, gl.UNSIGNED_BYTE, _this2.pixels);
+
+                    // first check center pixel (avoid scanning all pixels if cursor is directly on a feature)
+                    var p = (Math.round(diam_px.y / 2) * diam_px.x + Math.round(diam_px.x / 2)) * 4;
+                    var v = _this2.pixels[p] + (_this2.pixels[p + 1] << 8) + (_this2.pixels[p + 2] << 16); // feature id in RGB channels
+                    if (v > 0) {
+                        feature_key = v + (_this2.pixels[p + 3] << 24) >>> 0; // worker id in alpha channel
+                        worker_id = _this2.pixels[p + 3];
+                    } else {
+                        // scan all pixels for feature closest to cursor
+                        var min_dist = -1 >>> 0;
+                        p = 0;
+                        for (var y = 0; y < diam_px.y; y++) {
+                            for (var x = 0; x < diam_px.x; x++, p += 4) {
+                                v = _this2.pixels[p] + (_this2.pixels[p + 1] << 8) + (_this2.pixels[p + 2] << 16); // feature id in RGB channels
+                                if (v > 0) {
+                                    // non-zero value indicates a feature
+                                    // check to see if closer than last found feature
+                                    var dist = (x - diam_px.x / 2) * (x - diam_px.x / 2) + (y - diam_px.y / 2) * (y - diam_px.y / 2);
+                                    if (dist <= min_dist) {
+                                        // get worker id from alpha channel
+                                        feature_key = v + (_this2.pixels[p + 3] << 24) >>> 0;
+                                        worker_id = _this2.pixels[p + 3];
+                                        min_dist = dist;
+                                    }
+                                }
+                            }
+                        }
+                    }
 
                     // If feature found, ask appropriate web worker to lookup feature
-                    var worker_id = _this2.pixel[3];
                     if (worker_id !== 255) {
                         // 255 indicates an empty selection buffer pixel
                         if (_this2.workers[worker_id] != null) {
@@ -33519,20 +34196,40 @@ var FeatureSelection = function () {
         }
     }, {
         key: 'reset',
-        value: function reset() {
-            this.tiles = {};
-            this.map = {};
-            this.map_size = 0;
-            this.map_entry = 0;
+        value: function reset(sources) {
+            var _this3 = this;
+
+            // Clear specific sources
+            if (Array.isArray(sources)) {
+                sources.forEach(function (source) {
+                    return _this3.clearSource(source);
+                });
+            }
+            // Clear all sources
+            else {
+                    this.tiles = {};
+                    this.map = {};
+                    this.map_size = 0;
+                    this.map_entry = 0;
+                }
+        }
+    }, {
+        key: 'clearSource',
+        value: function clearSource(source) {
+            for (var key in this.tiles) {
+                if (this.tiles[key].tile.source === source) {
+                    this.clearTile(key);
+                }
+            }
         }
     }, {
         key: 'clearTile',
         value: function clearTile(key) {
-            var _this3 = this;
+            var _this4 = this;
 
             if (this.tiles[key]) {
                 this.tiles[key].entries.forEach(function (k) {
-                    return delete _this3.map[k];
+                    return delete _this4.map[k];
                 });
                 this.map_size -= this.tiles[key].entries.length;
                 delete this.tiles[key];
@@ -33564,7 +34261,7 @@ FeatureSelection.map_entry = 0;
 FeatureSelection.map_prefix = 0; // set by worker to worker id #
 FeatureSelection.defaultColor = [0, 0, 0, 1];
 
-},{"./gl/texture":209,"./utils/log":260,"./utils/worker_broker":270}],232:[function(_dereq_,module,exports){
+},{"./gl/texture":209,"./utils/log":260,"./utils/worker_broker":272}],232:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -33647,6 +34344,9 @@ var DataSource = function () {
         // overzoom will apply for zooms higher than this
         this.max_zoom = config.max_zoom != null ? config.max_zoom : _geo2.default.default_source_max_zoom;
 
+        this.setTileSize(config.tile_size);
+        this.max_coord_zoom = this.max_zoom + this.zoom_bias;
+
         // no tiles will be requested or displayed outside of these min/max values
         this.min_display_zoom = config.min_display_zoom != null ? config.min_display_zoom : 0;
         this.max_display_zoom = config.max_display_zoom != null ? config.max_display_zoom : null;
@@ -33699,6 +34399,22 @@ var DataSource = function () {
         key: '_load',
         value: function _load(dest) {
             throw new _errors.MethodNotImplemented('_load');
+        }
+
+        // Set the internal tile size in pixels, e.g. '256px' (default), '512px', etc.
+        // Must be a power of 2, and greater than or equal to 256
+
+    }, {
+        key: 'setTileSize',
+        value: function setTileSize(tile_size) {
+            this.tile_size = tile_size || 256;
+            if (typeof this.tile_size !== 'number' || this.tile_size < 256 || !_utils2.default.isPowerOf2(this.tile_size)) {
+                (0, _log2.default)({ level: 'warn', once: true }, 'Data source \'' + this.name + '\': \'tile_size\' parameter must be a number that is a power of 2 greater than or equal to 256, but was \'' + tile_size + '\'');
+                this.tile_size = 256;
+            }
+
+            // # of zoom levels bigger than 256px tiles - 8 in place of log2(256)
+            this.zoom_bias = Math.log2(this.tile_size) - 8;
         }
 
         // Infer winding for data source from first ring of provided geometry
@@ -34046,7 +34762,7 @@ var NetworkTileSource = exports.NetworkTileSource = function (_NetworkSource) {
     return NetworkTileSource;
 }(NetworkSource);
 
-},{"../geo":202,"../utils/errors":257,"../utils/log":260,"../utils/urls":267,"../utils/utils":268}],233:[function(_dereq_,module,exports){
+},{"../geo":202,"../utils/errors":257,"../utils/log":260,"../utils/urls":269,"../utils/utils":270}],233:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -34103,6 +34819,7 @@ var GeoJSONSource = exports.GeoJSONSource = function (_NetworkSource) {
         _this.load_data = null;
         _this.tile_indexes = {}; // geojson-vt tile indices, by layer name
         _this.max_zoom = Math.max(_this.max_zoom || 0, 15); // TODO: max zoom < 15 causes artifacts/no-draw at 20, investigate
+        _this.setTileSize(512); // auto-tile to 512px tiles for better labelling
         _this.pad_scale = 0; // we don't want padding on auto-tiled sources
         return _this;
     }
@@ -34123,7 +34840,7 @@ var GeoJSONSource = exports.GeoJSONSource = function (_NetworkSource) {
                     for (var layer_name in layers) {
                         _this2.tile_indexes[layer_name] = (0, _geojsonVt2.default)(layers[layer_name], {
                             maxZoom: _this2.max_zoom, // max zoom to preserve detail on
-                            tolerance: 3, // simplification tolerance (higher means simpler)
+                            tolerance: 1.5, // simplification tolerance (higher means simpler) NB: half the default to accomodate 512px tiles
                             extent: _geo2.default.tile_scale, // tile extent (both width and height)
                             buffer: 0.0001 // tile buffer on each side
                         });
@@ -34238,47 +34955,45 @@ var GeoJSONSource = exports.GeoJSONSource = function (_NetworkSource) {
             // Define centroids for polygons for centroid label placement
             // Avoids redundant label placement for each generated tile at higher zoom levels
             if (this.config.generate_label_centroids) {
-                (function () {
-                    var features_centroid = [];
-                    var centroid_properties = { "label_placement": true };
+                var features_centroid = [];
+                var centroid_properties = { "label_placement": true };
 
-                    features.forEach(function (feature) {
-                        if (feature.geometry == null) {
-                            return; // no geometry (which is valid GeoJSON)
-                        }
+                features.forEach(function (feature) {
+                    if (feature.geometry == null) {
+                        return; // no geometry (which is valid GeoJSON)
+                    }
 
-                        var coordinates = void 0,
-                            centroid_feature = void 0;
-                        switch (feature.geometry.type) {
-                            case 'Polygon':
-                                coordinates = feature.geometry.coordinates;
-                                centroid_feature = getCentroidFeatureForPolygon(coordinates, feature.properties, centroid_properties);
-                                features_centroid.push(centroid_feature);
-                                break;
-                            case 'MultiPolygon':
-                                // Add centroid feature for largest polygon
-                                coordinates = feature.geometry.coordinates;
-                                var max_area = -Infinity;
-                                var max_area_index = 0;
-                                for (var index = 0; index < coordinates.length; index++) {
-                                    var area = _geo2.default.polygonArea(coordinates[index]);
-                                    if (area > max_area) {
-                                        max_area = area;
-                                        max_area_index = index;
-                                    }
+                    var coordinates = void 0,
+                        centroid_feature = void 0;
+                    switch (feature.geometry.type) {
+                        case 'Polygon':
+                            coordinates = feature.geometry.coordinates;
+                            centroid_feature = getCentroidFeatureForPolygon(coordinates, feature.properties, centroid_properties);
+                            features_centroid.push(centroid_feature);
+                            break;
+                        case 'MultiPolygon':
+                            // Add centroid feature for largest polygon
+                            coordinates = feature.geometry.coordinates;
+                            var max_area = -Infinity;
+                            var max_area_index = 0;
+                            for (var index = 0; index < coordinates.length; index++) {
+                                var area = _geo2.default.polygonArea(coordinates[index]);
+                                if (area > max_area) {
+                                    max_area = area;
+                                    max_area_index = index;
                                 }
-                                centroid_feature = getCentroidFeatureForPolygon(coordinates[max_area_index], feature.properties, centroid_properties);
-                                features_centroid.push(centroid_feature);
-                                break;
-                        }
-                    });
+                            }
+                            centroid_feature = getCentroidFeatureForPolygon(coordinates[max_area_index], feature.properties, centroid_properties);
+                            features_centroid.push(centroid_feature);
+                            break;
+                    }
+                });
 
-                    // append centroid features to features array
-                    features_centroid = features_centroid.filter(function (x) {
-                        return x;
-                    }); // remove null features
-                    Array.prototype.push.apply(features, features_centroid);
-                })();
+                // append centroid features to features array
+                features_centroid = features_centroid.filter(function (x) {
+                    return x;
+                }); // remove null features
+                Array.prototype.push.apply(features, features_centroid);
             }
 
             return features;
@@ -34319,7 +35034,7 @@ var GeoJSONTileSource = exports.GeoJSONTileSource = function (_NetworkTileSource
     _inherits(GeoJSONTileSource, _NetworkTileSource);
 
     function GeoJSONTileSource(source, sources) {
-        var _ret4;
+        var _ret3;
 
         _classCallCheck(this, GeoJSONTileSource);
 
@@ -34329,18 +35044,18 @@ var GeoJSONTileSource = exports.GeoJSONTileSource = function (_NetworkTileSource
         if (!_this3.urlHasTilePattern(_this3.url)) {
             // Check instance type from parent class
             if (source.type === 'GeoJSON') {
-                var _ret2;
+                var _ret;
 
                 // Replace instance type
-                return _ret2 = new GeoJSONSource(source), _possibleConstructorReturn(_this3, _ret2);
+                return _ret = new GeoJSONSource(source), _possibleConstructorReturn(_this3, _ret);
             } else {
-                var _ret3;
+                var _ret2;
 
                 // Pass back to parent class to instantiate
-                return _ret3 = null, _possibleConstructorReturn(_this3, _ret3);
+                return _ret2 = null, _possibleConstructorReturn(_this3, _ret2);
             }
         }
-        return _ret4 = _this3, _possibleConstructorReturn(_this3, _ret4);
+        return _ret3 = _this3, _possibleConstructorReturn(_this3, _ret3);
     }
 
     _createClass(GeoJSONTileSource, [{
@@ -34954,7 +35669,7 @@ function buildFilter(filter, options) {
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.LayerTree = exports.LayerLeaf = exports.reserved = undefined;
+exports.FilterOptions = exports.LayerTree = exports.LayerLeaf = exports.reserved = undefined;
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
@@ -35035,7 +35750,8 @@ function mergeTrees(matchingTrees, group) {
 
     // Merged draw group object
     var draw = {
-        visible: true };
+        visible: true // visible by default
+    };
 
     // Iterate trees in parallel
 
@@ -35405,7 +36121,7 @@ var LayerTree = exports.LayerTree = function (_Layer2) {
     return LayerTree;
 }(Layer);
 
-var FilterOptions = {
+var FilterOptions = exports.FilterOptions = {
     // Handle unit conversions on filter ranges
     rangeTransform: function rangeTransform(val) {
         if (typeof val === 'string' && val.trim().slice(-3) === 'px2') {
@@ -35554,7 +36270,7 @@ function matchFeature(context, layers, collected_layers, collected_layers_ids) {
     return matched;
 }
 
-},{"../utils/log":260,"../utils/merge":262,"../utils/utils":268,"./filter":237,"./style_parser":246}],239:[function(_dereq_,module,exports){
+},{"../utils/log":260,"../utils/merge":262,"../utils/utils":270,"./filter":237,"./style_parser":246}],239:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -35735,7 +36451,6 @@ Object.assign(Lines, {
         // Specify a line texture (either directly, or rendered dash pattern from above)
         if (this.texture) {
             this.defines.TANGRAM_LINE_TEXTURE = true;
-            this.defines.TANGRAM_ALPHA_TEST = 0.5; // pixels below this threshold are transparent
             this.shaders.uniforms = this.shaders.uniforms || {};
             this.shaders.uniforms.u_texture = this.texture;
             this.shaders.uniforms.u_texture_ratio = 1;
@@ -35936,7 +36651,7 @@ Object.assign(Lines, {
         // Main line
         this.feature_style = this.inline_feature_style; // restore calculated style for inline
         var vertex_template = this.makeVertexTemplate(style);
-        (0, _polylines.buildPolylines)(lines, style.width, vertex_data, vertex_template, {
+        return (0, _polylines.buildPolylines)(lines, style.width, vertex_data, vertex_template, {
             cap: style.cap,
             join: style.join,
             miter_limit: style.miter_limit,
@@ -35952,9 +36667,11 @@ Object.assign(Lines, {
     },
     buildPolygons: function buildPolygons(polygons, style, vertex_data, context) {
         // Render polygons as individual lines
+        var geom_count = 0;
         for (var p = 0; p < polygons.length; p++) {
-            this.buildLines(polygons[p], style, vertex_data, context, { closed_polygon: true, remove_tile_edges: true });
+            geom_count += this.buildLines(polygons[p], style, vertex_data, context, { closed_polygon: true, remove_tile_edges: true });
         }
+        return geom_count;
     }
 });
 
@@ -36023,9 +36740,11 @@ var _debug_settings2 = _interopRequireDefault(_debug_settings);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
-var shaderSrc_pointsVertex = "uniform vec2 u_resolution;\nuniform float u_time;\nuniform vec3 u_map_position;\nuniform vec4 u_tile_origin;\nuniform float u_tile_proxy_depth;\nuniform bool u_tile_fade_in;\nuniform float u_meters_per_pixel;\nuniform float u_device_pixel_ratio;\nuniform float u_visible_time;\nuniform bool u_view_panning;\nuniform float u_view_pan_snap_timer;\n\nuniform mat4 u_model;\nuniform mat4 u_modelView;\nuniform mat3 u_normalMatrix;\nuniform mat3 u_inverseNormalMatrix;\n\nattribute vec4 a_position;\nattribute vec4 a_shape;\nattribute vec4 a_color;\nattribute float a_outline_edge;\nattribute vec4 a_outline_color;\nattribute vec2 a_texcoord;\nattribute vec2 a_offset;\n\n#define PI 3.14159265359\n\n#ifdef TANGRAM_CURVED_LABEL\n    attribute vec4 a_offsets;\n    attribute vec4 a_pre_angles;\n    attribute vec4 a_angles;\n#endif\n\n#define TANGRAM_NORMAL vec3(0., 0., 1.)\n#define TANGRAM_PX_FADE_RANGE 2.\n\nvarying vec4 v_color;\nvarying vec2 v_texcoord;\nvarying vec4 v_world_position;\nvarying float v_alpha_factor;\nvarying float v_aa_factor;\n\n#ifdef TANGRAM_SHADER_POINT\n    varying float v_outline_edge;\n    varying vec4 v_outline_color;\n#endif\n\n#ifdef TANGRAM_MULTI_SAMPLER\n    varying float v_sampler;\n#endif\n\n#pragma tangram: camera\n#pragma tangram: material\n#pragma tangram: lighting\n#pragma tangram: raster\n#pragma tangram: global\n\nvec2 rotate2D(vec2 _st, float _angle) {\n    return mat2(cos(_angle),-sin(_angle),\n                sin(_angle),cos(_angle)) * _st;\n}\n\n// Assumes stops are [0, 0.33, 0.66, 0.99];\nfloat mix4linear(float a, float b, float c, float d, float x) {\n    return mix(mix(a, b, 3. * x),\n               mix(b,\n                   mix(c, d, 3. * (max(x, .66) - .66)),\n                   3. * (clamp(x, .33, .66) - .33)),\n               step(0.33, x)\n            );\n}\n\n// Determines if a shader-drawn point is being rendered (vs. a sprite or text label)\nbool isShaderPoint() {\n    #ifdef TANGRAM_SHADER_POINT\n        #ifdef TANGRAM_MULTI_SAMPLER\n            if (v_sampler == 0.) { // sprite sampler\n                return true;\n            }\n        #else\n            return true;\n        #endif\n    #endif\n    return false;\n}\n\nvoid main() {\n    // Initialize globals\n    #pragma tangram: setup\n\n    v_alpha_factor = 1.0;\n    v_color = a_color;\n    v_texcoord = a_texcoord;\n    v_aa_factor = 1. / length(a_shape.xy / 256.) * TANGRAM_PX_FADE_RANGE;\n\n    #ifdef TANGRAM_SHADER_POINT\n        v_outline_color = a_outline_color;\n        v_outline_edge = a_outline_edge;\n    #endif\n\n    // Position\n    vec4 position = u_modelView * vec4(a_position.xyz, 1.);\n\n    // Apply positioning and scaling in screen space\n    vec2 shape = a_shape.xy / 256.;                 // values have an 8-bit fraction\n    vec2 offset = vec2(a_offset.x, -a_offset.y);    // flip y to make it point down\n\n    float zoom = clamp(u_map_position.z - u_tile_origin.z, 0., 1.); //fract(u_map_position.z);\n    float theta = a_shape.z / 4096.;\n\n    #ifdef TANGRAM_CURVED_LABEL\n        if (a_offsets[0] != 0.){\n            #ifdef TANGRAM_FADE_ON_ZOOM_IN\n                v_alpha_factor *= clamp(1. + TANGRAM_FADE_ON_ZOOM_IN_RATE - TANGRAM_FADE_ON_ZOOM_IN_RATE * (u_map_position.z - u_tile_origin.z), 0., 1.);\n            #endif\n\n            vec4 angles_scaled = (PI / 16384.) * a_angles;\n            vec4 pre_angles_scaled = (PI / 128.) * a_pre_angles;\n            vec4 offsets_scaled = (1. / 64.) * a_offsets;\n\n            float pre_angle = mix4linear(pre_angles_scaled[0], pre_angles_scaled[1], pre_angles_scaled[2], pre_angles_scaled[3], zoom);\n            float angle = mix4linear(angles_scaled[0], angles_scaled[1], angles_scaled[2], angles_scaled[3], zoom);\n            float offset_curve = mix4linear(offsets_scaled[0], offsets_scaled[1], offsets_scaled[2], offsets_scaled[3], zoom);\n\n            shape = rotate2D(shape, pre_angle); // rotate in place\n            shape.x += offset_curve;            // offset for curved label segment\n            shape = rotate2D(shape, angle);     // rotate relative to curved label anchor\n            shape += rotate2D(offset, theta);   // offset if specified in the scene file\n        }\n        else {\n            shape = rotate2D(shape + offset, theta);\n        }\n    #else\n        shape = rotate2D(shape + offset, theta);\n    #endif\n\n    #ifdef TANGRAM_MULTI_SAMPLER\n        v_sampler = a_shape.w; // texture sampler\n    #endif\n\n    // Fade in (if requested) based on time mesh has been visible.\n    // Value passed to fragment shader in the v_alpha_factor varying\n    #ifdef TANGRAM_FADE_IN_RATE\n        if (u_tile_fade_in) {\n            v_alpha_factor *= clamp(u_visible_time * TANGRAM_FADE_IN_RATE, 0., 1.);\n        }\n    #endif\n\n    // Fade out when tile is zooming out, e.g. acting as proxy tiles\n    // NB: this is mostly done to compensate for text label collision happening at the label's 1x zoom. As labels\n    // in proxy tiles are scaled down, they begin to overlap, and the fade is a simple way to ease the transition.\n    // Value passed to fragment shader in the v_alpha_factor varying\n    #ifdef TANGRAM_FADE_ON_ZOOM_OUT\n        v_alpha_factor *= clamp(1. + TANGRAM_FADE_ON_ZOOM_OUT_RATE * (u_map_position.z - u_tile_origin.z), 0., 1.);\n    #endif\n\n    // World coordinates for 3d procedural textures\n    v_world_position = u_model * position;\n    v_world_position.xy += shape * u_meters_per_pixel;\n    v_world_position = wrapWorldPosition(v_world_position);\n\n    // Modify position before camera projection\n    #pragma tangram: position\n\n    cameraProjection(position);\n\n    #ifdef TANGRAM_LAYER_ORDER\n        // +1 is to keep all layers including proxies > 0\n        applyLayerOrder(a_position.w + u_tile_proxy_depth + 1., position);\n    #endif\n\n    // Apply pixel offset in screen-space\n    // Multiply by 2 is because screen is 2 units wide Normalized Device Coords (and u_resolution device pixels wide)\n    // Device pixel ratio adjustment is because shape is in logical pixels\n    position.xy += shape * position.w * 2. * u_device_pixel_ratio / u_resolution;\n\n    // Snap to pixel grid\n    // Only applied to fully upright sprites/labels (not shader-drawn points), while panning is not active\n    if (!u_view_panning && (abs(theta) < TANGRAM_EPSILON) && !isShaderPoint()) {\n        vec2 position_fract = fract((((position.xy / position.w) + 1.) * .5) * u_resolution);\n        vec2 position_snap = position.xy + ((step(0.5, position_fract) - position_fract) * position.w * 2. / u_resolution);\n\n        // Animate the snapping to smooth the transition and make it less noticeable\n        #ifdef TANGRAM_VIEW_PAN_SNAP_RATE\n            position.xy = mix(position.xy, position_snap, clamp(u_view_pan_snap_timer * TANGRAM_VIEW_PAN_SNAP_RATE, 0., 1.));\n        #else\n            position.xy = position_snap;\n        #endif\n    }\n\n    gl_Position = position;\n}\n";
-var shaderSrc_pointsFragment = "uniform vec2 u_resolution;\nuniform float u_time;\nuniform vec3 u_map_position;\nuniform vec4 u_tile_origin;\nuniform float u_meters_per_pixel;\nuniform float u_device_pixel_ratio;\nuniform float u_visible_time;\n\nuniform mat3 u_normalMatrix;\nuniform mat3 u_inverseNormalMatrix;\n\nuniform sampler2D u_texture;\n\n#ifdef TANGRAM_MULTI_SAMPLER\nuniform sampler2D u_label_texture;\nvarying float v_sampler;\n#endif\n\nvarying vec4 v_color;\nvarying vec2 v_texcoord;\nvarying vec4 v_world_position;\nvarying float v_alpha_factor;\nvarying float v_aa_factor;\n\n#ifdef TANGRAM_SHADER_POINT\n    varying vec4 v_outline_color;\n    varying float v_outline_edge;\n#endif\n\n#define TANGRAM_NORMAL vec3(0., 0., 1.)\n\n// Alpha discard threshold (substitute for alpha blending)\n#ifndef TANGRAM_ALPHA_TEST\n#define TANGRAM_ALPHA_TEST 0.5\n#endif\n\n#pragma tangram: camera\n#pragma tangram: material\n#pragma tangram: lighting\n#pragma tangram: raster\n#pragma tangram: global\n\nvoid main (void) {\n    // Initialize globals\n    #pragma tangram: setup\n\n    vec4 color = v_color;\n\n    #ifdef TANGRAM_MULTI_SAMPLER\n    if (v_sampler == 0.) { // sprite sampler\n    #endif\n        #ifdef TANGRAM_TEXTURE_POINT\n            // Draw sprite\n            color *= texture2D(u_texture, v_texcoord);\n        #else\n            // Draw a point\n            vec2 uv = v_texcoord * 2. - 1.; // fade alpha near circle edge\n            float point_dist = length(uv);\n            color = mix(\n                color,\n                v_outline_color,\n                (1. - smoothstep(v_outline_edge - v_aa_factor, v_outline_edge + v_aa_factor, 1.-point_dist)) * step(.000001, v_outline_edge)\n            );\n            color.a = mix(color.a, 0., (smoothstep(1. - v_aa_factor, 1., point_dist)));\n\n        #endif\n    #ifdef TANGRAM_MULTI_SAMPLER\n    }\n    else { // label sampler\n        color = texture2D(u_label_texture, v_texcoord);\n        color.rgb /= max(color.a, 0.001); // un-multiply canvas texture\n    }\n    #endif\n\n    // Manually un-multiply alpha, for cases where texture has pre-multiplied alpha\n    #ifdef TANGRAM_UNMULTIPLY_ALPHA\n        color.rgb /= max(color.a, 0.001);\n    #endif\n\n    // If blending is off, use alpha discard as a lower-quality substitute\n    #if !defined(TANGRAM_BLEND_OVERLAY) && !defined(TANGRAM_BLEND_INLAY)\n        if (color.a < TANGRAM_ALPHA_TEST) {\n            discard;\n        }\n    #endif\n\n    #pragma tangram: color\n\n    color.a *= v_alpha_factor;\n\n    #pragma tangram: filter\n\n    gl_FragColor = color;\n}\n";
+
+var shaderSrc_pointsVertex = "uniform vec2 u_resolution;\nuniform float u_time;\nuniform vec3 u_map_position;\nuniform vec4 u_tile_origin;\nuniform float u_tile_proxy_depth;\nuniform bool u_tile_fade_in;\nuniform float u_meters_per_pixel;\nuniform float u_device_pixel_ratio;\nuniform float u_visible_time;\nuniform bool u_view_panning;\nuniform float u_view_pan_snap_timer;\n\nuniform mat4 u_model;\nuniform mat4 u_modelView;\nuniform mat3 u_normalMatrix;\nuniform mat3 u_inverseNormalMatrix;\n\nattribute vec4 a_position;\nattribute vec4 a_shape;\nattribute vec4 a_color;\nattribute float a_outline_edge;\nattribute vec4 a_outline_color;\nattribute vec2 a_texcoord;\nattribute vec2 a_offset;\n\nuniform float u_point_type;\n\n#ifdef TANGRAM_CURVED_LABEL\n    attribute vec4 a_offsets;\n    attribute vec4 a_pre_angles;\n    attribute vec4 a_angles;\n#endif\n\nvarying vec4 v_color;\nvarying vec2 v_texcoord;\nvarying vec4 v_world_position;\nvarying float v_alpha_factor;\n\n#ifdef TANGRAM_SHADER_POINT\n    varying float v_outline_edge;\n    varying vec4 v_outline_color;\n    varying float v_aa_offset;\n#endif\n\n#define PI 3.14159265359\n#define TANGRAM_NORMAL vec3(0., 0., 1.)\n\n#pragma tangram: camera\n#pragma tangram: material\n#pragma tangram: lighting\n#pragma tangram: raster\n#pragma tangram: global\n\nvec2 rotate2D(vec2 _st, float _angle) {\n    return mat2(cos(_angle),-sin(_angle),\n                sin(_angle),cos(_angle)) * _st;\n}\n\n// Assumes stops are [0, 0.33, 0.66, 0.99];\nfloat mix4linear(float a, float b, float c, float d, float x) {\n    return mix(mix(a, b, 3. * x),\n               mix(b,\n                   mix(c, d, 3. * (max(x, .66) - .66)),\n                   3. * (clamp(x, .33, .66) - .33)),\n               step(0.33, x)\n            );\n}\n\nvoid main() {\n    // Initialize globals\n    #pragma tangram: setup\n\n    v_alpha_factor = 1.0;\n    v_color = a_color;\n    v_texcoord = a_texcoord; // UV from vertex\n\n    #ifdef TANGRAM_SHADER_POINT\n        v_outline_color = a_outline_color;\n        v_outline_edge = a_outline_edge;\n        if (u_point_type == TANGRAM_POINT_TYPE_SHADER) { // shader point\n            v_outline_color = a_outline_color;\n            v_outline_edge = a_outline_edge;\n            float size = abs(a_shape.x/128.); // radius in pixels\n            v_texcoord = sign(a_shape.xy)*(size+1.)/(size);\n            size+=2.;\n            v_aa_offset=2./size;\n        }\n    #endif\n\n    // Position\n    vec4 position = u_modelView * vec4(a_position.xyz, 1.);\n\n    // Apply positioning and scaling in screen space\n    vec2 shape = a_shape.xy / 256.;                 // values have an 8-bit fraction\n    vec2 offset = vec2(a_offset.x, -a_offset.y);    // flip y to make it point down\n\n    float zoom = clamp(u_map_position.z - u_tile_origin.z, 0., 1.); //fract(u_map_position.z);\n    float theta = a_shape.z / 4096.;\n\n    #ifdef TANGRAM_CURVED_LABEL\n        //TODO: potential bug? null is passed in for non-curved labels, otherwise the first offset will be 0\n        if (a_offsets[0] != 0.){\n            #ifdef TANGRAM_FADE_ON_ZOOM_IN\n                v_alpha_factor *= clamp(1. + TANGRAM_FADE_ON_ZOOM_IN_RATE - TANGRAM_FADE_ON_ZOOM_IN_RATE * (u_map_position.z - u_tile_origin.z), 0., 1.);\n            #endif\n\n            vec4 angles_scaled = (PI / 16384.) * a_angles;\n            vec4 pre_angles_scaled = (PI / 128.) * a_pre_angles;\n            vec4 offsets_scaled = (1. / 64.) * a_offsets;\n\n            float pre_angle = mix4linear(pre_angles_scaled[0], pre_angles_scaled[1], pre_angles_scaled[2], pre_angles_scaled[3], zoom);\n            float angle = mix4linear(angles_scaled[0], angles_scaled[1], angles_scaled[2], angles_scaled[3], zoom);\n            float offset_curve = mix4linear(offsets_scaled[0], offsets_scaled[1], offsets_scaled[2], offsets_scaled[3], zoom);\n\n            shape = rotate2D(shape, pre_angle); // rotate in place\n            shape.x += offset_curve;            // offset for curved label segment\n            shape = rotate2D(shape, angle);     // rotate relative to curved label anchor\n            shape += rotate2D(offset, theta);   // offset if specified in the scene file\n        }\n        else {\n            shape = rotate2D(shape + offset, theta);\n        }\n    #else\n        shape = rotate2D(shape + offset, theta);\n    #endif\n\n    // Fade in (if requested) based on time mesh has been visible.\n    // Value passed to fragment shader in the v_alpha_factor varying\n    #ifdef TANGRAM_FADE_IN_RATE\n        if (u_tile_fade_in) {\n            v_alpha_factor *= clamp(u_visible_time * TANGRAM_FADE_IN_RATE, 0., 1.);\n        }\n    #endif\n\n    // Fade out when tile is zooming out, e.g. acting as proxy tiles\n    // NB: this is mostly done to compensate for text label collision happening at the label's 1x zoom. As labels\n    // in proxy tiles are scaled down, they begin to overlap, and the fade is a simple way to ease the transition.\n    // Value passed to fragment shader in the v_alpha_factor varying\n    #ifdef TANGRAM_FADE_ON_ZOOM_OUT\n        v_alpha_factor *= clamp(1. + TANGRAM_FADE_ON_ZOOM_OUT_RATE * (u_map_position.z - u_tile_origin.z), 0., 1.);\n    #endif\n\n    // World coordinates for 3d procedural textures\n    v_world_position = u_model * position;\n    v_world_position.xy += shape * u_meters_per_pixel;\n    v_world_position = wrapWorldPosition(v_world_position);\n\n    // Modify position before camera projection\n    #pragma tangram: position\n\n    cameraProjection(position);\n\n    #ifdef TANGRAM_LAYER_ORDER\n        // +1 is to keep all layers including proxies > 0\n        applyLayerOrder(a_position.w + u_tile_proxy_depth + 1., position);\n    #endif\n\n    // Apply pixel offset in screen-space\n    // Multiply by 2 is because screen is 2 units wide Normalized Device Coords (and u_resolution device pixels wide)\n    // Device pixel ratio adjustment is because shape is in logical pixels\n    position.xy += shape * position.w * 2. * u_device_pixel_ratio / u_resolution;\n    #ifdef TANGRAM_SHADER_POINT\n        if (u_point_type == TANGRAM_POINT_TYPE_SHADER) { // shader point\n            // enlarge by 1px to catch missed MSAA fragments\n            position.xy += sign(shape) * position.w * u_device_pixel_ratio / u_resolution;\n        }\n    #endif\n\n    // Snap to pixel grid\n    // Only applied to fully upright sprites/labels (not shader-drawn points), while panning is not active\n    if (!u_view_panning && (abs(theta) < TANGRAM_EPSILON) && u_point_type != TANGRAM_POINT_TYPE_SHADER) {\n        vec2 position_fract = fract((((position.xy / position.w) + 1.) * .5) * u_resolution);\n        vec2 position_snap = position.xy + ((step(0.5, position_fract) - position_fract) * position.w * 2. / u_resolution);\n\n        // Animate the snapping to smooth the transition and make it less noticeable\n        #ifdef TANGRAM_VIEW_PAN_SNAP_RATE\n            position.xy = mix(position.xy, position_snap, clamp(u_view_pan_snap_timer * TANGRAM_VIEW_PAN_SNAP_RATE, 0., 1.));\n        #else\n            position.xy = position_snap;\n        #endif\n    }\n\n    gl_Position = position;\n}\n";
+var shaderSrc_pointsFragment = "uniform vec2 u_resolution;\nuniform float u_time;\nuniform vec3 u_map_position;\nuniform vec4 u_tile_origin;\nuniform float u_meters_per_pixel;\nuniform float u_device_pixel_ratio;\nuniform float u_visible_time;\n\nuniform mat3 u_normalMatrix;\nuniform mat3 u_inverseNormalMatrix;\n\nuniform sampler2D u_texture;\nuniform float u_point_type;\nuniform bool u_apply_color_blocks;\n\nvarying vec4 v_color;\nvarying vec2 v_texcoord;\nvarying vec4 v_world_position;\nvarying float v_alpha_factor;\n\n#ifdef TANGRAM_SHADER_POINT\n    varying vec4 v_outline_color;\n    varying float v_outline_edge;\n    varying float v_aa_offset;\n#endif\n\n#define TANGRAM_NORMAL vec3(0., 0., 1.)\n\n#pragma tangram: camera\n#pragma tangram: material\n#pragma tangram: lighting\n#pragma tangram: raster\n#pragma tangram: global\n\n#ifdef TANGRAM_SHADER_POINT\n    //l is the distance from the center to the fragment, R is the radius of the drawn point\n    float _tangram_antialias(float l, float R){\n        float low  = R - v_aa_offset;\n        float high = R + v_aa_offset;\n        return 1. - smoothstep(low, high, l);\n    }\n#endif\n\nvoid main (void) {\n    // Initialize globals\n    #pragma tangram: setup\n\n    vec4 color = v_color;\n\n    if (u_point_type == TANGRAM_POINT_TYPE_TEXTURE) { // sprite texture\n        color *= texture2D(u_texture, v_texcoord);\n    }\n    else if (u_point_type == TANGRAM_POINT_TYPE_LABEL) { // label texture\n        color = texture2D(u_texture, v_texcoord);\n        color.rgb /= max(color.a, 0.001); // un-multiply canvas texture\n    }\n    #ifdef TANGRAM_SHADER_POINT\n        else if (u_point_type == TANGRAM_POINT_TYPE_SHADER) { // shader point\n            float outline_edge = v_outline_edge;\n            vec4 outlineColor  = v_outline_color;\n            // Distance to this fragment from the center.\n            float l = length(v_texcoord);\n            // Mask of outermost circle, either outline or point boundary.\n            float outer_alpha  = _tangram_antialias(l, 1.);\n            float fill_alpha   = _tangram_antialias(l, 1.-v_outline_edge*0.5) * color.a;\n            float stroke_alpha = (outer_alpha - _tangram_antialias(l, 1.-v_outline_edge)) * outlineColor.a;\n            // Apply alpha compositing with stroke 'over' fill.\n            color.a = stroke_alpha + fill_alpha * (1. - stroke_alpha);\n            color.rgb = mix(color.rgb * fill_alpha, outlineColor.rgb, stroke_alpha) / color.a;\n        }\n    #endif\n\n    // Shader blocks for color/filter are only applied for sprites, shader points, and standalone text,\n    // NOT for text attached to a point (N.B.: for compatibility with ES)\n    if (u_apply_color_blocks) {\n        #pragma tangram: color\n        #pragma tangram: filter\n    }\n\n    color.a *= v_alpha_factor;\n\n    // If blending is off, use alpha discard as a lower-quality substitute\n    #if !defined(TANGRAM_BLEND_OVERLAY) && !defined(TANGRAM_BLEND_INLAY)\n        if (color.a < TANGRAM_ALPHA_TEST) {\n            discard;\n        }\n    #endif\n\n    gl_FragColor = color;\n}\n";
 
 var PLACEMENT = _label_point2.default.PLACEMENT;
 
@@ -36036,12 +36755,19 @@ var texcoord_normalize = 65535;
 
 var Points = exports.Points = Object.create(_style.Style);
 
+// texture types
+var TANGRAM_POINT_TYPE_TEXTURE = 1; // style texture/sprites (assigned by user)
+var TANGRAM_POINT_TYPE_LABEL = 2; // labels (generated by rendering labels to canvas)
+var TANGRAM_POINT_TYPE_SHADER = 3; // point (drawn in shader)
+
 // Mixin text label methods
 Object.assign(Points, _text_labels.TextLabels);
 
 Object.assign(Points, {
     name: 'points',
     built_in: true,
+    vertex_shader_src: shaderSrc_pointsVertex,
+    fragment_shader_src: shaderSrc_pointsFragment,
     collision: true, // style includes a collision pass
     blend: 'overlay', // overlays drawn on top of all other styles, with blending
 
@@ -36050,10 +36776,6 @@ Object.assign(Points, {
         var extra_attributes = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
 
         _style.Style.init.call(this, options);
-
-        // Base shaders
-        this.vertex_shader_src = shaderSrc_pointsVertex;
-        this.fragment_shader_src = shaderSrc_pointsFragment;
 
         var attribs = [{ name: 'a_position', size: 4, type: _constants2.default.SHORT, normalized: false }, { name: 'a_shape', size: 4, type: _constants2.default.SHORT, normalized: false }, { name: 'a_texcoord', size: 2, type: _constants2.default.UNSIGNED_SHORT, normalized: true }, { name: 'a_offset', size: 2, type: _constants2.default.SHORT, normalized: false }, { name: 'a_color', size: 4, type: _constants2.default.UNSIGNED_BYTE, normalized: true }];
 
@@ -36070,23 +36792,19 @@ Object.assign(Points, {
             this.defines.TANGRAM_LAYER_ORDER = true;
         }
 
-        // ensure a label texture is always bound (avoid Chrome 'no texture bound to unit' warnings)
-        this.shaders.uniforms = this.shaders.uniforms || {};
-        this.shaders.uniforms.u_label_texture = _texture2.default.default;
+        // texture types
+        this.defines.TANGRAM_POINT_TYPE_TEXTURE = TANGRAM_POINT_TYPE_TEXTURE;
+        this.defines.TANGRAM_POINT_TYPE_LABEL = TANGRAM_POINT_TYPE_LABEL;
+        this.defines.TANGRAM_POINT_TYPE_SHADER = TANGRAM_POINT_TYPE_SHADER;
 
-        if (this.texture) {
-            this.defines.TANGRAM_TEXTURE_POINT = true;
-            this.shaders.uniforms.u_texture = this.texture;
-        } else {
+        // if no texture defined, use a shader-drawn point
+        if (!this.texture) {
             this.defines.TANGRAM_SHADER_POINT = true;
             attribs.push({ name: 'a_outline_color', size: 4, type: _constants2.default.UNSIGNED_BYTE, normalized: true });
             attribs.push({ name: 'a_outline_edge', size: 1, type: _constants2.default.FLOAT, normalized: false });
         }
 
         this.vertex_layout = new _vertex_layout2.default(attribs);
-
-        // Enable dual point/text mode
-        this.defines.TANGRAM_MULTI_SAMPLER = true;
 
         // Fade out when tile is zooming out, e.g. acting as proxy tiles
         this.defines.TANGRAM_FADE_ON_ZOOM_OUT = true;
@@ -36122,13 +36840,6 @@ Object.assign(Points, {
     addFeature: function addFeature(feature, draw, context) {
         var tile = context.tile;
         if (tile.generation !== this.generation) {
-            return;
-        }
-
-        // Called here because otherwise it will be delayed until the feature queue is parsed,
-        // and we want the preprocessing done before we evaluate text style below
-        draw = this.preprocess(draw);
-        if (!draw) {
             return;
         }
 
@@ -36175,8 +36886,8 @@ Object.assign(Points, {
 
         style.outline_edge_pct = 0;
         if (style.outline_width && style.outline_color) {
-            var outline_width = style.outline_width + 1;
-            style.size[0] += outline_width; // bump outline by 1px to balance out antialiasing
+            var outline_width = style.outline_width;
+            style.size[0] += outline_width;
             style.size[1] += outline_width;
             style.outline_edge_pct = outline_width / Math.min(style.size[0], style.size[1]) * 2; // UV distance at which outline starts
         }
@@ -36201,7 +36912,7 @@ Object.assign(Points, {
 
         style.tile_edges = draw.tile_edges; // usually activated for debugging, or rare visualization needs
 
-        style.sampler = 0; // 0 = sprites
+        style.label_texture = null; // clear out label texture assignment
 
         this.computeLayout(style, feature, draw, context, tile);
 
@@ -36225,13 +36936,13 @@ Object.assign(Points, {
             // (they should stay fixed relative to the point)
             tf.layout.move_into_tile = false;
 
-            _collision2.default.addStyle(this.collision_group_text, tile.key);
+            _collision2.default.addStyle(this.collision_group_text, tile.id);
         }
 
         this.queueFeature({ feature: feature, draw: draw, context: context, style: style, text_feature: tf }, tile); // queue the feature for later processing
 
         // Register with collision manager
-        _collision2.default.addStyle(this.collision_group_points, tile.key);
+        _collision2.default.addStyle(this.collision_group_points, tile.id);
     },
     hasSprites: function hasSprites() {
         return this.texture && _texture2.default.textures[this.texture] && _texture2.default.textures[this.texture].sprites;
@@ -36256,17 +36967,11 @@ Object.assign(Points, {
 
     // Queue features for deferred processing (collect all features first so we can do collision on the whole group)
     queueFeature: function queueFeature(q, tile) {
-        if (!this.tile_data[tile.key] || !this.queues[tile.key]) {
+        if (!this.tile_data[tile.id] || !this.queues[tile.id]) {
             this.startData(tile);
         }
-        this.queues[tile.key].push(q);
-    },
-
-
-    // Override
-    startData: function startData(tile) {
-        this.queues[tile.key] = [];
-        return _style.Style.startData.call(this, tile);
+        this.queues[tile.id] = this.queues[tile.id] || [];
+        this.queues[tile.id].push(q);
     },
 
 
@@ -36279,8 +36984,8 @@ Object.assign(Points, {
             return Promise.resolve();
         }
 
-        var queue = this.queues[tile.key];
-        delete this.queues[tile.key];
+        var queue = this.queues[tile.id];
+        delete this.queues[tile.id];
 
         // For each point feature, create one or more labels
         var text_objs = [];
@@ -36328,7 +37033,7 @@ Object.assign(Points, {
         // Collide both points and text, then build features
         return Promise.all([
         // Points
-        _collision2.default.collide(point_objs, this.collision_group_points, tile.key).then(function (point_objs) {
+        _collision2.default.collide(point_objs, this.collision_group_points, tile.id).then(function (point_objs) {
             point_objs.forEach(function (q) {
                 _this.feature_style = q.style;
                 _this.feature_style.label = q.label;
@@ -36336,14 +37041,12 @@ Object.assign(Points, {
             });
         }),
         // Labels
-        this.prepareTextLabels(tile, this.collision_group_text, text_objs).then(function (labels) {
-            return _this.collideAndRenderTextLabels(tile, _this.collision_group_text, labels);
-        })]).then(function (_ref) {
+        this.collideAndRenderTextLabels(tile, this.collision_group_text, text_objs)]).then(function (_ref) {
             var _ref2 = _slicedToArray(_ref, 2),
                 _ref2$ = _ref2[1],
                 labels = _ref2$.labels,
                 texts = _ref2$.texts,
-                texture = _ref2$.texture;
+                textures = _ref2$.textures;
 
             // Process labels
             if (labels && texts) {
@@ -36358,7 +37061,7 @@ Object.assign(Points, {
                     style.size = text_info.size.logical_size;
                     style.angle = 0; // text attached to point is always upright
                     style.texcoords = text_info.align[q.label.align].texcoords;
-                    style.sampler = 1; // non-0 = labels
+                    style.label_texture = textures[text_info.align[q.label.align].texture_id];
 
                     _style.Style.addFeature.call(_this, q.feature, q.draw, q.context);
                 });
@@ -36368,12 +37071,11 @@ Object.assign(Points, {
             // Finish tile mesh
             return _style.Style.endData.call(_this, tile).then(function (tile_data) {
                 // Attach tile-specific label atlas to mesh as a texture uniform
-                if (texture && tile_data) {
-                    tile_data.uniforms = tile_data.uniforms || {};
-                    tile_data.textures = tile_data.textures || [];
+                if (textures && textures.length) {
+                    var _tile_data$textures;
 
-                    tile_data.uniforms.u_label_texture = texture;
-                    tile_data.textures.push(texture); // assign texture ownership to tile
+                    tile_data.textures = tile_data.textures || [];
+                    (_tile_data$textures = tile_data.textures).push.apply(_tile_data$textures, _toConsumableArray(textures)); // assign texture ownership to tile
                 }
                 return tile_data;
             });
@@ -36498,11 +37200,11 @@ Object.assign(Points, {
 
 
     // Implements label building for TextLabels mixin
-    buildTextLabels: function buildTextLabels(tile_key, feature_queue) {
+    buildTextLabels: function buildTextLabels(tile, feature_queue) {
         var labels = [];
         for (var f = 0; f < feature_queue.length; f++) {
             var fq = feature_queue[f];
-            var text_info = this.texts[tile_key][fq.text_settings_key][fq.text];
+            var text_info = this.texts[tile.id][fq.text_settings_key][fq.text];
             var size = text_info.size.collision_size;
             fq.label = new _label_point2.default(fq.point_label.position, size, fq.layout);
             labels.push(fq);
@@ -36589,8 +37291,8 @@ Object.assign(Points, {
         // layer order - w coord of 'position' attribute (for packing efficiency)
         this.fillVertexTemplate('a_position', this.scaleOrder(style.order), { size: 1, offset: 3 });
 
-        // scaling vector - (x, y) components per pixel, z = angle, w = scaling factor
-        this.fillVertexTemplate('a_shape', 0, { size: 4 });
+        // scaling vector - (x, y) components per pixel, z = angle
+        this.fillVertexTemplate('a_shape', 0, { size: 3 }); // NB: w coord is currently unused, change size: 4 if needed
 
         // texture coords
         this.fillVertexTemplate('a_texcoord', 0, { size: 2 });
@@ -36615,16 +37317,15 @@ Object.assign(Points, {
 
         return this.vertex_template;
     },
-    buildQuad: function buildQuad(points, size, angle, angles, pre_angles, sampler, offset, offsets, texcoord_scale, curve, vertex_data, vertex_template) {
-        (0, _points.buildQuadsForPoints)(points, vertex_data, vertex_template, {
+    buildQuad: function buildQuad(points, size, angle, angles, pre_angles, offset, offsets, texcoord_scale, curve, vertex_data, vertex_template) {
+        return (0, _points.buildQuadsForPoints)(points, vertex_data, vertex_template, {
             texcoord_index: this.vertex_layout.index.a_texcoord,
             position_index: this.vertex_layout.index.a_position,
             shape_index: this.vertex_layout.index.a_shape,
             offset_index: this.vertex_layout.index.a_offset,
             offsets_index: this.vertex_layout.index.a_offsets,
             pre_angles_index: this.vertex_layout.index.a_pre_angles,
-            angles_index: this.vertex_layout.index.a_angles,
-            outline_edge_index: sampler ? null : this.vertex_layout.index.a_outline_edge
+            angles_index: this.vertex_layout.index.a_angles
         }, {
             quad: size,
             quad_normalize: 256, // values have an 8-bit fraction
@@ -36633,7 +37334,6 @@ Object.assign(Points, {
             pre_angles: pre_angles,
             angle: angle * 4096, // values have a 12-bit fraction
             angles: angles,
-            shape_w: sampler,
             curve: curve,
             texcoord_scale: texcoord_scale,
             texcoord_normalize: texcoord_normalize,
@@ -36645,15 +37345,15 @@ Object.assign(Points, {
 
 
     // Build quad for point sprite
-    build: function build(style, vertex_data) {
+    build: function build(style, vertex_data, context) {
         var label = style.label;
         if (label.type === 'curved') {
-            this.buildArticulatedLabel(label, style, vertex_data);
+            return this.buildArticulatedLabel(label, style, vertex_data, context);
         } else {
-            this.buildLabel(label, style, vertex_data);
+            return this.buildLabel(label, style, vertex_data, context);
         }
     },
-    buildLabel: function buildLabel(label, style, vertex_data) {
+    buildLabel: function buildLabel(label, style, vertex_data, context) {
         var vertex_template = this.makeVertexTemplate(style);
         var angle = label.angle || style.angle;
 
@@ -36661,35 +37361,71 @@ Object.assign(Points, {
             texcoords = void 0;
         if (label.type) {
             size = style.size[label.type];
-            texcoords = style.texcoords[label.type];
+            texcoords = style.texcoords[label.type].texcoord;
         } else {
             size = style.size;
             texcoords = style.texcoords;
         }
 
+        // re-point to correct label texture
+        var mesh_data = this.getTileMesh(context.tile, this.meshVariantTypeForDraw(style));
+        vertex_data = mesh_data.vertex_data;
+
+        // setup style or label texture if applicable
+        mesh_data.uniforms = mesh_data.uniforms || {};
+        if (style.label_texture) {
+            mesh_data.uniforms.u_texture = style.label_texture;
+            mesh_data.uniforms.u_point_type = TANGRAM_POINT_TYPE_LABEL;
+            mesh_data.uniforms.u_apply_color_blocks = false;
+        } else if (this.texture) {
+            mesh_data.uniforms.u_texture = this.texture;
+            mesh_data.uniforms.u_point_type = TANGRAM_POINT_TYPE_TEXTURE;
+            mesh_data.uniforms.u_apply_color_blocks = true;
+        } else {
+            mesh_data.uniforms.u_texture = _texture2.default.default; // ensure a tetxure is always bound to avoid GL warnings ('no texture bound to unit' in Chrome)
+            mesh_data.uniforms.u_point_type = TANGRAM_POINT_TYPE_SHADER;
+            mesh_data.uniforms.u_apply_color_blocks = true;
+        }
+
         var offset = label.offset;
 
-        this.buildQuad([label.position], // position
+        // TODO: instead of passing null, pass arrays with fingerprintable values
+        // This value is checked in the shader to determine whether to apply curving logic
+        return this.buildQuad([label.position], // position
         size, // size in pixels
         angle, // angle in radians
         null, // placeholder for multiple angles
         null, // placeholder for multiple pre_angles
-        style.sampler, // texture sampler to use
         offset, // offset from center in pixels
         null, // placeholder for multiple offsets
         texcoords, // texture UVs
-        false, // if curved
+        false, // if curved boolean
         vertex_data, vertex_template // VBO and data for current vertex
         );
     },
-    buildArticulatedLabel: function buildArticulatedLabel(label, style, vertex_data) {
+    buildArticulatedLabel: function buildArticulatedLabel(label, style, vertex_data, context) {
         var vertex_template = this.makeVertexTemplate(style);
         var angle = label.angle;
+        var geom_count = 0;
+
+        // two passes for stroke and fill, where stroke needs to be drawn first (painter's algorithm)
+        // this ensures strokes don't overlap on other fills
 
         // pass for stroke
         for (var i = 0; i < label.num_segments; i++) {
             var size = style.size[label.type][i];
             var texcoord_stroke = style.texcoords_stroke[i];
+
+            // re-point to correct label texture
+            style.label_texture = style.label_textures[i];
+            var mesh_data = this.getTileMesh(context.tile, this.meshVariantTypeForDraw(style));
+            vertex_data = mesh_data.vertex_data;
+
+            // add label texture uniform if needed
+            mesh_data.uniforms = mesh_data.uniforms || {};
+            mesh_data.uniforms.u_texture = style.label_texture;
+            mesh_data.uniforms.u_point_type = TANGRAM_POINT_TYPE_LABEL;
+            mesh_data.uniforms.u_apply_color_blocks = false;
 
             var offset = label.offset || [0, 0];
             var position = label.position;
@@ -36698,12 +37434,11 @@ Object.assign(Points, {
             var offsets = label.offsets[i];
             var pre_angles = label.pre_angles[i];
 
-            this.buildQuad([position], // position
+            geom_count += this.buildQuad([position], // position
             size, // size in pixels
             angle, // angle in degrees
             angles, // angles per segment
             pre_angles, // pre_angle array (rotation applied before offseting)
-            style.sampler, // texture sampler to use
             offset, // offset from center in pixels
             offsets, // offsets per segment
             texcoord_stroke, // texture UVs for stroked text
@@ -36715,7 +37450,18 @@ Object.assign(Points, {
         // pass for fill
         for (var _i5 = 0; _i5 < label.num_segments; _i5++) {
             var _size = style.size[label.type][_i5];
-            var texcoord = style.texcoords[label.type][_i5];
+            var texcoord = style.texcoords[label.type][_i5].texcoord;
+
+            // re-point to correct label texture
+            style.label_texture = style.label_textures[_i5];
+            var _mesh_data = this.getTileMesh(context.tile, this.meshVariantTypeForDraw(style));
+            vertex_data = _mesh_data.vertex_data;
+
+            // add label texture uniform if needed
+            _mesh_data.uniforms = _mesh_data.uniforms || {};
+            _mesh_data.uniforms.u_texture = style.label_texture;
+            _mesh_data.uniforms.u_point_type = TANGRAM_POINT_TYPE_LABEL;
+            _mesh_data.uniforms.u_apply_color_blocks = false;
 
             var _offset = label.offset || [0, 0];
             var _position = label.position;
@@ -36724,12 +37470,11 @@ Object.assign(Points, {
             var _offsets = label.offsets[_i5];
             var _pre_angles = label.pre_angles[_i5];
 
-            this.buildQuad([_position], // position
+            geom_count += this.buildQuad([_position], // position
             _size, // size in pixels
             angle, // angle in degrees
             _angles, // angles per segment
             _pre_angles, // pre_angle array (rotation applied before offseting)
-            style.sampler, // texture sampler to use
             _offset, // offset from center in pixels
             _offsets, // offsets per segment
             texcoord, // texture UVs for fill text
@@ -36737,18 +37482,30 @@ Object.assign(Points, {
             vertex_data, vertex_template // VBO and data for current vertex
             );
         }
+
+        return geom_count;
     },
 
 
     // Override to pass-through to generic point builder
     buildLines: function buildLines(lines, style, vertex_data, context) {
-        this.build(style, vertex_data);
+        return this.build(style, vertex_data, context);
     },
     buildPoints: function buildPoints(points, style, vertex_data, context) {
-        this.build(style, vertex_data);
+        return this.build(style, vertex_data, context);
     },
     buildPolygons: function buildPolygons(points, style, vertex_data, context) {
-        this.build(style, vertex_data);
+        return this.build(style, vertex_data, context);
+    },
+
+
+    // Override
+    meshVariantTypeForDraw: function meshVariantTypeForDraw(draw) {
+        // TODO: restore support for varying sprite textures too (?)
+        if (draw.label_texture) {
+            return draw.label_texture;
+        }
+        return this.default_mesh_variant;
     },
     makeMesh: function makeMesh(vertex_data, vertex_elements) {
         var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
@@ -36759,13 +37516,13 @@ Object.assign(Points, {
     }
 });
 
-},{"../../builders/points":198,"../../geo":202,"../../gl/constants":203,"../../gl/texture":209,"../../gl/vertex_layout":214,"../../labels/collision":215,"../../labels/label_point":219,"../../labels/point_placement":221,"../../utils/debug_settings":256,"../../utils/log":260,"../../vector":271,"../../view":272,"../style":244,"../style_parser":246,"../text/text_labels":250}],242:[function(_dereq_,module,exports){
+},{"../../builders/points":198,"../../geo":202,"../../gl/constants":203,"../../gl/texture":209,"../../gl/vertex_layout":214,"../../labels/collision":215,"../../labels/label_point":219,"../../labels/point_placement":221,"../../utils/debug_settings":256,"../../utils/log":260,"../../vector":273,"../../view":274,"../style":244,"../style_parser":246,"../text/text_labels":250}],242:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.shaderSrc_polygonsFragment = exports.shaderSrc_polygonsVertex = exports.Polygons = undefined;
+exports.Polygons = exports.shaderSrc_polygonsFragment = exports.shaderSrc_polygonsVertex = undefined;
 
 var _style = _dereq_('../style');
 
@@ -36790,16 +37547,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 // Polygon rendering style
 
  // web workers don't have access to GL context, so import all GL constants
-
-var shaderSrc_polygonsVertex = "uniform vec2 u_resolution;\nuniform float u_time;\nuniform vec3 u_map_position;\nuniform vec4 u_tile_origin;\nuniform float u_tile_proxy_depth;\nuniform float u_meters_per_pixel;\nuniform float u_device_pixel_ratio;\n\nuniform mat4 u_model;\nuniform mat4 u_modelView;\nuniform mat3 u_normalMatrix;\nuniform mat3 u_inverseNormalMatrix;\n\nattribute vec4 a_position;\nattribute vec4 a_color;\n\n// Optional normal attribute, otherwise default to up\n#ifdef TANGRAM_NORMAL_ATTRIBUTE\n    attribute vec3 a_normal;\n    #define TANGRAM_NORMAL a_normal\n#else\n    #define TANGRAM_NORMAL vec3(0., 0., 1.)\n#endif\n\n// Optional dynamic line extrusion\n#ifdef TANGRAM_EXTRUDE_LINES\n    // xy: extrusion direction in xy plane\n    // z:  half-width of line (amount to extrude)\n    // w:  scaling factor for interpolating width between zooms\n    attribute vec4 a_extrude;\n#endif\n\nvarying vec4 v_position;\nvarying vec3 v_normal;\nvarying vec4 v_color;\nvarying vec4 v_world_position;\n\n// Optional texture UVs\n#ifdef TANGRAM_TEXTURE_COORDS\n    attribute vec2 a_texcoord;\n    varying vec2 v_texcoord;\n#endif\n\n// Optional model position varying for tile coordinate zoom\n#ifdef TANGRAM_MODEL_POSITION_BASE_ZOOM_VARYING\n    varying vec4 v_modelpos_base_zoom;\n#endif\n\n#if defined(TANGRAM_LIGHTING_VERTEX)\n    varying vec4 v_lighting;\n#endif\n\n#pragma tangram: camera\n#pragma tangram: material\n#pragma tangram: lighting\n#pragma tangram: raster\n#pragma tangram: global\n\nvoid main() {\n    // Initialize globals\n    #pragma tangram: setup\n\n    // Texture UVs\n    #ifdef TANGRAM_TEXTURE_COORDS\n        v_texcoord = a_texcoord;\n        #ifdef TANGRAM_EXTRUDE_LINES\n            v_texcoord.y *= TANGRAM_V_SCALE_ADJUST;\n        #endif\n    #endif\n\n    // Pass model position to fragment shader\n    #ifdef TANGRAM_MODEL_POSITION_BASE_ZOOM_VARYING\n        v_modelpos_base_zoom = modelPositionBaseZoom();\n    #endif\n\n    // Position\n    vec4 position = vec4(a_position.xy, a_position.z / TANGRAM_HEIGHT_SCALE, 1.); // convert height back to meters\n\n    #ifdef TANGRAM_EXTRUDE_LINES\n        vec2 extrude = a_extrude.xy / 256.; // values have an 8-bit fraction\n        float width = a_extrude.z;\n        float dwdz = a_extrude.w;\n\n        // Adjust line width based on zoom level, to prevent proxied lines from being either too small or too big.\n        // \"Flattens\" the zoom between 1-2 to peg it to 1 (keeps lines from prematurely shrinking), then interpolate\n        // and clamp to 4 (keeps lines from becoming too small when far away).\n        float dz = clamp(u_map_position.z - u_tile_origin.z, 0., 4.);\n        dz += step(1., dz) * (1. - dz) + mix(0., 2., clamp((dz - 2.) / 2., 0., 1.));\n\n        // Interpolate between zoom levels\n        width += dwdz * dz;\n\n        // Scale pixel dimensions to be consistent in screen space\n        // Scale from style zoom units back to tile zoom\n        width *= exp2(-dz - (u_tile_origin.z - u_tile_origin.w));\n\n        // Modify line width before extrusion\n        #pragma tangram: width\n\n        position.xy += extrude * width;\n    #endif\n\n    // World coordinates for 3d procedural textures\n    v_world_position = wrapWorldPosition(u_model * position);\n\n    // Adjust for tile and view position\n    position = u_modelView * position;\n\n    // Modify position before camera projection\n    #pragma tangram: position\n\n    // Setup varyings\n    v_position = position;\n    v_normal = normalize(u_normalMatrix * TANGRAM_NORMAL);\n    v_color = a_color;\n\n    #if defined(TANGRAM_LIGHTING_VERTEX)\n        // Vertex lighting\n        vec3 normal = v_normal;\n\n        // Modify normal before lighting\n        #pragma tangram: normal\n\n        // Pass lighting intensity to fragment shader\n        v_lighting = calculateLighting(position.xyz - u_eye, normal, vec4(1.));\n    #endif\n\n    // Camera\n    cameraProjection(position);\n\n    // +1 is to keep all layers including proxies > 0\n    applyLayerOrder(a_position.w + u_tile_proxy_depth + 1., position);\n\n    gl_Position = position;\n}\n";
-var shaderSrc_polygonsFragment = "uniform vec2 u_resolution;\nuniform float u_time;\nuniform vec3 u_map_position;\nuniform vec4 u_tile_origin;\nuniform float u_meters_per_pixel;\nuniform float u_device_pixel_ratio;\n\nuniform mat3 u_normalMatrix;\nuniform mat3 u_inverseNormalMatrix;\n\nvarying vec4 v_position;\nvarying vec3 v_normal;\nvarying vec4 v_color;\nvarying vec4 v_world_position;\n\n#define TANGRAM_NORMAL v_normal\n\n#ifdef TANGRAM_TEXTURE_COORDS\n    varying vec2 v_texcoord;\n#endif\n\n#ifdef TANGRAM_MODEL_POSITION_BASE_ZOOM_VARYING\n    varying vec4 v_modelpos_base_zoom;\n#endif\n\n#if defined(TANGRAM_LIGHTING_VERTEX)\n    varying vec4 v_lighting;\n#endif\n\n#pragma tangram: camera\n#pragma tangram: material\n#pragma tangram: lighting\n#pragma tangram: raster\n#pragma tangram: global\n\nvoid main (void) {\n    // Initialize globals\n    #pragma tangram: setup\n\n    vec4 color = v_color;\n    vec3 normal = TANGRAM_NORMAL;\n\n    // Apply raster to vertex color\n    #ifdef TANGRAM_RASTER_TEXTURE_COLOR\n        color *= sampleRaster(0); // multiplied to tint texture color\n    #endif\n\n    // Apply line texture\n    #ifdef TANGRAM_LINE_TEXTURE\n        vec2 _line_st = vec2(v_texcoord.x, fract(v_texcoord.y / u_texture_ratio));\n        vec4 _line_color = texture2D(u_texture, _line_st);\n\n        if (_line_color.a < TANGRAM_ALPHA_TEST) {\n            #ifdef TANGRAM_LINE_BACKGROUND_COLOR\n                color.rgb = TANGRAM_LINE_BACKGROUND_COLOR;\n            #elif !defined(TANGRAM_BLEND_OVERLAY) && !defined(TANGRAM_BLEND_INLAY)\n                discard; // use discard when alpha blending is unavailable\n            #else\n                color.a = 0.; // use alpha channel when blending is available\n            #endif\n        }\n        else {\n            color *= _line_color;\n        }\n    #endif\n\n    // First, get normal from raster tile (if applicable)\n    #ifdef TANGRAM_RASTER_TEXTURE_NORMAL\n        normal = normalize(sampleRaster(0).rgb * 2. - 1.);\n    #endif\n\n    // Second, alter normal with normal map texture (if applicable)\n    #if defined(TANGRAM_LIGHTING_FRAGMENT) && defined(TANGRAM_MATERIAL_NORMAL_TEXTURE)\n        calculateNormal(normal);\n    #endif\n\n    // Normal modification applied here for fragment lighting or no lighting,\n    // and in vertex shader for vertex lighting\n    #if !defined(TANGRAM_LIGHTING_VERTEX)\n        #pragma tangram: normal\n    #endif\n\n    // Color modification before lighting is applied\n    #pragma tangram: color\n\n    #if defined(TANGRAM_LIGHTING_FRAGMENT)\n        // Calculate per-fragment lighting\n        color = calculateLighting(v_position.xyz - u_eye, normal, color);\n    #elif defined(TANGRAM_LIGHTING_VERTEX)\n        // Apply lighting intensity interpolated from vertex shader\n        color *= v_lighting;\n    #endif\n\n    // Post-processing effects (modify color after lighting)\n    #pragma tangram: filter\n\n    gl_FragColor = color;\n}\n";
+var shaderSrc_polygonsVertex = exports.shaderSrc_polygonsVertex = "uniform vec2 u_resolution;\nuniform float u_time;\nuniform vec3 u_map_position;\nuniform vec4 u_tile_origin;\nuniform float u_tile_proxy_depth;\nuniform float u_meters_per_pixel;\nuniform float u_device_pixel_ratio;\n\nuniform mat4 u_model;\nuniform mat4 u_modelView;\nuniform mat3 u_normalMatrix;\nuniform mat3 u_inverseNormalMatrix;\n\nattribute vec4 a_position;\nattribute vec4 a_color;\n\n// Optional normal attribute, otherwise default to up\n#ifdef TANGRAM_NORMAL_ATTRIBUTE\n    attribute vec3 a_normal;\n    #define TANGRAM_NORMAL a_normal\n#else\n    #define TANGRAM_NORMAL vec3(0., 0., 1.)\n#endif\n\n// Optional dynamic line extrusion\n#ifdef TANGRAM_EXTRUDE_LINES\n    // xy: extrusion direction in xy plane\n    // z:  half-width of line (amount to extrude)\n    // w:  scaling factor for interpolating width between zooms\n    attribute vec4 a_extrude;\n#endif\n\nvarying vec4 v_position;\nvarying vec3 v_normal;\nvarying vec4 v_color;\nvarying vec4 v_world_position;\n\n// Optional texture UVs\n#ifdef TANGRAM_TEXTURE_COORDS\n    attribute vec2 a_texcoord;\n    varying vec2 v_texcoord;\n#endif\n\n// Optional model position varying for tile coordinate zoom\n#ifdef TANGRAM_MODEL_POSITION_BASE_ZOOM_VARYING\n    varying vec4 v_modelpos_base_zoom;\n#endif\n\n#if defined(TANGRAM_LIGHTING_VERTEX)\n    varying vec4 v_lighting;\n#endif\n\n#pragma tangram: camera\n#pragma tangram: material\n#pragma tangram: lighting\n#pragma tangram: raster\n#pragma tangram: global\n\nvoid main() {\n    // Initialize globals\n    #pragma tangram: setup\n\n    // Texture UVs\n    #ifdef TANGRAM_TEXTURE_COORDS\n        v_texcoord = a_texcoord;\n        #ifdef TANGRAM_EXTRUDE_LINES\n            v_texcoord.y *= TANGRAM_V_SCALE_ADJUST;\n        #endif\n    #endif\n\n    // Pass model position to fragment shader\n    #ifdef TANGRAM_MODEL_POSITION_BASE_ZOOM_VARYING\n        v_modelpos_base_zoom = modelPositionBaseZoom();\n    #endif\n\n    // Position\n    vec4 position = vec4(a_position.xy, a_position.z / TANGRAM_HEIGHT_SCALE, 1.); // convert height back to meters\n\n    #ifdef TANGRAM_EXTRUDE_LINES\n        vec2 extrude = a_extrude.xy / 256.; // values have an 8-bit fraction\n        float width = a_extrude.z;\n        float dwdz = a_extrude.w;\n\n        // Adjust line width based on zoom level, to prevent proxied lines from being either too small or too big.\n        // \"Flattens\" the zoom between 1-2 to peg it to 1 (keeps lines from prematurely shrinking), then interpolate\n        // and clamp to 4 (keeps lines from becoming too small when far away).\n        float dz = clamp(u_map_position.z - u_tile_origin.z, 0., 4.);\n        dz += step(1., dz) * (1. - dz) + mix(0., 2., clamp((dz - 2.) / 2., 0., 1.));\n\n        // Interpolate between zoom levels\n        width += dwdz * dz;\n\n        // Scale pixel dimensions to be consistent in screen space\n        // Scale from style zoom units back to tile zoom\n        width *= exp2(-dz - (u_tile_origin.z - u_tile_origin.w));\n\n        // Modify line width before extrusion\n        #pragma tangram: width\n\n        position.xy += extrude * width;\n    #endif\n\n    // World coordinates for 3d procedural textures\n    v_world_position = wrapWorldPosition(u_model * position);\n\n    // Adjust for tile and view position\n    position = u_modelView * position;\n\n    // Modify position before camera projection\n    #pragma tangram: position\n\n    // Setup varyings\n    v_position = position;\n    v_normal = normalize(u_normalMatrix * TANGRAM_NORMAL);\n    v_color = a_color;\n\n    #if defined(TANGRAM_LIGHTING_VERTEX)\n        // Vertex lighting\n        vec3 normal = v_normal;\n\n        // Modify normal before lighting\n        #pragma tangram: normal\n\n        // Pass lighting intensity to fragment shader\n        v_lighting = calculateLighting(position.xyz - u_eye, normal, vec4(1.));\n    #endif\n\n    // Camera\n    cameraProjection(position);\n\n    // +1 is to keep all layers including proxies > 0\n    applyLayerOrder(a_position.w + u_tile_proxy_depth + 1., position);\n\n    gl_Position = position;\n}\n";
+var shaderSrc_polygonsFragment = exports.shaderSrc_polygonsFragment = "uniform vec2 u_resolution;\nuniform float u_time;\nuniform vec3 u_map_position;\nuniform vec4 u_tile_origin;\nuniform float u_meters_per_pixel;\nuniform float u_device_pixel_ratio;\n\nuniform mat3 u_normalMatrix;\nuniform mat3 u_inverseNormalMatrix;\n\nvarying vec4 v_position;\nvarying vec3 v_normal;\nvarying vec4 v_color;\nvarying vec4 v_world_position;\n\n#define TANGRAM_NORMAL v_normal\n\n#ifdef TANGRAM_TEXTURE_COORDS\n    varying vec2 v_texcoord;\n#endif\n\n#ifdef TANGRAM_MODEL_POSITION_BASE_ZOOM_VARYING\n    varying vec4 v_modelpos_base_zoom;\n#endif\n\n#if defined(TANGRAM_LIGHTING_VERTEX)\n    varying vec4 v_lighting;\n#endif\n\n#pragma tangram: camera\n#pragma tangram: material\n#pragma tangram: lighting\n#pragma tangram: raster\n#pragma tangram: global\n\nvoid main (void) {\n    // Initialize globals\n    #pragma tangram: setup\n\n    vec4 color = v_color;\n    vec3 normal = TANGRAM_NORMAL;\n\n    // Apply raster to vertex color\n    #ifdef TANGRAM_RASTER_TEXTURE_COLOR\n        color *= sampleRaster(0); // multiplied to tint texture color\n    #endif\n\n    // Apply line texture\n    #ifdef TANGRAM_LINE_TEXTURE\n        vec2 _line_st = vec2(v_texcoord.x, fract(v_texcoord.y / u_texture_ratio));\n        vec4 _line_color = texture2D(u_texture, _line_st);\n\n        if (_line_color.a < TANGRAM_ALPHA_TEST) {\n            #ifdef TANGRAM_LINE_BACKGROUND_COLOR\n                color.rgb = TANGRAM_LINE_BACKGROUND_COLOR;\n            #elif !defined(TANGRAM_BLEND_OVERLAY) && !defined(TANGRAM_BLEND_INLAY)\n                discard; // use discard when alpha blending is unavailable\n            #else\n                color.a = 0.; // use alpha channel when blending is available\n            #endif\n        }\n        else {\n            color *= _line_color;\n        }\n    #endif\n\n    // First, get normal from raster tile (if applicable)\n    #ifdef TANGRAM_RASTER_TEXTURE_NORMAL\n        normal = normalize(sampleRaster(0).rgb * 2. - 1.);\n    #endif\n\n    // Second, alter normal with normal map texture (if applicable)\n    #if defined(TANGRAM_LIGHTING_FRAGMENT) && defined(TANGRAM_MATERIAL_NORMAL_TEXTURE)\n        calculateNormal(normal);\n    #endif\n\n    // Normal modification applied here for fragment lighting or no lighting,\n    // and in vertex shader for vertex lighting\n    #if !defined(TANGRAM_LIGHTING_VERTEX)\n        #pragma tangram: normal\n    #endif\n\n    // Color modification before lighting is applied\n    #pragma tangram: color\n\n    #if defined(TANGRAM_LIGHTING_FRAGMENT)\n        // Calculate per-fragment lighting\n        color = calculateLighting(v_position.xyz - u_eye, normal, color);\n    #elif defined(TANGRAM_LIGHTING_VERTEX)\n        // Apply lighting intensity interpolated from vertex shader\n        color *= v_lighting;\n    #endif\n\n    // Post-processing effects (modify color after lighting)\n    #pragma tangram: filter\n\n    gl_FragColor = color;\n}\n";
 
 var Polygons = exports.Polygons = Object.create(_style.Style);
-
-// export shaders for use in lines.js
-exports.shaderSrc_polygonsVertex = shaderSrc_polygonsVertex;
-exports.shaderSrc_polygonsFragment = shaderSrc_polygonsFragment;
-
 
 Object.assign(Polygons, {
     name: 'polygons',
@@ -36930,12 +37681,12 @@ Object.assign(Polygons, {
 
         // Extruded polygons (e.g. 3D buildings)
         if (style.extrude && style.height) {
-            (0, _polygons.buildExtrudedPolygons)(polygons, style.z, style.height, style.min_height, vertex_data, vertex_template, this.vertex_layout.index.a_normal, 127, // scale normals to signed bytes
+            return (0, _polygons.buildExtrudedPolygons)(polygons, style.z, style.height, style.min_height, vertex_data, vertex_template, this.vertex_layout.index.a_normal, 127, // scale normals to signed bytes
             options);
         }
         // Regular polygons
         else {
-                (0, _polygons.buildPolygons)(polygons, vertex_data, vertex_template, options);
+                return (0, _polygons.buildPolygons)(polygons, vertex_data, vertex_template, options);
             }
     }
 });
@@ -36984,7 +37735,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Style = undefined;
 
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }(); // Rendering styles
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+exports.addLayerDebugEntry = addLayerDebugEntry;
 
 var _style_parser = _dereq_('./style_parser');
 
@@ -37030,7 +37785,13 @@ var _worker_broker = _dereq_('../utils/worker_broker');
 
 var _worker_broker2 = _interopRequireDefault(_worker_broker);
 
+var _debug_settings = _dereq_('../utils/debug_settings');
+
+var _debug_settings2 = _interopRequireDefault(_debug_settings);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; } // Rendering styles
 
 
 var shaderSrc_selectionFragment = "// Fragment shader for feature selection passes\n// Renders in silhouette according to selection (picking) color, or black if none defined\n\n#ifdef TANGRAM_FEATURE_SELECTION\n    varying vec4 v_selection_color;\n#endif\n\nvoid main (void) {\n    #ifdef TANGRAM_FEATURE_SELECTION\n        gl_FragColor = v_selection_color;\n    #else\n        gl_FragColor = vec4(0., 0., 0., 1.);\n    #endif\n}\n";
@@ -37047,7 +37808,7 @@ var Style = exports.Style = {
             sources = _ref$sources === undefined ? {} : _ref$sources,
             introspection = _ref.introspection;
 
-        this.generation = generation; // scene generation id this style was created for
+        this.setGeneration(generation);
         this.styles = styles; // styles for scene
         this.sources = sources; // data sources for scene
         this.defines = this.hasOwnProperty('defines') && this.defines || {}; // #defines to be injected into the shaders
@@ -37060,12 +37821,6 @@ var Style = exports.Style = {
         this.feature_style = {}; // style for feature currently being parsed, shared to lessen GC/memory thrash
         this.vertex_template = []; // shared single-vertex template, filled out by each style
         this.tile_data = {};
-
-        // Provide a hook for this object to be called from worker threads
-        this.main_thread_target = ['Style', this.name, this.generation].join('/');
-        if (_thread2.default.is_main) {
-            _worker_broker2.default.addTarget(this.main_thread_target, this);
-        }
 
         // Default world coords to wrap every 100,000 meters, can turn off by setting this to 'false'
         this.defines.TANGRAM_WORLD_POSITION_WRAP = 100000;
@@ -37108,12 +37863,23 @@ var Style = exports.Style = {
             this.selection_program = null;
         }
 
+        _worker_broker2.default.removeTarget(this.main_thread_target);
         this.gl = null;
         this.initialized = false;
     },
     reset: function reset() {},
     baseStyle: function baseStyle() {
         return this.base || this.name;
+    },
+    setGeneration: function setGeneration(generation) {
+        // Scene generation id this style was created for
+        this.generation = generation;
+
+        // Provide a hook for this object to be called from worker threads
+        this.main_thread_target = ['Style', this.name, this.generation].join('/');
+        if (_thread2.default.is_main) {
+            _worker_broker2.default.addTarget(this.main_thread_target, this);
+        }
     },
     fillVertexTemplate: function fillVertexTemplate(attribute, value, _ref2) {
         var size = _ref2.size,
@@ -37138,25 +37904,34 @@ var Style = exports.Style = {
 
     // Returns an object to hold feature data (for a tile or other object)
     startData: function startData(tile) {
-        this.tile_data[tile.key] = {
-            vertex_data: null,
+        this.tile_data[tile.id] = this.tile_data[tile.id] || {
+            meshes: {},
             uniforms: {},
             textures: []
         };
-        return this.tile_data[tile.key];
     },
 
 
     // Finalizes an object holding feature data (for a tile or other object)
     endData: function endData(tile) {
-        var tile_data = this.tile_data[tile.key];
-        this.tile_data[tile.key] = null;
+        var tile_data = this.tile_data[tile.id];
+        this.tile_data[tile.id] = null;
 
-        if (tile_data && tile_data.vertex_data && tile_data.vertex_data.vertex_count > 0) {
-            // Only keep final byte buffer
-            tile_data.vertex_data.end();
-            tile_data.vertex_elements = tile_data.vertex_data.element_buffer;
-            tile_data.vertex_data = tile_data.vertex_data.vertex_buffer; // convert from instance to raw typed array
+        if (tile_data && Object.keys(tile_data.meshes).length > 0) {
+            for (var variant in tile_data.meshes) {
+                var mesh = tile_data.meshes[variant];
+
+                // Remove empty mesh variants
+                if (mesh.vertex_data.vertex_count === 0) {
+                    delete tile_data.meshes[variant];
+                    continue;
+                }
+
+                // Only keep final byte buffer
+                mesh.vertex_data.end();
+                mesh.vertex_elements = mesh.vertex_data.element_buffer;
+                mesh.vertex_data = mesh.vertex_data.vertex_buffer; // convert from instance to raw typed array
+            }
 
             // Load raster tiles passed from data source
             // Blocks mesh completion to avoid flickering
@@ -37170,8 +37945,27 @@ var Style = exports.Style = {
 
 
     // Has mesh data for a given tile?
-    hasDataForTile: function hasDataForTile(tile_key) {
-        return this.tile_data[tile_key] != null;
+    hasDataForTile: function hasDataForTile(tile) {
+        return this.tile_data[tile.id] != null;
+    },
+    getTileMesh: function getTileMesh(tile, variant) {
+        var meshes = this.tile_data[tile.id].meshes;
+        if (meshes[variant] == null) {
+            meshes[variant] = {
+                variant: variant,
+                vertex_data: this.vertexLayoutForMeshVariant(variant).createVertexData()
+            };
+        }
+        return meshes[variant];
+    },
+    vertexLayoutForMeshVariant: function vertexLayoutForMeshVariant(variant) {
+        return this.vertex_layout;
+    },
+
+
+    default_mesh_variant: 0,
+    meshVariantTypeForDraw: function meshVariantTypeForDraw(draw) {
+        return this.default_mesh_variant;
     },
     addFeature: function addFeature(feature, draw, context) {
         var tile = context.tile;
@@ -37179,47 +37973,75 @@ var Style = exports.Style = {
             return;
         }
 
-        if (!this.tile_data[tile.key]) {
+        if (!this.tile_data[tile.id]) {
             this.startData(tile);
         }
 
         var style = this.parseFeature(feature, draw, context);
-
-        // Skip feature?
         if (!style) {
-            return;
+            return; // skip feature
         }
 
-        // First feature in this render style?
-        if (!this.tile_data[tile.key].vertex_data) {
-            this.tile_data[tile.key].vertex_data = this.vertex_layout.createVertexData();
+        var vertex_data = this.getTileMesh(tile, this.meshVariantTypeForDraw(style)).vertex_data;
+        if (this.buildGeometry(feature.geometry, style, vertex_data, context) > 0) {
+            feature.generation = this.generation; // track scene generation that feature was rendered for
         }
-
-        this.buildGeometry(feature.geometry, style, this.tile_data[tile.key].vertex_data, context);
     },
     buildGeometry: function buildGeometry(geometry, style, vertex_data, context) {
+        var _this = this;
+
+        var geom_count = void 0;
         if (geometry.type === 'Polygon') {
-            this.buildPolygons([geometry.coordinates], style, vertex_data, context);
+            geom_count = this.buildPolygons([geometry.coordinates], style, vertex_data, context);
         } else if (geometry.type === 'MultiPolygon') {
-            this.buildPolygons(geometry.coordinates, style, vertex_data, context);
+            geom_count = this.buildPolygons(geometry.coordinates, style, vertex_data, context);
         } else if (geometry.type === 'LineString') {
-            this.buildLines([geometry.coordinates], style, vertex_data, context);
+            geom_count = this.buildLines([geometry.coordinates], style, vertex_data, context);
         } else if (geometry.type === 'MultiLineString') {
-            this.buildLines(geometry.coordinates, style, vertex_data, context);
+            geom_count = this.buildLines(geometry.coordinates, style, vertex_data, context);
         } else if (geometry.type === 'Point') {
-            this.buildPoints([geometry.coordinates], style, vertex_data, context);
+            geom_count = this.buildPoints([geometry.coordinates], style, vertex_data, context);
         } else if (geometry.type === 'MultiPoint') {
-            this.buildPoints(geometry.coordinates, style, vertex_data, context);
+            geom_count = this.buildPoints(geometry.coordinates, style, vertex_data, context);
         }
+
+        // Optionally collect per-layer stats
+        if (geom_count > 0 && _debug_settings2.default.layer_stats) {
+            var tile = context.tile;
+            tile.debug.layers = tile.debug.layers || { list: {}, tree: {} };
+            var list = tile.debug.layers.list;
+            var tree = tile.debug.layers.tree;
+            var ftree = {}; // tree of layers for this feature
+            context.layers.forEach(function (layer) {
+                addLayerDebugEntry(list, layer, 1, geom_count, _defineProperty({}, _this.name, geom_count), _defineProperty({}, _this.baseStyle(), geom_count));
+
+                var node = tree;
+                var fnode = ftree;
+                var levels = layer.split(':');
+                for (var i = 0; i < levels.length; i++) {
+                    var level = levels[i];
+                    node[level] = node[level] || { features: 0, geoms: 0, styles: {}, base: {} };
+
+                    if (fnode[level] == null) {
+                        // only count each layer level once per feature
+                        fnode[level] = {};
+                        addLayerDebugEntry(node, level, 1, geom_count, _defineProperty({}, _this.name, geom_count), _defineProperty({}, _this.baseStyle(), geom_count));
+                    }
+
+                    if (i < levels.length - 1) {
+                        node[level].layers = node[level].layers || {};
+                    }
+                    node = node[level].layers;
+                    fnode = fnode[level];
+                }
+            });
+        }
+
+        return geom_count;
     },
     parseFeature: function parseFeature(feature, draw, context) {
         try {
             var style = this.feature_style;
-
-            draw = this.preprocess(draw);
-            if (!draw) {
-                return;
-            }
 
             // Calculate order
             style.order = this.parseOrder(draw.order, context);
@@ -37234,26 +38056,28 @@ var Style = exports.Style = {
                 return;
             }
 
-            // Feature selection (only if style supports it)
-            var selectable = false;
-            style.interactive = this.introspection || draw.interactive;
-            if (this.selection) {
-                selectable = _style_parser.StyleParser.evalProperty(style.interactive, context);
+            // Subclass implementation
+            style = this._parseFeature(feature, draw, context);
+            if (!style) {
+                return; // skip feature
             }
 
-            // If feature is marked as selectable
-            if (selectable) {
+            // Feature selection (only if feature is marked as interactive, and style supports it)
+            if (this.selection) {
+                style.interactive = _style_parser.StyleParser.evalProperty(this.introspection || draw.interactive, context);
+            } else {
+                style.interactive = false;
+            }
+
+            if (style.interactive === true) {
                 style.selection_color = _selection2.default.makeColor(feature, context.tile, context);
             } else {
                 style.selection_color = _selection2.default.defaultColor;
             }
 
-            // Subclass implementation
-            style = this._parseFeature(feature, draw, context);
-
             return style;
         } catch (error) {
-            (0, _log2.default)('error', 'Style.parseFeature: style parsing error', feature, style, error);
+            (0, _log2.default)('error', 'Style.parseFeature: style parsing error', feature, style, error.stack);
         }
     },
     _parseFeature: function _parseFeature(feature, draw, context) {
@@ -37264,7 +38088,17 @@ var Style = exports.Style = {
         if (!draw.preprocessed) {
             // Apply draw defaults
             if (this.draw) {
-                (0, _merge2.default)(draw, this.draw);
+                // Merge each property separately to avoid modifying `draw` instance identity
+                for (var param in this.draw) {
+                    var val = this.draw[param];
+                    if ((typeof val === 'undefined' ? 'undefined' : _typeof(val)) === 'object' && !Array.isArray(val)) {
+                        // nested param (e.g. `outline`)
+                        draw[param] = (0, _merge2.default)({}, val, draw[param]);
+                    } else if (draw[param] == null) {
+                        // simple param (single scalar value or array)
+                        draw[param] = val;
+                    }
+                }
             }
 
             draw = this._preprocess(draw); // optional subclass implementation
@@ -37311,9 +38145,15 @@ var Style = exports.Style = {
 
 
     // Build functions are no-ops until overriden
-    buildPolygons: function buildPolygons() {},
-    buildLines: function buildLines() {},
-    buildPoints: function buildPoints() {},
+    buildPolygons: function buildPolygons() {
+        return 0;
+    },
+    buildLines: function buildLines() {
+        return 0;
+    },
+    buildPoints: function buildPoints() {
+        return 0;
+    },
 
 
     /*** GL state and rendering ***/
@@ -37325,7 +38165,8 @@ var Style = exports.Style = {
     makeMesh: function makeMesh(vertex_data, vertex_elements) {
         var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
-        return new _vbo_mesh2.default(this.gl, vertex_data, vertex_elements, this.vertex_layout, options);
+        var vertex_layout = this.vertexLayoutForMeshVariant(options.variant);
+        return new _vbo_mesh2.default(this.gl, vertex_data, vertex_elements, vertex_layout, options);
     },
     render: function render(mesh) {
         return mesh.render();
@@ -37345,7 +38186,11 @@ var Style = exports.Style = {
 
         if (!program.compiled) {
             (0, _log2.default)('debug', 'Compiling style \'' + this.name + '\', program key \'' + key + '\'');
-            program.compile();
+            try {
+                program.compile();
+            } catch (e) {
+                (0, _log2.default)('error', 'Style: error compiling program for style \'' + this.name + '\' (program key \'' + key + '\')', this, e.stack);
+            }
         }
         return program;
     },
@@ -37470,7 +38315,7 @@ var Style = exports.Style = {
 
     // Setup raster access in shaders
     setupRasters: function setupRasters() {
-        var _this = this;
+        var _this2 = this;
 
         if (!this.hasRasters()) {
             return;
@@ -37492,10 +38337,10 @@ var Style = exports.Style = {
         // the maximum number of possible sources. At render time, only the necessary number of rasters
         // are bound (the remaining slots aren't intended to be accessed).
         var num_raster_sources = Object.keys(this.sources).filter(function (s) {
-            return _this.sources[s] instanceof _raster.RasterTileSource;
+            return _this2.sources[s] instanceof _raster.RasterTileSource;
         }).length;
 
-        this.defines.TANGRAM_NUM_RASTER_SOURCES = 'int(' + num_raster_sources + ')';
+        this.defines.TANGRAM_NUM_RASTER_SOURCES = '' + num_raster_sources; // force to string to avoid auto-float conversion
         if (num_raster_sources > 0) {
             // Use model position of tile's coordinate zoom for raster tile texture UVs
             this.defines.TANGRAM_MODEL_POSITION_BASE_ZOOM_VARYING = true;
@@ -37508,7 +38353,7 @@ var Style = exports.Style = {
 
     // Load raster tile textures and set uniforms
     buildRasterTextures: function buildRasterTextures(tile, tile_data) {
-        var _this2 = this;
+        var _this3 = this;
 
         if (!this.hasRasters()) {
             return Promise.resolve(tile_data);
@@ -37519,7 +38364,7 @@ var Style = exports.Style = {
 
         // TODO: data source could retrieve raster texture URLs
         tile.rasters.map(function (r) {
-            return _this2.sources[r];
+            return _this3.sources[r];
         }).filter(function (x) {
             return x;
         }).forEach(function (source, i) {
@@ -37572,7 +38417,8 @@ var Style = exports.Style = {
                 if (tile.coords.z > raster_coords.z) {
                     var dz = tile.coords.z - raster_coords.z; // # of levels raster source is overzoomed
                     var dz2 = Math.pow(2, dz);
-                    u_offsets[i] = [tile.coords.x % dz2 / dz2, (dz2 - 1 - tile.coords.y % dz2) / dz2, // GL texture coords are +Y up
+                    u_offsets[i] = [(tile.coords.x % dz2 + dz2) % dz2 / dz2, // double-modulo to handle negative (wrapped) tile coords
+                    (dz2 - 1 - tile.coords.y % dz2) / dz2, // GL texture coords are +Y up
                     1 / dz2];
                 } else {
                     u_offsets[i] = [0, 0, 1];
@@ -37672,7 +38518,26 @@ var Style = exports.Style = {
     }
 };
 
-},{"../gl/shader_program":208,"../gl/texture":209,"../gl/vbo_mesh":211,"../light":224,"../material":225,"../selection":231,"../sources/raster":235,"../utils/log":260,"../utils/merge":262,"../utils/thread":266,"../utils/worker_broker":270,"./style_parser":246}],245:[function(_dereq_,module,exports){
+// add feature and geometry counts for a single layer
+function addLayerDebugEntry(target, layer, faeture_count, geom_count, styles, bases) {
+    target[layer] = target[layer] || { features: 0, geoms: 0, styles: {}, base: {} };
+    target[layer].features += faeture_count; // feature count
+    target[layer].geoms += geom_count; // geometry count
+
+    // geometry count by style
+    for (var style in styles) {
+        target[layer].styles[style] = target[layer].styles[style] || 0;
+        target[layer].styles[style] += styles[style];
+    }
+
+    // geometry count by base style
+    for (var _style in bases) {
+        target[layer].base[_style] = target[layer].base[_style] || 0;
+        target[layer].base[_style] += bases[_style];
+    }
+}
+
+},{"../gl/shader_program":208,"../gl/texture":209,"../gl/vbo_mesh":211,"../light":224,"../material":225,"../selection":231,"../sources/raster":235,"../utils/debug_settings":256,"../utils/log":260,"../utils/merge":262,"../utils/thread":268,"../utils/worker_broker":272,"./style_parser":246}],245:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -37770,6 +38635,9 @@ var StyleManager = exports.StyleManager = function () {
 
             // Increases precision for height values
             _shader_program2.default.defines.TANGRAM_HEIGHT_SCALE = _geo2.default.height_scale;
+
+            // Alpha discard threshold (substitute for alpha blending)
+            _shader_program2.default.defines.TANGRAM_ALPHA_TEST = 0.5;
         }
 
         // Destroy all styles for a given GL context
@@ -38221,7 +39089,7 @@ var StyleParser = exports.StyleParser = {};
 // - $geometry: the type of geometry, 'point', 'line', or 'polygon'
 // - $meters_per_pixel: conversion for meters/pixels at current map zoom
 StyleParser.wrapFunction = function (func) {
-    var f = '\n        var feature = context.feature.properties;\n        var global = context.global;\n        var $zoom = context.zoom;\n        var $layer = context.layer;\n        var $geometry = context.geometry;\n        var $meters_per_pixel = context.meters_per_pixel;\n\n        var val = (function(){ ' + func + ' }());\n\n        if (typeof val === \'number\' && isNaN(val)) {\n            val = null; // convert NaNs to nulls\n        }\n\n        return val;\n    ';
+    var f = '\n        var feature = context.feature.properties;\n        var global = context.global;\n        var $zoom = context.zoom;\n        var $layer = context.layer;\n        var $source = context.source;\n        var $geometry = context.geometry;\n        var $meters_per_pixel = context.meters_per_pixel;\n\n        var val = (function(){ ' + func + ' }());\n\n        if (typeof val === \'number\' && isNaN(val)) {\n            val = null; // convert NaNs to nulls\n        }\n\n        return val;\n    ';
     return f;
 };
 
@@ -38380,15 +39248,11 @@ StyleParser.convertUnits = function (val, context) {
     }
     // un-parsed unit string
     else if (typeof val === 'string') {
-            var units = val.match(/([0-9.-]+)([a-z]+)/);
-            if (units && units.length === 3) {
-                val = parseFloat(units[1]);
-                units = units[2];
-            }
-
-            if (units === 'px') {
-                // convert from pixels
-                val *= _geo2.default.metersPerPixel(context.zoom);
+            if (val.trim().slice(-2) === 'px') {
+                val = parseFloat(val);
+                val *= _geo2.default.metersPerPixel(context.zoom); // convert from pixels
+            } else {
+                val = parseFloat(val);
             }
         }
         // multiple values or stops
@@ -38531,7 +39395,9 @@ StyleParser.evalCachedColorProperty = function (val) {
                 }
                 // Single array color
                 else {
-                        val.static = val.value;
+                        val.static = val.value.map(function (x) {
+                            return x;
+                        }); // copy to avoid modifying
                         if (val.static && val.static[3] == null) {
                             val.static[3] = 1; // default alpha
                         }
@@ -38566,7 +39432,10 @@ StyleParser.parseColor = function (val) {
     }
 
     // Defaults
-    if (val) {
+    if (Array.isArray(val)) {
+        val = val.map(function (x) {
+            return x;
+        }); // copy to avoid modifying
         // alpha
         if (val[3] == null) {
             val[3] = 1;
@@ -38604,7 +39473,7 @@ StyleParser.evalProperty = function (prop, context) {
     return prop;
 };
 
-},{"../geo":202,"../utils/utils":268,"csscolorparser":72}],247:[function(_dereq_,module,exports){
+},{"../geo":202,"../utils/utils":270,"csscolorparser":72}],247:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38631,28 +39500,37 @@ var _font_manager = _dereq_('./font_manager');
 
 var _font_manager2 = _interopRequireDefault(_font_manager);
 
+var _task = _dereq_('../../utils/task');
+
+var _task2 = _interopRequireDefault(_task);
+
 var _debug_settings = _dereq_('../../utils/debug_settings');
 
 var _debug_settings2 = _interopRequireDefault(_debug_settings);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
-var codon_length = 2; // length of chunks when breaking up label text
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var CanvasText = function () {
     function CanvasText() {
         _classCallCheck(this, CanvasText);
 
-        this.canvas = document.createElement('canvas');
-        this.canvas.style.backgroundColor = 'transparent'; // render text on transparent background
-        this.context = this.canvas.getContext('2d');
+        this.createCanvas(); // create initial canvas and context
         this.vertical_text_buffer = 8; // vertical pixel padding around text
         this.horizontal_text_buffer = 4; // text styling such as italic emphasis is not measured by the Canvas API, so padding is necessary
     }
 
     _createClass(CanvasText, [{
+        key: 'createCanvas',
+        value: function createCanvas() {
+            this.canvas = document.createElement('canvas');
+            this.canvas.style.backgroundColor = 'transparent'; // render text on transparent background
+            this.context = this.canvas.getContext('2d');
+        }
+    }, {
         key: 'resize',
         value: function resize(width, height) {
             this.canvas.width = width;
@@ -38687,85 +39565,97 @@ var CanvasText = function () {
         }
     }, {
         key: 'textSizes',
-        value: function textSizes(texts) {
+        value: function textSizes(tile_id, texts) {
             var _this = this;
 
-            var dpr = void 0;
             return _font_manager2.default.loadFonts().then(function () {
-                for (var style in texts) {
-                    CanvasText.initTextCache(style);
-
-                    var text_infos = texts[style];
-                    var first = true;
-
-                    for (var text in text_infos) {
-                        var text_info = text_infos[text];
-                        var text_settings = text_info.text_settings;
-
-                        if (first) {
-                            _this.setFont(text_settings);
-                            dpr = _utils2.default.device_pixel_ratio * text_settings.supersample;
-                            first = false;
-                        }
-
-                        if (text_settings.can_articulate) {
-                            var segments = splitLabelText(text);
-
-                            var words = text.split(' ');
-
-                            // RTL is true if every word is RTL
-                            // BIDI is true if there is RTL and LTR
-                            var hasRTL = false;
-                            var hasLTR = false;
-                            var bidi = false;
-                            for (var i = 0; i < words.length; i++) {
-                                if (isTextRTL(words[i])) {
-                                    if (hasLTR) {
-                                        bidi = true;
-                                        break;
-                                    }
-                                    hasRTL = true;
-                                } else {
-                                    if (hasRTL) {
-                                        bidi = true;
-                                        break;
-                                    }
-                                    hasLTR = true;
-                                }
-                            }
-
-                            var rtl = hasRTL && !hasLTR && !bidi;
-                            var shaped = isTextShaped(text);
-
-                            text_info.isRTL = rtl;
-                            text_info.no_curving = bidi || shaped;
-                            text_info.vertical_buffer = _this.vertical_text_buffer;
-
-                            if (rtl) {
-                                segments.reverse();
-                            }
-
-                            text_info.segments = segments;
-                            text_info.size = [];
-
-                            if (!text_info.no_curving) {
-                                for (var _i = 0; _i < segments.length; _i++) {
-                                    text_info.size.push(_this.textSize(style, segments[_i], text_settings).size);
-                                }
-                            }
-
-                            // add full text as well
-                            text_info.total_size = _this.textSize(style, text, text_settings).size;
-                        } else {
-                            // Only send text sizes back to worker (keep computed text line info
-                            // on main thread, for future rendering)
-                            text_info.size = _this.textSize(style, text, text_settings).size;
-                        }
+                return _task2.default.add({
+                    type: 'textSizes',
+                    target: _this,
+                    method: 'processTextSizesTask',
+                    texts: texts,
+                    tile_id: tile_id,
+                    cursor: {
+                        styles: Object.keys(texts),
+                        texts: null,
+                        style_idx: null,
+                        text_idx: null
                     }
+                });
+            });
+        }
+    }, {
+        key: 'processTextSizesTask',
+        value: function processTextSizesTask(task) {
+            var cursor = task.cursor,
+                texts = task.texts;
+
+            cursor.style_idx = cursor.style_idx || 0;
+
+            while (cursor.style_idx < cursor.styles.length) {
+                var style = cursor.styles[cursor.style_idx];
+                if (cursor.text_idx == null) {
+                    cursor.text_idx = 0;
+                    cursor.texts = Object.keys(texts[style]);
                 }
 
-                return texts;
-            });
+                var text_infos = texts[style];
+                var first = true;
+
+                while (cursor.text_idx < cursor.texts.length) {
+                    var text = cursor.texts[cursor.text_idx];
+                    var text_info = text_infos[text];
+                    var text_settings = text_info.text_settings;
+
+                    if (first) {
+                        this.setFont(text_settings);
+                        first = false;
+                    }
+
+                    if (text_settings.can_articulate) {
+                        var rtl = false;
+                        var bidi = false;
+                        if (isTextRTL(text)) {
+                            if (!isTextNeutral(text)) {
+                                bidi = true;
+                            } else {
+                                rtl = true;
+                            }
+                        }
+
+                        text_info.isRTL = rtl;
+                        text_info.no_curving = bidi || isTextCurveBlacklisted(text); // used in LabelLine to prevent curved labels
+                        text_info.vertical_buffer = this.vertical_text_buffer;
+                        text_info.size = [];
+
+                        if (!text_info.no_curving) {
+                            var segments = splitLabelText(text, rtl);
+                            text_info.segments = segments;
+                            for (var i = 0; i < segments.length; i++) {
+                                text_info.size.push(this.textSize(style, segments[i], text_settings).size);
+                            }
+                        }
+
+                        // add full text as well
+                        text_info.total_size = this.textSize(style, text, text_settings).size;
+                    } else {
+                        // Only send text sizes back to worker (keep computed text line info
+                        // on main thread, for future rendering)
+                        text_info.size = this.textSize(style, text, text_settings).size;
+                    }
+
+                    cursor.text_idx++;
+
+                    if (!_task2.default.shouldContinue(task)) {
+                        return false;
+                    }
+                }
+                cursor.text_idx = null;
+                cursor.style_idx++;
+            }
+
+            _task2.default.finish(task, { texts: texts });
+            return true;
         }
 
         // Computes width and height of text based on current font style
@@ -38782,12 +39672,13 @@ var CanvasText = function () {
                 supersample = _ref2.supersample;
 
             // Check cache first
-            if (CanvasText.text_cache[style][text]) {
-                CanvasText.cache_stats.hits++;
-                return CanvasText.text_cache[style][text];
+            CanvasText.cache.text[style] = CanvasText.cache.text[style] || {};
+            if (CanvasText.cache.text[style][text]) {
+                CanvasText.cache.stats.text_hits++;
+                return CanvasText.cache.text[style][text];
             }
-            CanvasText.cache_stats.misses++;
-            CanvasText.text_cache_count++;
+            CanvasText.cache.stats.text_misses++;
+            CanvasText.cache.text_count++;
 
             // Calc and store in cache
             var dpr = _utils2.default.device_pixel_ratio * supersample;
@@ -38813,11 +39704,11 @@ var CanvasText = function () {
             var logical_size = [texture_size[0] / dpr, texture_size[1] / dpr];
 
             // Returns lines (w/per-line info for drawing) and text's overall bounding box + canvas size
-            CanvasText.text_cache[style][text] = {
+            CanvasText.cache.text[style][text] = {
                 lines: lines,
                 size: { collision_size: collision_size, texture_size: texture_size, logical_size: logical_size, line_height: line_height }
             };
-            return CanvasText.text_cache[style][text];
+            return CanvasText.cache.text[style][text];
         }
 
         // Draw multiple lines of text
@@ -38923,6 +39814,7 @@ var CanvasText = function () {
             // 0.75 buffer produces a better approximate vertical centering of text
             var ty = y + vertical_buffer * 0.75 + line_height;
 
+            // Draw stroke and fill separately for curved text. Offset stroke in texture atlas by shift.
             if (stroke && stroke_width > 0) {
                 var shift = type === 'curved' ? texture_size[0] : 0;
                 this.context.strokeText(str, tx + shift, ty);
@@ -38931,224 +39823,363 @@ var CanvasText = function () {
         }
     }, {
         key: 'rasterize',
-        value: function rasterize(texts, texture_size, tile_key) {
-            for (var style in texts) {
-                var text_infos = texts[style];
-                var first = true;
+        value: function rasterize(texts, textures, tile_id, texture_prefix, gl) {
+            return _task2.default.add({
+                type: 'rasterizeLabels',
+                target: this,
+                method: 'processRasterizeTask',
+                cancel: 'cancelRasterizeTask',
+                pause_factor: 2, // pause 2 frames when task run past allowed time
+                user_moving_view: false, // don't run task when user is moving view
+                texts: texts,
+                textures: textures,
+                texture_prefix: texture_prefix,
+                gl: gl,
+                tile_id: tile_id,
+                cursor: {
+                    styles: Object.keys(texts),
+                    texts: null,
+                    style_idx: 0,
+                    text_idx: null,
+                    texture_idx: 0,
+                    texture_resize: true,
+                    texture_names: []
+                }
+            });
+        }
+    }, {
+        key: 'processRasterizeTask',
+        value: function processRasterizeTask(task) {
+            var cursor = task.cursor,
+                texts = task.texts,
+                textures = task.textures;
 
-                for (var text in text_infos) {
-                    var text_info = text_infos[text];
-                    var text_settings = text_info.text_settings;
+            var texture = void 0;
 
-                    // set font on first occurence of new font style
-                    if (first) {
-                        this.setFont(text_settings);
-                        first = false;
+            // Rasterize one texture at a time, so we only have to keep one canvas in memory (they can be large)
+            while (cursor.texture_idx < task.textures.length) {
+                texture = textures[cursor.texture_idx];
+
+                if (cursor.texture_resize) {
+                    cursor.texture_resize = false;
+                    this.resize.apply(this, _toConsumableArray(texture.texture_size));
+                }
+
+                while (cursor.style_idx < cursor.styles.length) {
+                    var style = cursor.styles[cursor.style_idx];
+                    if (cursor.text_idx == null) {
+                        cursor.text_idx = 0;
+                        cursor.texts = Object.keys(texts[style]);
                     }
 
-                    if (text_settings.can_articulate) {
-                        var words = text_info.segments;
+                    var text_infos = texts[style];
+                    var first = true;
 
-                        text_info.texcoords = {};
-                        for (var i = 0; i < text_info.type.length; i++) {
+                    while (cursor.text_idx < cursor.texts.length) {
+                        var text = cursor.texts[cursor.text_idx];
+                        var text_info = text_infos[text];
+                        var text_settings = text_info.text_settings;
 
-                            var type = text_info.type[i];
-                            switch (type) {
-                                case 'straight':
-                                    var word = words.reduce(text_info.isRTL ? reduceLeft : reduceRight);
-                                    var texcoord = void 0;
+                        // set font on first occurence of new font style
+                        if (first) {
+                            this.setFont(text_settings);
+                            first = false;
+                        }
 
-                                    if (CanvasText.texcoord_cache[tile_key][style][word].texcoord) {
-                                        texcoord = CanvasText.texcoord_cache[tile_key][style][word].texcoord;
-                                    } else {
-                                        var texture_position = CanvasText.texcoord_cache[tile_key][style][word].texture_position;
-                                        var size = CanvasText.text_cache[style][word].size;
-                                        var line = CanvasText.text_cache[style][word].lines;
+                        if (text_settings.can_articulate) {
+                            text_info.texcoords = text_info.texcoords || {};
+                            for (var t = 0; t < text_info.type.length; t++) {
 
-                                        this.drawTextMultiLine(line, texture_position, size, text_settings, type);
-
-                                        texcoord = _texture2.default.getTexcoordsForSprite(texture_position, size.texture_size, texture_size);
-
-                                        CanvasText.texcoord_cache[tile_key][style][word].texcoord = texcoord;
-                                    }
-
-                                    text_info.texcoords[type] = texcoord;
-                                    break;
-                                case 'curved':
-                                    text_info.texcoords.curved = [];
-                                    text_info.texcoords_stroke = [];
-                                    for (var _i2 = 0; _i2 < words.length; _i2++) {
-                                        var _word = words[_i2];
-                                        var _texcoord = void 0;
-                                        var texcoord_stroke = void 0;
-
-                                        if (CanvasText.texcoord_cache[tile_key][style][_word].texcoord) {
-                                            _texcoord = CanvasText.texcoord_cache[tile_key][style][_word].texcoord;
-                                            texcoord_stroke = CanvasText.texcoord_cache[tile_key][style][_word].texcoord_stroke;
-
-                                            text_info.texcoords_stroke.push(texcoord_stroke);
-                                        } else {
-                                            var _texture_position = CanvasText.texcoord_cache[tile_key][style][_word].texture_position;
-                                            var _size = CanvasText.text_cache[style][_word].size;
-                                            var _line = CanvasText.text_cache[style][_word].lines;
-
-                                            this.drawTextMultiLine(_line, _texture_position, _size, text_settings, type);
-
-                                            _texcoord = _texture2.default.getTexcoordsForSprite(_texture_position, _size.texture_size, texture_size);
-
-                                            var texture_position_stroke = [_texture_position[0] + _size.texture_size[0], _texture_position[1]];
-
-                                            texcoord_stroke = _texture2.default.getTexcoordsForSprite(texture_position_stroke, _size.texture_size, texture_size);
-
-                                            CanvasText.texcoord_cache[tile_key][style][_word].texcoord = _texcoord;
-                                            CanvasText.texcoord_cache[tile_key][style][_word].texcoord_stroke = texcoord_stroke;
-
-                                            text_info.texcoords_stroke.push(texcoord_stroke);
+                                var type = text_info.type[t];
+                                switch (type) {
+                                    case 'straight':
+                                        // Only render for current texture
+                                        if (text_info.textures[t] !== cursor.texture_idx) {
+                                            continue;
                                         }
 
-                                        text_info.texcoords.curved.push(_texcoord);
-                                    }
-                                    break;
+                                        var word = text_info.isRTL ? text.split().reverse().join() : text;
+                                        var cache = texture.texcoord_cache[style][word];
+
+                                        var texcoord = void 0;
+                                        if (cache.texcoord) {
+                                            texcoord = cache.texcoord;
+                                        } else {
+                                            var texture_position = cache.texture_position;
+
+                                            var _textSize = this.textSize(style, word, text_settings),
+                                                size = _textSize.size,
+                                                lines = _textSize.lines;
+
+                                            this.drawTextMultiLine(lines, texture_position, size, text_settings, type);
+
+                                            texcoord = _texture2.default.getTexcoordsForSprite(texture_position, size.texture_size, texture.texture_size);
+
+                                            cache.texcoord = texcoord;
+                                        }
+
+                                        text_info.texcoords[type] = {
+                                            texcoord: texcoord,
+                                            texture_id: cache.texture_id
+                                        };
+
+                                        break;
+
+                                    case 'curved':
+                                        var words = text_info.segments;
+                                        text_info.texcoords.curved = text_info.texcoords.curved || [];
+                                        text_info.texcoords_stroke = text_info.texcoords_stroke || [];
+
+                                        for (var w = 0; w < words.length; w++) {
+                                            // Only render for current texture
+                                            if (text_info.textures[t][w] !== cursor.texture_idx) {
+                                                continue;
+                                            }
+
+                                            var _word = words[w];
+                                            var _cache = texture.texcoord_cache[style][_word];
+
+                                            var _texcoord = void 0;
+                                            var texcoord_stroke = void 0;
+                                            if (_cache.texcoord) {
+                                                _texcoord = _cache.texcoord;
+                                                texcoord_stroke = _cache.texcoord_stroke;
+                                                text_info.texcoords_stroke.push(texcoord_stroke);
+                                            } else {
+                                                var _texture_position = _cache.texture_position;
+
+                                                var _textSize2 = this.textSize(style, _word, text_settings),
+                                                    _size = _textSize2.size,
+                                                    _lines = _textSize2.lines;
+
+                                                this.drawTextMultiLine(_lines, _texture_position, _size, text_settings, type);
+
+                                                _texcoord = _texture2.default.getTexcoordsForSprite(_texture_position, _size.texture_size, texture.texture_size);
+
+                                                var texture_position_stroke = [_texture_position[0] + _size.texture_size[0], _texture_position[1]];
+
+                                                texcoord_stroke = _texture2.default.getTexcoordsForSprite(texture_position_stroke, _size.texture_size, texture.texture_size);
+
+                                                _cache.texcoord = _texcoord;
+                                                _cache.texcoord_stroke = texcoord_stroke;
+
+                                                // NB: texture_id is the same between stroke and fill, so it's not duplicated here
+                                                text_info.texcoords_stroke.push(texcoord_stroke);
+                                            }
+
+                                            text_info.texcoords.curved.push({
+                                                texcoord: _texcoord,
+                                                texture_id: _cache.texture_id
+                                            });
+                                        }
+                                        break;
+                                }
+                            }
+                        } else {
+                            var _lines2 = this.textSize(style, text, text_settings).lines;
+
+                            for (var align in text_info.align) {
+                                // Only render for current texture
+                                if (text_info.align[align].texture_id !== cursor.texture_idx) {
+                                    continue;
+                                }
+
+                                this.drawTextMultiLine(_lines2, text_info.align[align].texture_position, text_info.size, {
+                                    stroke: text_settings.stroke,
+                                    stroke_width: text_settings.stroke_width,
+                                    transform: text_settings.transform,
+                                    supersample: text_settings.supersample,
+                                    align: align
+                                });
+
+                                text_info.align[align].texcoords = _texture2.default.getTexcoordsForSprite(text_info.align[align].texture_position, text_info.size.texture_size, texture.texture_size);
                             }
                         }
-                    } else {
-                        var lines = CanvasText.text_cache[style][text].lines; // get previously computed lines of text
-                        for (var align in text_info.align) {
-                            this.drawTextMultiLine(lines, text_info.align[align].texture_position, text_info.size, {
-                                stroke: text_settings.stroke,
-                                stroke_width: text_settings.stroke_width,
-                                transform: text_settings.transform,
-                                supersample: text_settings.supersample,
-                                align: align
-                            });
 
-                            text_info.align[align].texcoords = _texture2.default.getTexcoordsForSprite(text_info.align[align].texture_position, text_info.size.texture_size, texture_size);
+                        cursor.text_idx++;
+
+                        if (!_task2.default.shouldContinue(task)) {
+                            return false;
                         }
                     }
+                    cursor.text_idx = null;
+                    cursor.style_idx++;
                 }
+
+                // Create GL texture (canvas element will be reused for next texture)
+                var tname = task.texture_prefix + cursor.texture_idx;
+                _texture2.default.create(task.gl, tname, {
+                    element: this.canvas,
+                    filtering: 'linear',
+                    UNPACK_PREMULTIPLY_ALPHA_WEBGL: true
+                });
+                _texture2.default.retain(tname);
+                cursor.texture_names.push(tname);
+
+                cursor.texture_idx++;
+                cursor.texture_resize = true;
+                cursor.style_idx = 0;
             }
-            CanvasText.clearTexcoordCache(tile_key);
+
+            _task2.default.finish(task, { textures: cursor.texture_names });
+            return true;
+        }
+
+        // Free any textures that have been allocated part-way through label rasterization for a tile
+
+    }, {
+        key: 'cancelRasterizeTask',
+        value: function cancelRasterizeTask(task) {
+            (0, _log2.default)('trace', 'RasterizeTask: release textures [' + task.cursor.texture_names.join(', ') + ']');
+            task.cursor.texture_names.forEach(function (t) {
+                return _texture2.default.release(t);
+            });
         }
 
         // Place text labels within an atlas of the given max size
 
     }, {
         key: 'setTextureTextPositions',
-        value: function setTextureTextPositions(texts, max_texture_size, tile_key) {
-            CanvasText.clearTexcoordCache(tile_key);
-            CanvasText.texcoord_cache[tile_key] = {};
+        value: function setTextureTextPositions(texts, max_texture_size) {
+            var texture = {
+                cx: 0,
+                cy: 0,
+                width: 0,
+                height: 0,
+                column_width: 0,
+                texture_id: 0,
+                texcoord_cache: {}
+            },
+                textures = [];
+            var texcoord_cache = texture.texcoord_cache;
 
-            // Keep track of column width
-            var column_width = 0;
-
-            // Layout labels, stacked in columns
-            var cx = 0,
-                cy = 0; // current x/y position in atlas
-            var height = 0; // overall atlas height
             for (var style in texts) {
-                if (!CanvasText.texcoord_cache[tile_key][style]) {
-                    CanvasText.texcoord_cache[tile_key][style] = {};
-                }
-
                 var text_infos = texts[style];
 
                 for (var text in text_infos) {
                     var text_info = text_infos[text];
+                    var texture_position = void 0;
 
                     if (text_info.text_settings.can_articulate) {
-                        var texture_position = void 0;
+                        text_info.textures = [];
+                        texcoord_cache[style] = texcoord_cache[style] || {};
 
-                        for (var i = 0; i < text_info.type.length; i++) {
-                            var type = text_info.type[i];
+                        for (var t = 0; t < text_info.type.length; t++) {
+                            var type = text_info.type[t];
+
                             switch (type) {
                                 case 'straight':
-                                    var size = text_info.total_size.texture_size;
-                                    var word = text_info.segments.reduce(text_info.isRTL ? reduceLeft : reduceRight);
+                                    var word = text_info.isRTL ? text.split().reverse().join() : text;
 
-                                    if (size[0] > column_width) {
-                                        column_width = size[0];
-                                    }
-                                    if (cy + size[1] < max_texture_size) {
-                                        texture_position = [cx, cy];
-
-                                        cy += size[1];
-                                        if (cy > height) {
-                                            height = cy;
-                                        }
-                                    } else {
-                                        // start new column if taller than texture
-                                        cx += column_width;
-                                        column_width = 0;
-                                        cy = 0;
-                                        texture_position = [cx, cy];
+                                    if (!texcoord_cache[style][word]) {
+                                        var size = text_info.total_size.texture_size;
+                                        texture_position = this.placeText(size[0], size[1], style, texture, textures, max_texture_size);
+                                        texcoord_cache[style][word] = {
+                                            texture_id: texture.texture_id,
+                                            texture_position: texture_position
+                                        };
                                     }
 
-                                    CanvasText.texcoord_cache[tile_key][style][word] = {
-                                        texture_position: texture_position
-                                    };
+                                    text_info.textures[t] = texture.texture_id;
+
                                     break;
+
                                 case 'curved':
-                                    for (var _i3 = 0; _i3 < text_info.size.length; _i3++) {
-                                        var _word2 = text_info.segments[_i3];
+                                    text_info.textures[t] = [];
 
-                                        if (!CanvasText.texcoord_cache[tile_key][style][_word2]) {
+                                    for (var w = 0; w < text_info.size.length; w++) {
+                                        var _word2 = text_info.segments[w];
 
-                                            var _size2 = text_info.size[_i3].texture_size;
-                                            var width = 2 * _size2[0];
-                                            if (width > column_width) {
-                                                column_width = width;
-                                            }
-                                            if (cy + _size2[1] < max_texture_size) {
-                                                texture_position = [cx, cy];
-
-                                                cy += _size2[1];
-                                                if (cy > height) {
-                                                    height = cy;
-                                                }
-                                            } else {
-                                                // start new column if taller than texture
-                                                cx += column_width;
-                                                column_width = 0;
-                                                cy = 0;
-                                                texture_position = [cx, cy];
-                                            }
-
-                                            CanvasText.texcoord_cache[tile_key][style][_word2] = {
+                                        if (!texcoord_cache[style][_word2]) {
+                                            var _size2 = text_info.size[w].texture_size;
+                                            var width = 2 * _size2[0]; // doubled to account for side-by-side rendering of fill and stroke
+                                            texture_position = this.placeText(width, _size2[1], style, texture, textures, max_texture_size);
+                                            texcoord_cache[style][_word2] = {
+                                                texture_id: texture.texture_id,
                                                 texture_position: texture_position
                                             };
                                         }
+
+                                        text_info.textures[t].push(texture.texture_id);
                                     }
+
                                     break;
                             }
                         }
                     } else {
                         // rendered size is same for all alignments
                         var _size3 = text_info.size.texture_size;
-                        if (_size3[0] > column_width) {
-                            column_width = _size3[0];
-                        }
 
                         // but each alignment needs to be rendered separately
                         for (var align in text_info.align) {
-                            if (cy + _size3[1] < max_texture_size) {
-                                text_info.align[align].texture_position = [cx, cy]; // add label to current column
-                                cy += _size3[1];
-                                if (cy > height) {
-                                    height = cy;
-                                }
-                            } else {
-                                // start new column if taller than texture
-                                cx += column_width;
-                                column_width = 0;
-                                cy = 0;
-                                text_info.align[align].texture_position = [cx, cy];
-                            }
+                            texture_position = this.placeText(_size3[0], _size3[1], style, texture, textures, max_texture_size);
+                            text_info.align[align].texture_id = texture.texture_id;
+                            text_info.align[align].texture_position = texture_position;
                         }
                     }
                 }
             }
 
-            return [cx + column_width, height]; // overall atlas size
+            // save final texture
+            if (texture.column_width > 0 && texture.height > 0) {
+                textures[texture.texture_id] = {
+                    texture_size: [texture.width, texture.height],
+                    texcoord_cache: texture.texcoord_cache
+                };
+            }
+
+            // return computed texture sizes and UV cache
+            return Promise.resolve({ textures: textures });
+        }
+
+        // Place text sprite in texture atlas, enlarging current texture, or starting new one if max texture size reached
+
+    }, {
+        key: 'placeText',
+        value: function placeText(text_width, text_height, style, texture, textures, max_texture_size) {
+            var texture_position = void 0;
+
+            // TODO: what if first label is wider than entire max texture?
+
+            if (texture.cy + text_height > max_texture_size) {
+                // start new column
+                texture.cx += texture.column_width;
+                texture.cy = 0;
+                texture.column_width = text_width;
+            } else {
+                // expand current column
+                texture.column_width = Math.max(texture.column_width, text_width);
+            }
+
+            if (texture.cx + texture.column_width <= max_texture_size) {
+                // add label to current texture
+                texture_position = [texture.cx, texture.cy];
+
+                texture.cy += text_height;
+
+                // expand texture if needed
+                texture.height = Math.max(texture.height, texture.cy);
+                texture.width = Math.max(texture.width, texture.cx + texture.column_width);
+            } else {
+                // start new texture
+                // save size and cache of last texture
+                textures[texture.texture_id] = {
+                    texture_size: [texture.width, texture.height],
+                    texcoord_cache: texture.texcoord_cache
+                };
+                texture.texcoord_cache = {}; // reset cache
+                texture.texcoord_cache[style] = {};
+
+                texture.texture_id++;
+                texture.cx = 0;
+                texture.cy = text_height;
+                texture.column_width = text_width;
+                texture.width = text_width;
+                texture.height = text_height;
+                texture_position = [0, 0]; // TODO: allocate zero array once
+            }
+
+            return texture_position;
         }
 
         // Called before rasterization
@@ -39199,22 +40230,17 @@ var CanvasText = function () {
             return px_size;
         }
     }, {
-        key: 'clearTexcoordCache',
-        value: function clearTexcoordCache(tile_key) {
-            delete CanvasText.texcoord_cache[tile_key];
-        }
-    }, {
-        key: 'initTextCache',
-        value: function initTextCache(style) {
-            CanvasText.text_cache[style] = CanvasText.text_cache[style] || {};
-        }
-    }, {
         key: 'pruneTextCache',
         value: function pruneTextCache() {
-            if (CanvasText.text_cache_count > CanvasText.text_cache_count_max) {
-                CanvasText.text_cache = {};
-                CanvasText.text_cache_count = 0;
+            if (CanvasText.cache.text_count > CanvasText.cache.text_count_max) {
+                CanvasText.cache.text = {};
+                CanvasText.cache.text_count = 0;
                 (0, _log2.default)('debug', 'CanvasText: pruning text cache');
+            }
+
+            if (Object.keys(CanvasText.cache.segment).length > CanvasText.cache.segment_count_max) {
+                CanvasText.cache.segment = {};
+                (0, _log2.default)('debug', 'CanvasText: pruning segment cache');
             }
         }
     }]);
@@ -39229,76 +40255,130 @@ exports.default = CanvasText;
 CanvasText.font_size_re = /((?:[0-9]*\.)?[0-9]+)\s*(px|pt|em|%)?/;
 
 // Cache sizes of rendered text
-CanvasText.text_cache = {}; // by text style, then text string
-CanvasText.text_cache_count = 0; // current size of cache (measured as # of entries)
-CanvasText.text_cache_count_max = 5000; // prune cache when it exceeds this size
-CanvasText.cache_stats = { hits: 0, misses: 0 };
-CanvasText.texcoord_cache = {};
-
-function reduceLeft(prev, next) {
-    return next + prev;
-}
-function reduceRight(prev, next) {
-    return prev + next;
-}
-
-// Contextual Shaping Languages - Unicode ranges
-var context_langs = {
-    Arabic: '\u0600-\u06FF',
-    Bengali: '\u0980-\u09FF',
-    Burmese: '\u1000-\u109F',
-    Devanagari: '\u0900-\u097F',
-    Khmer: '\u1780-\u17FF',
-    Gujarati: '\u0A80-\u0AFF',
-    Gurmukhi: '\u0A00-\u0A7F',
-    Kannada: '\u0C80-\u0CFF',
-    Lao: '\u0E80-\u0EFF',
-    Mongolian: '\u1800-\u18AF',
-    Oriya: '\u0B00-\u0B7F',
-    Tamil: '\u0B80-\u0BFF',
-    Telugu: '\u0C00-\u0C7F',
-    Tibetan: '\u0F00-\u0FFF'
+CanvasText.cache = {
+    text: {}, // size and line parsing, by text style, then text string
+    text_count: 0, // current size of cache (measured as # of entries)
+    text_count_max: 2000, // prune cache when it exceeds this size
+    segment: {}, // segmentation of text (by run of characters or grapheme clusters), by text string
+    segment_count_max: 2000, // prune cache when it exceeds this size
+    stats: { text_hits: 0, text_misses: 0, segment_hits: 0, segment_misses: 0 }
 };
-
-var reg_ex_shaping = '[';
-for (var key in context_langs) {
-    reg_ex_shaping += context_langs[key];
-}
-reg_ex_shaping += ']';
-
-var shaping_test = new RegExp(reg_ex_shaping);
-
-function isTextShaped(s) {
-    return shaping_test.test(s);
-}
 
 // Right-to-left / bi-directional text handling
 // Taken from http://stackoverflow.com/questions/12006095/javascript-how-to-check-if-character-is-rtl
-var rtlDirCheck = new RegExp('^[\0-@[-`{-\xBF\xD7\xF7\u02B9-\u02FF\u2000-\u2BFF\u2010-\u2029\u202C\u202F-\u2BFF\u0591-\u07FF\u200F\u202B\u202E\uFB1D-\uFDFD\uFE70-\uFEFC]+$');
+var rtlDirCheck = new RegExp('[\u0591-\u07FF\u200F\u202B\u202E\uFB1D-\uFDFD\uFE70-\uFEFC]');
 function isTextRTL(s) {
     return rtlDirCheck.test(s);
 }
 
+var neutral_chars = '\0-/:-@[-`{-\xBF\xD7\xF7\u02B9-\u02FF\u2000-\u2BFF\u2010-\u2029\u202C\u202F-\u2BFF';
+var neutralDirCheck = new RegExp('[' + neutral_chars + ']+');
+function isTextNeutral(s) {
+    return neutralDirCheck.test(s);
+}
+
+var markRTL = '\u200F'; // explicit right-to-left marker
+
+// test http://localhost:8000/#16.72917/30.08541/31.28466
+var arabic_range = new RegExp('^[' + neutral_chars + '\u0600-\u06FF]+'); // all characters are Arabic or neutral
+var arabic_splitters = new RegExp('[' + neutral_chars + '\u0622-\u0625\u0627\u062F-\u0632\u0648\u0671-\u0677\u0688-\u0699\u06C4-\u06CB\u06CF\u06D2\u06D3\u06EE\u06EF]');
+var arabic_vowels = new RegExp('^[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E4\u06E7\u06E8\u06EA-\u06ED]+');
+var accents_and_vowels = '[\u0300-\u036F' + // Combining Diacritical Marks
+'\u0591-\u05BD\u05BF\u05C1\u05C2\u05C4\u05C5\u05C7' + // Hebrew
+'\u07A6-\u07B0' + // Thaana
+'\u0900-\u0903\u093A-\u094C\u094E\u094F\u0951-\u0957\u0962\u0963' + // Devanagari
+'\u0981-\u0983\u09BC\u09BE-\u09CC\u09D7\u09E2\u09E3' + // Bengali
+'\u0A01-\u0A03\u0A3C-\u0A4C\u0A51' + // Gurmukhi
+'\u0A81-\u0A83\u0ABC\u0ABE-\u0ACC\u0AE2\u0AE3' + // Gujarati
+'\u0B01-\u0B03\u0B3C\u0B3E-\u0B4C\u0B56\u0B57\u0B62\u0B63' + // Oriya
+'\u0B82\u0BBE-\u0BCD\u0BD7' + // Tamil
+'\u0C00-\u0C03\u0C3E-\u0C4C\u0C55\u0C56\u0C62\u0C63' + // Telugu
+'\u0C81-\u0C83\u0CBC\u0CBE-\u0CCC\u0CD5\u0CD6\u0CE2\u0CE3' + // Kannada
+'\u0D01-\u0D03\u0D3E-\u0D4C\u0D4E\u0D57\u0D62\u0D63' + // Malayalam
+'\u0D82\u0D83\u0DCA-\u0DDF\u0DF2\u0DF3' + // Sinhala
+'\u0E31\u0E34-\u0E3A\u0E47-\u0E4E' + // Thai
+'\u0EB1\u0EB4-\u0EBC\u0EC8-\u0ECD' + // Lao
+'\u0F18\u0F19\u0F35\u0F37\u0F39\u0F3E\u0F3F\u0F71-\u0F83\u0F86\u0F87\u0F8D-\u0FBC\u0FC6' + // Tibetan
+'\u102B-\u1038\u103A-\u103E\u1056-\u1059\u105E-\u1060\u1062-\u1064\u1067-\u106D\u1071-\u1074\u1082-\u108D\u108F\u109A-\u109D' + // Burmese
+'\u17B4-\u17D1\u17D3' + // Khmer
+'\u1A55-\u1A5E\u1A61-\u1A7C' + // Tai Tham
+'\u1DC0-\u1DFF' + // Combining Diacritical Marks Supplement
+'\u20D0-\u20FF' + // Combining Diacritical Marks for Symbols
+"]";
+var combo_characters = '[\u094D\u09CD\u0A4D\u0ACD\u0B4D\u0C4D\u0CCD\u0D4D\u0F84\u1039\u17D2\u1A60\u1A7F]';
+var graphemeRegex = new RegExp("^.(?:" + accents_and_vowels + "+)?" + "(" + combo_characters + "\\W(?:" + accents_and_vowels + "+)?)*");
+
+// Scripts that cannot be curved due (due to contextual shaping and/or layout complexity)
+var curve_blacklist = {
+    Mongolian: '\u1800-\u18AF'
+};
+var curve_blacklist_range = Object.keys(curve_blacklist).map(function (r) {
+    return curve_blacklist[r];
+}).join('');
+var curve_blacklist_test = new RegExp('[' + curve_blacklist_range + ']');
+function isTextCurveBlacklisted(s) {
+    return curve_blacklist_test.test(s);
+}
+
 // Splitting strategy for chopping a label into segments
-function splitLabelText(text) {
-    if (text.length < codon_length) {
+var default_segment_length = 2; // character length of each segment when dividing up label text
+
+function splitLabelText(text, rtl) {
+    // Use single-character segments for RTL, to avoid additional handling for neutral characters
+    // (see https://github.com/tangrams/tangram/issues/541)
+    var segment_length = rtl ? 1 : default_segment_length;
+
+    if (text.length < segment_length) {
         return [text];
+    }
+
+    var key = text;
+    if (CanvasText.cache.segment[key]) {
+        CanvasText.cache.stats.segment_hits++;
+        return CanvasText.cache.segment[key];
     }
 
     var segments = [];
 
-    while (text.length) {
-        var segment = text.substring(0, codon_length);
-
-        if (segment.length <= Math.floor(0.5 * codon_length)) {
-            segments[segments.length - 1] += segment;
-        } else {
-            segments.push(segment);
+    if (arabic_range.exec(text)) {
+        segments = text.split(arabic_splitters);
+        var offset = -1;
+        for (var s = 0; s < segments.length - 1; s++) {
+            if (s > 0) {
+                var carryoverVowels = arabic_vowels.exec(segments[s]);
+                if (carryoverVowels) {
+                    segments[s] = segments[s].substring(carryoverVowels[0].length);
+                    segments[s - 1] += carryoverVowels[0];
+                    offset += carryoverVowels[0].length;
+                }
+            }
+            offset += 1 + segments[s].length;
+            segments[s] += text.slice(offset, offset + 1);
         }
-
-        text = text.substring(codon_length);
+        text = "";
     }
 
+    while (text.length) {
+        var segment = '';
+        var testText = text;
+        var graphemeCount = 0;
+
+        for (graphemeCount; graphemeCount < segment_length && testText.length; graphemeCount++) {
+            var graphemeCluster = (graphemeRegex.exec(testText) || testText)[0];
+            segment += graphemeCluster;
+            testText = testText.substring(graphemeCluster.length);
+        }
+
+        segments.push(segment);
+        text = text.substring(segment.length);
+    }
+
+    if (rtl) {
+        segments.reverse();
+    }
+
+    CanvasText.cache.stats.segment_misses++;
+    CanvasText.cache.segment[key] = segments;
     return segments;
 }
 
@@ -39413,11 +40493,11 @@ var MultiLine = function () {
                         break;
                     }
 
-                    // let word = breaks[n].trim();
                     var word = breaks[n];
 
-                    if (!word) {
-                        continue;
+                    // force punctuation (neutral chars) at the end of a RTL line, so they stay attached to original word
+                    if (isTextRTL(word) && isTextNeutral(word[word.length - 1])) {
+                        word += markRTL;
                     }
 
                     var spaced_word = new_line ? word : ' ' + word;
@@ -39488,7 +40568,7 @@ var Line = function () {
     return Line;
 }();
 
-},{"../../gl/texture":209,"../../utils/debug_settings":256,"../../utils/log":260,"../../utils/utils":268,"./font_manager":248}],248:[function(_dereq_,module,exports){
+},{"../../gl/texture":209,"../../utils/debug_settings":256,"../../utils/log":260,"../../utils/task":267,"../../utils/utils":270,"./font_manager":248}],248:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -39661,7 +40741,7 @@ var FontManager = {
 
 exports.default = FontManager;
 
-},{"../../utils/log":260,"../../utils/utils":268,"fontfaceobserver":75}],249:[function(_dereq_,module,exports){
+},{"../../utils/log":260,"../../utils/utils":270,"fontfaceobserver":75}],249:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -39695,9 +40775,11 @@ var _constants2 = _interopRequireDefault(_constants);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } } // Text rendering style
+
 // web workers don't have access to GL context, so import all GL constants
 
-var TextStyle = exports.TextStyle = Object.create(_points.Points); // Text rendering style
+var TextStyle = exports.TextStyle = Object.create(_points.Points);
 
 Object.assign(TextStyle, {
     name: 'text',
@@ -39712,17 +40794,10 @@ Object.assign(TextStyle, {
         this.super.init.call(this, options, extra_attributes);
 
         // Set texture/point config (override parent Point class)
-        this.defines.TANGRAM_TEXTURE_POINT = true; // standalone text is always sampled from a texture
-        this.defines.TANGRAM_SHADER_POINT = false; // standalone text neevr draws a shader point
+        this.defines.TANGRAM_SHADER_POINT = false; // standalone text never draws a shader point
 
         // Indicate vertex shader should apply zoom-interpolated offsets and angles for curved labels
         this.defines.TANGRAM_CURVED_LABEL = true;
-
-        // Disable dual point/text mode
-        this.defines.TANGRAM_MULTI_SAMPLER = false;
-
-        // Manually un-multiply alpha, because Canvas text rasterization is pre-multiplied
-        this.defines.TANGRAM_UNMULTIPLY_ALPHA = true;
 
         // Fade out text when tile is zooming out, e.g. acting as proxy tiles
         this.defines.TANGRAM_FADE_ON_ZOOM_OUT = true;
@@ -39764,13 +40839,6 @@ Object.assign(TextStyle, {
             return;
         }
 
-        // Called here because otherwise it will be delayed until the feature queue is parsed,
-        // and we want the preprocessing done before we evaluate text style below
-        draw = this.preprocess(draw);
-        if (!draw) {
-            return;
-        }
-
         var type = feature.geometry.type;
         draw.can_articulate = type === "LineString" || type === "MultiLineString";
 
@@ -39799,14 +40867,7 @@ Object.assign(TextStyle, {
         }
 
         // Register with collision manager
-        _collision2.default.addStyle(this.name, tile.key);
-    },
-
-
-    // Override
-    startData: function startData(tile) {
-        this.queues[tile.key] = [];
-        return _style.Style.startData.call(this, tile);
+        _collision2.default.addStyle(this.name, tile.id);
     },
 
 
@@ -39814,23 +40875,21 @@ Object.assign(TextStyle, {
     endData: function endData(tile) {
         var _this2 = this;
 
-        var queue = this.queues[tile.key];
-        delete this.queues[tile.key];
+        var queue = this.queues[tile.id];
+        delete this.queues[tile.id];
 
-        return this.prepareTextLabels(tile, this.name, queue).then(function (labels) {
-            return _this2.collideAndRenderTextLabels(tile, _this2.name, labels);
-        }).then(function (_ref) {
+        return this.collideAndRenderTextLabels(tile, this.name, queue).then(function (_ref) {
             var labels = _ref.labels,
                 texts = _ref.texts,
-                texture = _ref.texture;
+                textures = _ref.textures;
 
-            if (texts) {
-                _this2.texts[tile.key] = texts;
+            if (labels && texts) {
+                _this2.texts[tile.id] = texts;
 
                 // Build queued features
                 labels.forEach(function (q) {
                     var text_settings_key = q.text_settings_key;
-                    var text_info = _this2.texts[tile.key][text_settings_key] && _this2.texts[tile.key][text_settings_key][q.text];
+                    var text_info = _this2.texts[tile.id][text_settings_key] && _this2.texts[tile.id][text_settings_key][q.text];
 
                     // setup styling object expected by Style class
                     var style = _this2.feature_style;
@@ -39844,16 +40903,21 @@ Object.assign(TextStyle, {
                         if (q.label.type === 'straight') {
                             style.size.straight = text_info.total_size.logical_size;
                             style.texcoords.straight = text_info.texcoords.straight;
+                            style.label_texture = textures[text_info.texcoords.straight.texture_id];
                         } else {
                             style.size.curved = text_info.size.map(function (size) {
                                 return size.logical_size;
                             });
                             style.texcoords_stroke = text_info.texcoords_stroke;
                             style.texcoords.curved = text_info.texcoords.curved;
+                            style.label_textures = text_info.texcoords.curved.map(function (t) {
+                                return textures[t.texture_id];
+                            });
                         }
                     } else {
                         style.size = text_info.size.logical_size;
                         style.texcoords = text_info.align[q.label.align].texcoords;
+                        style.label_texture = textures[text_info.align[q.label.align].texture_id];
                     }
 
                     _style.Style.addFeature.call(_this2, q.feature, q.draw, q.context);
@@ -39863,12 +40927,21 @@ Object.assign(TextStyle, {
 
             // Finish tile mesh
             return _style.Style.endData.call(_this2, tile).then(function (tile_data) {
-                // Attach tile-specific label atlas to mesh as a texture uniform
-                if (texture && tile_data) {
-                    tile_data.uniforms.u_texture = texture;
-                    tile_data.textures.push(texture); // assign texture ownership to tile
-                    return tile_data;
+                if (tile_data) {
+                    // Attach tile-specific label atlas to mesh as a texture uniform
+                    if (textures && textures.length) {
+                        var _tile_data$textures;
+
+                        (_tile_data$textures = tile_data.textures).push.apply(_tile_data$textures, _toConsumableArray(textures)); // assign texture ownership to tile
+                    }
+
+                    // Always apply shader blocks to standalone text
+                    for (var m in tile_data.meshes) {
+                        tile_data.meshes[m].uniforms.u_apply_color_blocks = true;
+                    }
                 }
+
+                return tile_data;
             });
         });
     },
@@ -39881,11 +40954,11 @@ Object.assign(TextStyle, {
 
 
     // Implements label building for TextLabels mixin
-    buildTextLabels: function buildTextLabels(tile_key, feature_queue) {
+    buildTextLabels: function buildTextLabels(tile, feature_queue) {
         var labels = [];
         for (var f = 0; f < feature_queue.length; f++) {
             var fq = feature_queue[f];
-            var text_info = this.texts[tile_key][fq.text_settings_key][fq.text];
+            var text_info = this.texts[tile.id][fq.text_settings_key][fq.text];
             var feature_labels = void 0;
 
             fq.layout.vertical_buffer = text_info.vertical_buffer;
@@ -39981,10 +41054,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 var _style_parser = _dereq_('../style_parser');
 
-var _texture = _dereq_('../../gl/texture');
-
-var _texture2 = _interopRequireDefault(_texture);
-
 var _geo = _dereq_('../../geo');
 
 var _geo2 = _interopRequireDefault(_geo);
@@ -40015,8 +41084,6 @@ var _canvas_text2 = _interopRequireDefault(_canvas_text);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
 // namespaces label textures (ensures new texture name when a tile is built multiple times)
 var text_texture_id = 0;
 
@@ -40029,7 +41096,7 @@ var TextLabels = exports.TextLabels = {
         }
     },
     freeText: function freeText(tile) {
-        delete this.texts[tile.key];
+        delete this.texts[tile.id];
     },
     parseTextFeature: function parseTextFeature(feature, draw, context, tile) {
         // Compute label text
@@ -40044,8 +41111,8 @@ var TextLabels = exports.TextLabels = {
         var text_settings_key = _text_settings2.default.key(text_settings);
 
         // first label in tile, or with this style?
-        this.texts[tile.key] = this.texts[tile.key] || {};
-        var sizes = this.texts[tile.key][text_settings_key] = this.texts[tile.key][text_settings_key] || {};
+        this.texts[tile.id] = this.texts[tile.id] || {};
+        var sizes = this.texts[tile.id][text_settings_key] = this.texts[tile.id][text_settings_key] || {};
 
         if (text instanceof Object) {
             var results = [];
@@ -40075,7 +41142,7 @@ var TextLabels = exports.TextLabels = {
                 });
             }
 
-            return results;
+            return results.length > 0 && results; // return null if no boundary labels found
         } else {
             // unique text strings, grouped by text drawing style
             var _layout = this.computeTextLayout({}, feature, draw, context, tile, text, text_settings);
@@ -40142,77 +41209,81 @@ var TextLabels = exports.TextLabels = {
     prepareTextLabels: function prepareTextLabels(tile, collision_group, queue) {
         var _this = this;
 
-        if (Object.keys(this.texts[tile.key] || {}).length === 0) {
-            return Promise.resolve({});
+        if (Object.keys(this.texts[tile.id] || {}).length === 0) {
+            return Promise.resolve([]);
         }
 
         // first call to main thread, ask for text pixel sizes
-        return _worker_broker2.default.postMessage(this.main_thread_target + '.calcTextSizes', this.texts[tile.key]).then(function (texts) {
+        return _worker_broker2.default.postMessage(this.main_thread_target + '.calcTextSizes', tile.id, this.texts[tile.id]).then(function (_ref) {
+            var texts = _ref.texts;
 
             if (tile.canceled) {
                 (0, _log2.default)('trace', 'Style ' + _this.name + ': stop tile build because tile was canceled: ' + tile.key + ', post-calcTextSizes()');
-                return;
+                return [];
             }
 
-            _this.texts[tile.key] = texts;
+            _this.texts[tile.id] = texts || [];
             if (!texts) {
-                return;
+                _collision2.default.abortTile(tile.id);
+                return [];
             }
 
-            return _this.buildTextLabels(tile.key, queue);
+            return _this.buildTextLabels(tile, queue);
         });
     },
-    collideAndRenderTextLabels: function collideAndRenderTextLabels(tile, collision_group, labels) {
+    collideAndRenderTextLabels: function collideAndRenderTextLabels(tile, collision_group, queue) {
         var _this2 = this;
 
-        if (!labels) {
-            _collision2.default.collide({}, collision_group, tile.key);
-            return Promise.resolve({});
-        }
-
-        return _collision2.default.collide(labels, collision_group, tile.key).then(function (labels) {
-            if (tile.canceled) {
-                (0, _log2.default)('trace', 'stop tile build because tile was canceled: ' + tile.key + ', post-collide()');
-                return {};
-            }
-
+        return this.prepareTextLabels(tile, collision_group, queue).then(function (labels) {
             if (labels.length === 0) {
-                return {};
+                _collision2.default.collide([], collision_group, tile.id);
+                return Promise.resolve({});
             }
 
-            var texts = _this2.texts[tile.key];
-            _this2.cullTextStyles(texts, labels);
-
-            // set alignments
-            labels.forEach(function (q) {
-                var text_settings_key = q.text_settings_key;
-                var text_info = texts[text_settings_key] && texts[text_settings_key][q.text];
-                if (!text_info.text_settings.can_articulate) {
-                    text_info.align = text_info.align || {};
-                    text_info.align[q.label.align] = {};
-                } else {
-                    // consider making it a set
-                    if (!text_info.type) {
-                        text_info.type = [];
-                    }
-
-                    if (text_info.type.indexOf(q.label.type) === -1) {
-                        text_info.type.push(q.label.type);
-                    }
-                }
-            });
-
-            // second call to main thread, for rasterizing the set of texts
-            return _worker_broker2.default.postMessage(_this2.main_thread_target + '.rasterizeTexts', tile.key, texts).then(function (_ref) {
-                var texts = _ref.texts,
-                    texture = _ref.texture;
-
+            return _collision2.default.collide(labels, collision_group, tile.id).then(function (labels) {
                 if (tile.canceled) {
-                    (0, _log2.default)('trace', 'stop tile build because tile was canceled: ' + tile.key + ', post-rasterizeTexts()');
+                    (0, _log2.default)('trace', 'stop tile build because tile was canceled: ' + tile.key + ', post-collide()');
                     return {};
                 }
 
-                return { labels: labels, texts: texts, texture: texture };
+                var texts = _this2.texts[tile.id];
+                if (texts == null || labels.length === 0) {
+                    return {};
+                }
+
+                _this2.cullTextStyles(texts, labels);
+
+                // set alignments
+                labels.forEach(function (q) {
+                    var text_settings_key = q.text_settings_key;
+                    var text_info = texts[text_settings_key] && texts[text_settings_key][q.text];
+                    if (!text_info.text_settings.can_articulate) {
+                        text_info.align = text_info.align || {};
+                        text_info.align[q.label.align] = {};
+                    } else {
+                        // consider making it a set
+                        if (!text_info.type) {
+                            text_info.type = [];
+                        }
+
+                        if (text_info.type.indexOf(q.label.type) === -1) {
+                            text_info.type.push(q.label.type);
+                        }
+                    }
+                });
+
+                // second call to main thread, for rasterizing the set of texts
+                return _worker_broker2.default.postMessage(_this2.main_thread_target + '.rasterizeTexts', tile.id, tile.key, texts).then(function (_ref2) {
+                    var texts = _ref2.texts,
+                        textures = _ref2.textures;
+
+                    if (tile.canceled) {
+                        (0, _log2.default)('trace', 'stop tile build because tile was canceled: ' + tile.key + ', post-rasterizeTexts()');
+                        return {};
+                    }
+
+                    return { labels: labels, texts: texts, textures: textures };
+                });
             });
         });
     },
@@ -40248,37 +41319,37 @@ var TextLabels = exports.TextLabels = {
     // Called on main thread from worker, to compute the size of each text string,
     // were it to be rendered. This info is then used to perform initial label culling, *before*
     // labels are actually rendered.
-    calcTextSizes: function calcTextSizes(texts) {
-        return this.canvas.textSizes(texts);
+    calcTextSizes: function calcTextSizes(tile_id, texts) {
+        return this.canvas.textSizes(tile_id, texts);
     },
 
 
     // Called on main thread from worker, to create atlas of labels for a tile
-    rasterizeTexts: function rasterizeTexts(tile_key, texts) {
-        var canvas = new _canvas_text2.default();
+    rasterizeTexts: function rasterizeTexts(tile_id, tile_key, texts) {
+        var _this3 = this;
 
-        var texture_size = canvas.setTextureTextPositions(texts, this.max_texture_size, tile_key);
-        (0, _log2.default)('trace', 'text summary for tile ' + tile_key + ': fits in ' + texture_size[0] + 'x' + texture_size[1] + 'px');
+        var canvas = new _canvas_text2.default(); // one per style per tile (style may be rendering multiple tiles at once)
+        var max_texture_size = Math.min(this.max_texture_size, 2048); // cap each label texture at 2048x2048
 
-        // fits in max texture size?
-        if (texture_size[0] < this.max_texture_size && texture_size[1] < this.max_texture_size) {
-            // update canvas size & rasterize all the text strings we need
-            canvas.resize.apply(canvas, _toConsumableArray(texture_size));
-            canvas.rasterize(texts, texture_size, tile_key);
-        } else {
-            (0, _log2.default)('error', ['Label atlas for tile ' + tile_key + ' is ' + texture_size[0] + 'x' + texture_size[1] + 'px, ', 'but max GL texture size is ' + this.max_texture_size + 'x' + this.max_texture_size + 'px'].join(''));
-        }
+        return canvas.setTextureTextPositions(texts, max_texture_size).then(function (_ref3) {
+            var textures = _ref3.textures;
 
-        // create a texture
-        var t = 'labels-' + tile_key + '-' + text_texture_id++;
-        _texture2.default.create(this.gl, t, {
-            element: canvas.canvas,
-            filtering: 'linear',
-            UNPACK_PREMULTIPLY_ALPHA_WEBGL: true
+            if (!textures) {
+                return {};
+            }
+
+            var texture_prefix = ['labels', _this3.name, tile_key, tile_id, text_texture_id, ''].join('-');
+            text_texture_id++;
+
+            return canvas.rasterize(texts, textures, tile_id, texture_prefix, _this3.gl).then(function (_ref4) {
+                var textures = _ref4.textures;
+
+                if (!textures) {
+                    return {};
+                }
+                return { texts: texts, textures: textures };
+            });
         });
-        _texture2.default.retain(t);
-
-        return { texts: texts, texture: t }; // texture is returned by name (not instance)
     },
     preprocessText: function preprocessText(draw) {
         // Font settings are required
@@ -40355,7 +41426,7 @@ var TextLabels = exports.TextLabels = {
     }
 };
 
-},{"../../geo":202,"../../gl/texture":209,"../../labels/collision":215,"../../utils/log":260,"../../utils/thread":266,"../../utils/worker_broker":270,"../style_parser":246,"../text/canvas_text":247,"../text/text_settings":251}],251:[function(_dereq_,module,exports){
+},{"../../geo":202,"../../labels/collision":215,"../../utils/log":260,"../../utils/thread":268,"../../utils/worker_broker":272,"../style_parser":246,"../text/canvas_text":247,"../text/text_settings":251}],251:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -40480,7 +41551,7 @@ exports.default = TextSettings = {
     }
 };
 
-},{"../../geo":202,"../../utils/utils":268,"../style_parser":246}],252:[function(_dereq_,module,exports){
+},{"../../geo":202,"../../utils/utils":270,"../style_parser":246}],252:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -40505,6 +41576,8 @@ var _geo = _dereq_('./geo');
 
 var _geo2 = _interopRequireDefault(_geo);
 
+var _style = _dereq_('./styles/style');
+
 var _style_parser = _dereq_('./styles/style_parser');
 
 var _collision = _dereq_('./labels/collision');
@@ -40514,6 +41587,10 @@ var _collision2 = _interopRequireDefault(_collision);
 var _worker_broker = _dereq_('./utils/worker_broker');
 
 var _worker_broker2 = _interopRequireDefault(_worker_broker);
+
+var _task = _dereq_('./utils/task');
+
+var _task2 = _interopRequireDefault(_task);
 
 var _texture = _dereq_('./gl/texture');
 
@@ -40526,6 +41603,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var id = 0; // unique tile id
 
 var Tile = function () {
 
@@ -40545,6 +41624,7 @@ var Tile = function () {
 
         _classCallCheck(this, Tile);
 
+        this.id = id++;
         this.worker = worker;
         this.view = view;
         this.source = source;
@@ -40561,11 +41641,11 @@ var Tile = function () {
         this.error = null;
         this.debug = {};
 
-        this.coords = Tile.coordinateWithMaxZoom(coords, this.source.max_zoom);
         this.style_zoom = style_zoom; // zoom level to be used for styling
+        this.coords = Tile.normalizedCoordinate(coords, this.source, this.style_zoom);
+        this.key = Tile.key(this.coords, this.source, this.style_zoom);
         this.overzoom = Math.max(this.style_zoom - this.coords.z, 0); // number of levels of overzooming
         this.overzoom2 = Math.pow(2, this.overzoom);
-        this.key = Tile.key(this.coords, this.source, this.style_zoom);
         this.min = _geo2.default.metersForTile(this.coords);
         this.max = _geo2.default.metersForTile({ x: this.coords.x + 1, y: this.coords.y + 1, z: this.coords.z }), this.span = { x: this.max.x - this.min.x, y: this.max.y - this.min.y };
         this.bounds = { sw: { x: this.min.x, y: this.max.y }, ne: { x: this.max.x, y: this.min.y } };
@@ -40589,7 +41669,9 @@ var Tile = function () {
         // Free resources owned by tile
         value: function freeResources() {
             for (var m in this.meshes) {
-                this.meshes[m].destroy();
+                this.meshes[m].forEach(function (m) {
+                    return m.destroy();
+                });
             }
             this.meshes = {};
 
@@ -40606,6 +41688,7 @@ var Tile = function () {
     }, {
         key: 'destroy',
         value: function destroy() {
+            _task2.default.removeForTile(this.id);
             this.workerMessage('self.removeTile', this.key);
             this.freeResources();
             this.worker = null;
@@ -40614,6 +41697,7 @@ var Tile = function () {
         key: 'buildAsMessage',
         value: function buildAsMessage() {
             return {
+                id: this.id,
                 key: this.key,
                 source: this.source.name,
                 coords: this.coords,
@@ -40690,14 +41774,25 @@ var Tile = function () {
             var mesh_data = this.mesh_data;
             if (mesh_data) {
                 for (var s in mesh_data) {
-                    if (mesh_data[s].vertex_data) {
-                        if (!styles[s]) {
-                            (0, _log2.default)('warn', 'Could not create mesh because style \'' + s + '\' not found, for tile ' + this.key + ', aborting tile');
-                            break;
+                    for (var variant in mesh_data[s].meshes) {
+                        var mesh_variant = mesh_data[s].meshes[variant];
+                        if (mesh_variant.vertex_data) {
+                            if (!styles[s]) {
+                                (0, _log2.default)('warn', 'Could not create mesh because style \'' + s + '\' not found, for tile ' + this.key + ', aborting tile');
+                                break;
+                            }
+
+                            // first add style-level uniforms, then add any mesh-specific ones
+                            var mesh_options = Object.assign({}, mesh_data[s]);
+                            mesh_options.uniforms = Object.assign({}, mesh_options.uniforms, mesh_variant.uniforms);
+                            mesh_options.variant = mesh_variant.variant;
+
+                            var mesh = styles[s].makeMesh(mesh_variant.vertex_data, mesh_variant.vertex_elements, mesh_options);
+                            meshes[s] = meshes[s] || [];
+                            meshes[s].push(mesh);
+                            this.debug.buffer_size += mesh.buffer_size;
+                            this.debug.geometry_count += mesh.geometry_count;
                         }
-                        meshes[s] = styles[s].makeMesh(mesh_data[s].vertex_data, mesh_data[s].vertex_elements, mesh_data[s]);
-                        this.debug.buffer_size += meshes[s].buffer_size;
-                        this.debug.geometry_count += meshes[s].geometry_count;
                     }
 
                     // Assign texture ownership to tiles
@@ -40714,7 +41809,6 @@ var Tile = function () {
 
             // Initialize tracking for this tile generation
             if (progress.start) {
-                this.new_mesh_styles = []; // keep track of which meshes were built as part of current generation
                 this.previous_textures = [].concat(_toConsumableArray(this.textures)); // copy old list of textures
                 this.textures = [];
             }
@@ -40722,7 +41816,9 @@ var Tile = function () {
             // New meshes
             for (var m in meshes) {
                 if (this.meshes[m]) {
-                    this.meshes[m].destroy(); // free old mesh
+                    this.meshes[m].forEach(function (m) {
+                        return m.destroy();
+                    }); // free old meshes
                 }
                 this.meshes[m] = meshes[m]; // set new mesh
                 this.new_mesh_styles.push(m);
@@ -40735,7 +41831,10 @@ var Tile = function () {
                 // Release un-replaced meshes (existing in previous generation, but weren't built for this one)
                 for (var _m in this.meshes) {
                     if (this.new_mesh_styles.indexOf(_m) === -1) {
-                        this.meshes[_m].destroy();
+                        this.meshes[_m].forEach(function (m) {
+                            return m.destroy();
+                        });
+                        delete this.meshes[_m];
                     }
                 }
                 this.new_mesh_styles = [];
@@ -40830,14 +41929,21 @@ var Tile = function () {
     }, {
         key: 'printDebug',
         value: function printDebug() {
-            (0, _log2.default)('debug', 'Tile: debug for ' + this.key + ': [  ' + JSON.stringify(this.debug) + ' ]');
+            var exclude = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : ['layers'];
+
+            var copy = {};
+            for (var key in this.debug) {
+                if (exclude.indexOf(key) === -1) {
+                    copy[key] = this.debug[key];
+                }
+            }
+
+            (0, _log2.default)('debug', 'Tile: debug for ' + this.key + ': [  ' + JSON.stringify(copy) + ' ]');
         }
+
+        // Sum up layer feature/geometry stats from a set of tiles
+
     }], [{
-        key: 'create',
-        value: function create(spec) {
-            return new Tile(spec);
-        }
-    }, {
         key: 'coord',
         value: function coord(c) {
             return { x: c.x, y: c.y, z: c.z, key: Tile.coordKey(c) };
@@ -40854,19 +41960,30 @@ var Tile = function () {
     }, {
         key: 'key',
         value: function key(coords, source, style_zoom) {
-            coords = Tile.coordinateWithMaxZoom(coords, source.max_zoom);
             if (coords.y < 0 || coords.y >= 1 << coords.z || coords.z < 0) {
                 return; // cull tiles out of range (x will wrap)
             }
             return [source.name, style_zoom, coords.x, coords.y, coords.z].join('/');
         }
     }, {
+        key: 'normalizedKey',
+        value: function normalizedKey(coords, source, style_zoom) {
+            return Tile.key(Tile.normalizedCoordinate(coords, source, style_zoom), source, style_zoom);
+        }
+    }, {
+        key: 'normalizedCoordinate',
+        value: function normalizedCoordinate(coords, source, style_zoom) {
+            if (source.zoom_bias) {
+                coords = Tile.coordinateAtZoom(coords, Math.max(0, coords.z - source.zoom_bias)); // zoom can't go below zero
+            }
+            return Tile.coordinateWithMaxZoom(coords, source.max_zoom);
+        }
+    }, {
         key: 'coordinateAtZoom',
         value: function coordinateAtZoom(_ref5, zoom) {
             var x = _ref5.x,
                 y = _ref5.y,
-                z = _ref5.z,
-                key = _ref5.key;
+                z = _ref5.z;
 
             if (z !== zoom) {
                 var zscale = Math.pow(2, z - zoom);
@@ -40925,6 +42042,7 @@ var Tile = function () {
                     _utils2.default.cancelRequest(tile.source_data.request_id); // cancel pending tile network request
                     tile.source_data.request_id = null;
                 }
+
                 Tile.abortBuild(tile);
             }
         }
@@ -40944,8 +42062,9 @@ var Tile = function () {
 
             tile.debug.rendering = +new Date();
             tile.debug.feature_count = 0;
+            tile.debug.layers = null;
 
-            _collision2.default.startTile(tile.key);
+            _collision2.default.startTile(tile.id);
 
             // Process each top-level layer
             for (var layer_name in layers) {
@@ -40992,9 +42111,6 @@ var Tile = function () {
                         // Render draw groups
                         for (var group_name in draw_groups) {
                             var group = draw_groups[group_name];
-                            if (!group.visible) {
-                                continue;
-                            }
 
                             // Add to style
                             var style_name = group.style || group_name;
@@ -41002,6 +42118,11 @@ var Tile = function () {
 
                             if (!style) {
                                 (0, _log2.default)('warn', 'Style \'' + style_name + '\' not found, skipping layer \'' + layer_name + '\':', group, feature);
+                                continue;
+                            }
+
+                            group = style.preprocess(group);
+                            if (group == null || group.visible === false) {
                                 continue;
                             }
 
@@ -41017,7 +42138,7 @@ var Tile = function () {
             tile.debug.rendering = +new Date() - tile.debug.rendering;
 
             // Send styles back to main thread as they finish building, in two groups: collision vs. non-collision
-            var tile_styles = this.stylesForTile(tile.key, styles).map(function (s) {
+            var tile_styles = this.stylesForTile(tile, styles).map(function (s) {
                 return styles[s];
             });
             Tile.sendStyleGroups(tile, tile_styles, { scene_id: scene_id }, function (style) {
@@ -41028,10 +42149,10 @@ var Tile = function () {
         }
     }, {
         key: 'stylesForTile',
-        value: function stylesForTile(tile_key, styles) {
+        value: function stylesForTile(tile, styles) {
             var tile_styles = [];
             for (var s in styles) {
-                if (styles[s].hasDataForTile(tile_key)) {
+                if (styles[s].hasDataForTile(tile)) {
                     tile_styles.push(s);
                 }
             }
@@ -41065,12 +42186,7 @@ var Tile = function () {
                         Promise.all(group.map(function (style) {
                             return style.endData(tile).then(function (style_data) {
                                 if (style_data) {
-                                    tile.mesh_data[style.name] = {
-                                        vertex_data: style_data.vertex_data,
-                                        vertex_elements: style_data.vertex_elements,
-                                        uniforms: style_data.uniforms,
-                                        textures: style_data.textures
-                                    };
+                                    tile.mesh_data[style.name] = style_data;
                                 }
                             });
                         })).then(function () {
@@ -41090,8 +42206,10 @@ var Tile = function () {
                             tile.mesh_data = {}; // reset so each group sends separate set of style meshes
 
                             if (progress.done) {
-                                _collision2.default.resetTile(tile.key); // clear collision if we're done with the tile
+                                _collision2.default.resetTile(tile.id); // clear collision if we're done with the tile
                             }
+                        }).catch(function (e) {
+                            (0, _log2.default)('error', 'Error for style group \'' + group_name + '\' for tile ' + tile.key, e.stack);
                         });
                     };
 
@@ -41102,7 +42220,7 @@ var Tile = function () {
             } else {
                 // Nothing to build, return empty tile to main thread
                 _worker_broker2.default.postMessage('TileManager_' + scene_id + '.buildTileStylesCompleted', _worker_broker2.default.withTransferables({ tile: Tile.slice(tile), progress: { start: true, done: true } }));
-                _collision2.default.resetTile(tile.key); // clear collision if we're done with the tile
+                _collision2.default.resetTile(tile.id); // clear collision if we're done with the tile
             }
         }
 
@@ -41159,6 +42277,9 @@ var Tile = function () {
     }, {
         key: 'abortBuild',
         value: function abortBuild(tile) {
+            _task2.default.removeForTile(tile.id);
+            _collision2.default.abortTile(tile.id);
+
             // Releases meshes
             if (tile.mesh_data) {
                 for (var s in tile.mesh_data) {
@@ -41178,7 +42299,7 @@ var Tile = function () {
     }, {
         key: 'slice',
         value: function slice(tile, keys) {
-            var keep = ['key', 'loading', 'loaded', 'generation', 'error', 'debug'];
+            var keep = ['id', 'key', 'loading', 'loaded', 'generation', 'error', 'debug'];
             if (Array.isArray(keys)) {
                 keep.push.apply(keep, _toConsumableArray(keys));
             }
@@ -41192,6 +42313,27 @@ var Tile = function () {
 
             return tile_subset;
         }
+    }, {
+        key: 'debugSumLayerStats',
+        value: function debugSumLayerStats(tiles) {
+            var list = {},
+                tree = {};
+
+            tiles.filter(function (tile) {
+                return tile.debug.layers;
+            }).forEach(function (tile) {
+                // layer list
+                Object.keys(tile.debug.layers.list).forEach(function (layer) {
+                    var counts = tile.debug.layers.list[layer];
+                    (0, _style.addLayerDebugEntry)(list, layer, counts.features, counts.geoms, counts.styles, counts.base);
+                });
+
+                // layer tree
+                addDebugLayers(tile.debug.layers.tree, tree);
+            });
+
+            return { list: list, tree: tree };
+        }
     }]);
 
     return Tile;
@@ -41202,7 +42344,19 @@ exports.default = Tile;
 
 Tile.coord_children = {}; // only allocate children coordinates once per coordinate
 
-},{"./geo":202,"./gl/texture":209,"./labels/collision":215,"./styles/style_parser":246,"./utils/gl-matrix":258,"./utils/log":260,"./utils/merge":262,"./utils/utils":268,"./utils/worker_broker":270}],253:[function(_dereq_,module,exports){
+// build debug stats layer tree
+function addDebugLayers(node, tree) {
+    for (var layer in node) {
+        var counts = node[layer];
+        (0, _style.addLayerDebugEntry)(tree, layer, counts.features, counts.geoms, counts.styles, counts.base);
+        if (counts.layers) {
+            tree[layer].layers = tree[layer].layers || {};
+            addDebugLayers(counts.layers, tree[layer].layers); // process child layers
+        }
+    }
+}
+
+},{"./geo":202,"./gl/texture":209,"./labels/collision":215,"./styles/style":244,"./styles/style_parser":246,"./utils/gl-matrix":258,"./utils/log":260,"./utils/merge":262,"./utils/task":267,"./utils/utils":270,"./utils/worker_broker":272}],253:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -41383,7 +42537,7 @@ var TileManager = function () {
             var proxy = false;
             this.forEachTile(function (tile) {
                 if (_this2.view.zoom_direction === 1) {
-                    if (tile.visible && !tile.built && tile.coords.z > 0) {
+                    if (tile.visible && !tile.built) {
                         var parent = _this2.pyramid.getAncestor(tile);
                         if (parent) {
                             parent.setProxyFor(tile);
@@ -41449,6 +42603,25 @@ var TileManager = function () {
                 }
             }
             return this.renderable_tiles;
+        }
+
+        // Assign tile to worker thread based on coordinates and data source
+
+    }, {
+        key: 'getWorkerForTile',
+        value: function getWorkerForTile(coords, source) {
+            var worker = void 0;
+
+            if (source.tiled) {
+                // Pin tile to a worker thread based on its coordinates
+                worker = this.scene.workers[Math.abs(coords.x + coords.y + coords.z) % this.scene.workers.length];
+            } else {
+                // Pin all tiles from each non-tiled source to a single worker
+                // Prevents data for these sources from being loaded more than once
+                worker = this.scene.workers[source.id % this.scene.workers.length];
+            }
+
+            return worker;
         }
     }, {
         key: 'getActiveStyles',
@@ -41543,14 +42716,14 @@ var TileManager = function () {
                     continue;
                 }
 
-                var key = _tile2.default.key(coords, source, this.view.tile_zoom);
+                var key = _tile2.default.normalizedKey(coords, source, this.view.tile_zoom);
                 if (key && !this.hasTile(key)) {
                     (0, _log2.default)('trace', 'load tile ' + key + ', distance from view center: ' + coords.center_dist);
-                    var tile = _tile2.default.create({
+                    var tile = new _tile2.default({
                         source: source,
                         coords: coords,
-                        worker: this.scene.getWorkerForDataSource(source),
-                        style_zoom: this.view.styleZoom(coords.z),
+                        worker: this.getWorkerForTile(coords, source),
+                        style_zoom: this.view.baseZoom(coords.z),
                         view: this.view
                     });
 
@@ -41592,6 +42765,13 @@ var TileManager = function () {
                 } else {
                     // Update tile with properties from worker
                     if (this.tiles[tile.key]) {
+                        // Ignore if from a previously discarded tile
+                        if (tile.id < this.tiles[tile.key].id) {
+                            (0, _log2.default)('trace', 'discarded tile ' + tile.key + ' for id ' + tile.id + ' in TileManager.buildTileStylesCompleted because built for discarded tile id');
+                            _tile2.default.abortBuild(tile);
+                            return;
+                        }
+
                         tile = this.tiles[tile.key].merge(tile);
                     }
 
@@ -41692,7 +42872,7 @@ var TileManager = function () {
 
 exports.default = TileManager;
 
-},{"./geo":202,"./tile":252,"./tile_pyramid":254,"./utils/log":260,"./utils/worker_broker":270}],254:[function(_dereq_,module,exports){
+},{"./geo":202,"./tile":252,"./tile_pyramid":254,"./utils/log":260,"./utils/worker_broker":272}],254:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -41804,20 +42984,16 @@ var TilePyramid = function () {
             }
 
             // First check overzoomed tiles at same coordinate zoom
-            if (style_zoom > source.max_zoom) {
+            if (style_zoom > source.max_coord_zoom) {
                 var source_tiles = this.sourceTiles(coords, source);
                 if (source_tiles) {
-                    for (var z = style_zoom - 1; z >= source.max_zoom; z--) {
+                    for (var z = style_zoom - 1; z >= source.max_coord_zoom; z--) {
                         if (source_tiles[z] && source_tiles[z].loaded) {
                             return source_tiles[z];
                         }
-
-                        if (++level > this.max_proxy_ancestor_depth) {
-                            return;
-                        }
                     }
                 }
-                style_zoom = source.max_zoom;
+                style_zoom = source.max_coord_zoom;
             }
 
             // Check tiles at next zoom up
@@ -41843,7 +43019,7 @@ var TilePyramid = function () {
             var descendants = [];
 
             // First check overzoomed tiles at same coordinate zoom
-            if (style_zoom >= source.max_zoom) {
+            if (style_zoom >= source.max_coord_zoom) {
                 var source_tiles = this.sourceTiles(coords, source);
                 if (source_tiles) {
                     var search_max_zoom = Math.max(_geo2.default.default_view_max_zoom, style_zoom + this.max_proxy_descendant_depth);
@@ -41868,7 +43044,7 @@ var TilePyramid = function () {
                         descendants.push(child_tiles[style_zoom]);
                     }
                     // didn't find child, try next level
-                    else if (level <= this.max_proxy_descendant_depth && child.z <= source.max_zoom) {
+                    else if (level <= this.max_proxy_descendant_depth && child.z <= source.max_coord_zoom) {
                             descendants.push.apply(descendants, _toConsumableArray(this.getDescendants({ coords: child, source: source, style_zoom: style_zoom }, level + 1)));
                         }
                 }
@@ -41912,16 +43088,28 @@ function debounce(func, wait) {
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.default = {
+exports.mergeDebugSettings = mergeDebugSettings;
+var debugSettings = void 0;
+
+exports.default = debugSettings = {
     // draws a blue rectangle border around the collision box of a label
     draw_label_collision_boxes: false,
+
     // draws a green rectangle border within the texture box of a label
     draw_label_texture_boxes: false,
+
     // suppreses fade-in of labels
     suppress_label_fade_in: false,
+
     // suppress animaton of label snap to pixel grid
-    suppress_label_snap_animation: false
+    suppress_label_snap_animation: false,
+
+    // collect feature/geometry stats on styling layers
+    layer_stats: false
 };
+function mergeDebugSettings(settings) {
+    Object.assign(debugSettings, settings);
+}
 
 },{}],257:[function(_dereq_,module,exports){
 'use strict';
@@ -42165,14 +43353,14 @@ if (_thread2.default.is_main) {
 _worker_broker2.default.addTarget('_logProxy', log); // proxy log messages from worker to main thread
 _worker_broker2.default.addTarget('_logSetLevelProxy', log.setLevel); // proxy log level setting from main to worker thread
 
-},{"./thread":266,"./version":269,"./worker_broker":270}],261:[function(_dereq_,module,exports){
+},{"./thread":268,"./version":271,"./worker_broker":272}],261:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /* global MediaRecorder */
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /* global MediaRecorder, ImageData */
 
 
 var _log = _dereq_('./log');
@@ -42180,6 +43368,8 @@ var _log = _dereq_('./log');
 var _log2 = _interopRequireDefault(_log);
 
 var _urls = _dereq_('./urls');
+
+var _style_parser = _dereq_('../styles/style_parser');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -42189,29 +43379,38 @@ var MediaCapture = function () {
     function MediaCapture() {
         _classCallCheck(this, MediaCapture);
 
+        this.canvas = null;
+        this.gl = null;
+        this.screenshot_canvas = null;
+        this.screenshot_context = null;
         this.queue_screenshot = null;
         this.video_capture = null;
     }
 
     _createClass(MediaCapture, [{
         key: 'setCanvas',
-        value: function setCanvas(canvas) {
+        value: function setCanvas(canvas, gl) {
             this.canvas = canvas;
+            this.gl = gl;
         }
 
         // Take a screenshot, returns a promise that resolves with the screenshot data when available
+        // `background`: optional background color to blend screenshot with
 
     }, {
         key: 'screenshot',
         value: function screenshot() {
             var _this = this;
 
+            var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+                background = _ref.background;
+
             if (this.queue_screenshot != null) {
                 return this.queue_screenshot.promise; // only capture one screenshot at a time
             }
 
             // Will resolve once rendering is complete and render buffer is captured
-            this.queue_screenshot = {};
+            this.queue_screenshot = { background: background };
             this.queue_screenshot.promise = new Promise(function (resolve, reject) {
                 _this.queue_screenshot.resolve = resolve;
                 _this.queue_screenshot.reject = reject;
@@ -42225,10 +43424,64 @@ var MediaCapture = function () {
         key: 'completeScreenshot',
         value: function completeScreenshot() {
             if (this.queue_screenshot != null) {
-                // Get data URL, convert to blob
+                // Firefox appears to have an issue where its alpha conversion overflows some channels when
+                // the WebGL canvas content is captured. To get around this, we read pixels from the GL buffer
+                // directly, then flip and unmulitply the alpha on each pixel to get the desired RGB values.
+                // See https://github.com/tangrams/tangram/issues/551
+
+                // Get raw pixels from GL
+                var w = this.canvas.width;
+                var h = this.canvas.height;
+                var pixels = new Uint8Array(w * h * 4);
+                this.gl.readPixels(0, 0, w, h, this.gl.RGBA, this.gl.UNSIGNED_BYTE, pixels);
+
+                // Optional background to blend with (only RGB, alpha is ignored)
+                var background = this.queue_screenshot.background;
+                if (background && background !== 'transparent') {
+                    background = _style_parser.StyleParser.parseColor(background).slice(0, 3).map(function (c) {
+                        return c * 255;
+                    });
+                } else {
+                    background = null; // skip blend if transparent
+                }
+
+                // Flip Y (GL buffer is upside down)
+                var flip = new Uint8ClampedArray(w * h * 4); // canvas requires 'clamped' array type
+                for (var y = 0; y < h; y++) {
+                    for (var x = 0; x < w; x++) {
+                        var s = ((h - y - 1) * w + x) * 4; // source offset
+                        var d = (y * w + x) * 4; // destination offset
+                        var a = pixels[s + 3]; // unmultiply alpha
+                        flip[d + 0] = pixels[s + 0] * 255 / a;
+                        flip[d + 1] = pixels[s + 1] * 255 / a;
+                        flip[d + 2] = pixels[s + 2] * 255 / a;
+                        flip[d + 3] = a;
+
+                        if (background) {
+                            a /= 255;
+                            flip[d + 0] = flip[d + 0] * a + background[0] * (1 - a);
+                            flip[d + 1] = flip[d + 1] * a + background[1] * (1 - a);
+                            flip[d + 2] = flip[d + 2] * a + background[2] * (1 - a);
+                            flip[d + 3] = 255;
+                        }
+                    }
+                }
+
+                // Draw flipped pixels to a canvas
+                this.screenshot_canvas = this.screenshot_canvas || document.createElement('canvas');
+                var canvas = this.screenshot_canvas;
+                canvas.width = w;
+                canvas.height = h;
+
+                this.screenshot_context = this.screenshot_context || canvas.getContext('2d');
+                var ctx = this.screenshot_context;
+                var image = new ImageData(flip, w, h);
+                ctx.putImageData(image, 0, 0);
+
+                // Get data URL from canvas and convert to blob
                 // Strip host/mimetype/etc., convert base64 to binary without UTF-8 mangling
                 // Adapted from: https://gist.github.com/unconed/4370822
-                var url = this.canvas.toDataURL('image/png');
+                var url = canvas.toDataURL('image/png');
                 var data = atob(url.slice(22));
                 var buffer = new Uint8Array(data.length);
                 for (var i = 0; i < data.length; ++i) {
@@ -42259,39 +43512,37 @@ var MediaCapture = function () {
 
             // Start a new capture
             try {
-                (function () {
-                    var cap = _this2.video_capture = {};
-                    cap.chunks = [];
-                    cap.stream = _this2.canvas.captureStream();
-                    cap.options = { mimeType: 'video/webm' }; // TODO: support other format options
-                    cap.media_recorder = new MediaRecorder(cap.stream, cap.options);
-                    cap.media_recorder.ondataavailable = function (event) {
-                        if (event.data.size > 0) {
-                            cap.chunks.push(event.data);
+                var cap = this.video_capture = {};
+                cap.chunks = [];
+                cap.stream = this.canvas.captureStream();
+                cap.options = { mimeType: 'video/webm' }; // TODO: support other format options
+                cap.media_recorder = new MediaRecorder(cap.stream, cap.options);
+                cap.media_recorder.ondataavailable = function (event) {
+                    if (event.data.size > 0) {
+                        cap.chunks.push(event.data);
+                    }
+
+                    // Stopped recording? Create the final capture file blob
+                    if (cap.resolve) {
+                        var blob = new Blob(cap.chunks, { type: cap.options.mimeType });
+                        var url = (0, _urls.createObjectURL)(blob);
+
+                        // Explicitly remove all stream tracks, and set objects to null
+                        if (cap.stream) {
+                            var tracks = cap.stream.getTracks() || [];
+                            tracks.forEach(function (track) {
+                                track.stop();
+                                cap.stream.removeTrack(track);
+                            });
                         }
+                        cap.stream = null;
+                        cap.media_recorder = null;
+                        _this2.video_capture = null;
 
-                        // Stopped recording? Create the final capture file blob
-                        if (cap.resolve) {
-                            var blob = new Blob(cap.chunks, { type: cap.options.mimeType });
-                            var url = (0, _urls.createObjectURL)(blob);
-
-                            // Explicitly remove all stream tracks, and set objects to null
-                            if (cap.stream) {
-                                var tracks = cap.stream.getTracks() || [];
-                                tracks.forEach(function (track) {
-                                    track.stop();
-                                    cap.stream.removeTrack(track);
-                                });
-                            }
-                            cap.stream = null;
-                            cap.media_recorder = null;
-                            _this2.video_capture = null;
-
-                            cap.resolve({ url: url, blob: blob, type: 'webm' });
-                        }
-                    };
-                    cap.media_recorder.start();
-                })();
+                        cap.resolve({ url: url, blob: blob, type: 'webm' });
+                    }
+                };
+                cap.media_recorder.start();
             } catch (e) {
                 this.video_capture = null;
                 (0, _log2.default)('error', 'Scene video capture failed', e);
@@ -42330,7 +43581,7 @@ var MediaCapture = function () {
 
 exports.default = MediaCapture;
 
-},{"./log":260,"./urls":267}],262:[function(_dereq_,module,exports){
+},{"../styles/style_parser":246,"./log":260,"./urls":269}],262:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -42491,7 +43742,7 @@ var OBB = function () {
 
 exports.default = OBB;
 
-},{"../vector":271}],264:[function(_dereq_,module,exports){
+},{"../vector":273}],264:[function(_dereq_,module,exports){
 'use strict';
 
 _dereq_('core-js/es6/promise');
@@ -42526,6 +43777,8 @@ if (typeof Object.assign !== 'function') {
 
 // Math.hypot polyfill
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/hypot
+/* global self, WorkerGlobalScope */
+
 // Promises polyfill
 Math.hypot = Math.hypot || function () {
     var y = 0;
@@ -42540,7 +43793,48 @@ Math.hypot = Math.hypot || function () {
     return Math.sqrt(y);
 };
 
+// Math.log2 polyfill
+Math.log2 = Math.log2 || function (x) {
+    return Math.log(x) * Math.LOG2E;
+};
+
+// performance.now() polyfill
+var perf = void 0;
+if (typeof window !== 'undefined') {
+    if ('performance' in window === false) {
+        window.performance = {};
+    }
+    perf = window.performance;
+} else if (typeof self !== 'undefined' && typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope) {
+    if ('performance' in self === false) {
+        self.performance = {};
+    }
+    perf = self.performance;
+}
+
+if (perf && typeof perf.now !== 'function') {
+    var start = +new Date();
+    perf.now = function () {
+        return +new Date() - start;
+    };
+}
+
 },{"core-js/es6/promise":7}],265:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.default = sliceObject;
+function sliceObject(obj, keys) {
+    var sliced = {};
+    keys.forEach(function (k) {
+        return sliced[k] = obj[k];
+    });
+    return sliced;
+}
+
+},{}],266:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -42600,7 +43894,131 @@ function subscribeMixin(target) {
     });
 }
 
-},{"./log":260}],266:[function(_dereq_,module,exports){
+},{"./log":260}],267:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+// import log from './log';
+
+var Task = {
+    id: 0, // unique id per task
+    queue: [], // current queue of outstanding tasks
+    max_time: 20, // default time in which all tasks should complete per frame
+    start_time: null, // start time for tasks in current frame
+    state: {}, // track flags about environment state (ex: whether user is currently moving the view)
+
+    add: function add(task) {
+        task.id = Task.id++;
+        task.max_time = task.max_time || Task.max_time; // allow task to run for this much time (tasks have a global collective limit per frame, too)
+        task.pause_factor = task.pause_factor || 1; // pause tasks by this many frames when they run too long
+        var promise = new Promise(function (resolve, reject) {
+            task.resolve = resolve;
+            task.reject = reject;
+        });
+        task.promise = promise;
+        task.total_elapsed = 0;
+        task.stats = { calls: 0 };
+        this.queue.push(task);
+
+        // Run task immediately if under total frame time
+        this.start_time = this.start_time || performance.now(); // start frame timer if necessary
+        this.elapsed = performance.now() - this.start_time;
+        if (this.elapsed < Task.max_time) {
+            this.process(task);
+        }
+
+        return task.promise;
+    },
+    remove: function remove(task) {
+        var idx = this.queue.indexOf(task);
+        if (idx > -1) {
+            this.queue.splice(idx, 1);
+        }
+    },
+    process: function process(task) {
+        // Skip task while user is moving the view, if the task requests it
+        // (for intensive tasks that lock the UI, like canvas rasterization)
+        if (this.state.user_moving_view && task.user_moving_view === false) {
+            // log('debug', `*** SKIPPING task id ${task.id}, ${task.type} while user is moving view`);
+            return;
+        }
+
+        // Skip task if it's currently paused
+        if (task.pause) {
+            // log('debug', `*** PAUSING task id ${task.id}, ${task.type} (${task.pause})`);
+            task.pause--;
+            return true;
+        }
+
+        task.stats.calls++;
+        task.start_time = performance.now(); // start task timer
+        return task.target[task.method](task);
+    },
+    processAll: function processAll() {
+        this.start_time = this.start_time || performance.now(); // start frame timer if necessary
+        for (var i = 0; i < this.queue.length; i++) {
+            // Exceeded either total task time, or total frame time
+            var task = this.queue[i];
+
+            if (this.process(task) !== true) {
+                // If the task didn't complete, pause it for a task-specific number of frames
+                // (can be disabled by setting pause_factor to 0)
+                if (!task.pause) {
+                    task.pause = task.elapsed > task.max_time ? task.pause_factor : 0;
+                }
+                task.total_elapsed += task.elapsed;
+            }
+
+            // Check total frame time
+            this.elapsed = performance.now() - this.start_time;
+            if (this.elapsed >= Task.max_time) {
+                this.start_time = null; // reset frame timer
+                break;
+            }
+        }
+    },
+    finish: function finish(task, value) {
+        task.elapsed = performance.now() - task.start_time;
+        task.total_elapsed += task.elapsed;
+        // log('debug', `task type ${task.type}, tile ${task.id}, finish after ${task.stats.calls} calls, ${task.total_elapsed.toFixed(2)} elapsed`);
+        this.remove(task);
+        task.resolve(value);
+        return task.promise;
+    },
+    cancel: function cancel(task) {
+        var val = void 0;
+
+        if (task.cancel && task.target[task.cancel] instanceof Function) {
+            val = task.target[task.cancel](task); // optional cancel function
+        }
+
+        task.resolve(val || {}); // resolve with result of cancel function, or empty object
+    },
+    shouldContinue: function shouldContinue(task) {
+        // Suspend task if it runs over its specific per-frame limit, or the global limit
+        task.elapsed = performance.now() - task.start_time;
+        this.elapsed = performance.now() - this.start_time;
+        return task.elapsed < task.max_time && this.elapsed < Task.max_time;
+    },
+    removeForTile: function removeForTile(tile_id) {
+        for (var idx = this.queue.length - 1; idx >= 0; idx--) {
+            if (this.queue[idx].tile_id === tile_id) {
+                // log('trace', `Task: remove tasks for tile ${tile_id}`);
+                this.cancel(this.queue[idx]);
+                this.queue.splice(idx, 1);
+            }
+        }
+    },
+    setState: function setState(state) {
+        this.state = state;
+    }
+};
+
+exports.default = Task;
+
+},{}],268:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -42632,7 +44050,7 @@ try {
     }
 }
 
-},{}],267:[function(_dereq_,module,exports){
+},{}],269:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -42852,7 +44270,7 @@ function getURLParameter(name, url) {
     return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
 }
 
-},{"./log":260}],268:[function(_dereq_,module,exports){
+},{"./log":260}],270:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -42879,8 +44297,6 @@ var _geo = _dereq_('../geo');
 var _geo2 = _interopRequireDefault(_geo);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 var Utils;
 exports.default = Utils = {};
@@ -42996,6 +44412,10 @@ Utils.requestAnimationFramePolyfill = function () {
 
 // Stringify an object into JSON, but convert functions to strings
 Utils.serializeWithFunctions = function (obj) {
+    if (typeof obj === 'function') {
+        return obj.toString();
+    }
+
     var serialized = JSON.stringify(obj, function (k, v) {
         // Convert functions to strings
         if (typeof v === 'function') {
@@ -43038,9 +44458,9 @@ Utils.stringToFunction = function (val, wrap) {
             args = args.length > 0 ? args : ['context']; // default to single 'context' argument
 
             if (typeof wrap === 'function') {
-                return new (Function.prototype.bind.apply(Function, [null].concat(_toConsumableArray(args), [wrap(src)])))(); // jshint ignore:line
+                return new Function(args.toString(), wrap(src)); // jshint ignore:line
             } else {
-                return new (Function.prototype.bind.apply(Function, [null].concat(_toConsumableArray(args), [src])))(); // jshint ignore:line
+                return new Function(args.toString(), src); // jshint ignore:line
             }
         } catch (e) {
             // fall-back to original value if parsing failed
@@ -43166,18 +44586,18 @@ Utils.pointInTile = function (point) {
     return point[0] >= 0 && point[1] > -_geo2.default.tile_scale && point[0] < _geo2.default.tile_scale && point[1] <= 0;
 };
 
-},{"../geo":202,"./log":260,"./thread":266,"./worker_broker":270}],269:[function(_dereq_,module,exports){
+},{"../geo":202,"./log":260,"./thread":268,"./worker_broker":272}],271:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var pkg = JSON.parse("{\n  \"name\": \"tangram\",\n  \"version\": \"0.12.1\",\n  \"description\": \"WebGL Maps for Vector Tiles\",\n  \"repository\": {\n    \"type\": \"git\",\n    \"url\": \"git://github.com/tangrams/tangram.git\"\n  },\n  \"main\": \"dist/tangram.min.js\",\n  \"homepage\": \"https://github.com/tangrams/tangram\",\n  \"keywords\": [\n    \"maps\",\n    \"graphics\",\n    \"rendering\",\n    \"visualization\",\n    \"WebGL\",\n    \"OpenStreetMap\"\n  ],\n  \"config\": {\n    \"output\": \"\",\n    \"output_map\": \"\"\n  },\n  \"scripts\": {\n    \"start\": \"npm run watch\",\n    \"test\": \"npm run lint && npm run build-bundle && npm run test-local\",\n    \"test-ci\": \"npm run lint && npm run build-bundle && npm run test-remote\",\n    \"test-remote\": \"./node_modules/karma/bin/karma start --browsers SL_Firefox --single-run\",\n    \"test-local\": \"./node_modules/karma/bin/karma start --browsers Chrome --single-run\",\n    \"karma-start\": \"./node_modules/karma/bin/karma start --browsers Chrome --no-watch\",\n    \"karma-run\": \"./node_modules/karma/bin/karma run --browsers Chrome\",\n    \"lint\": \"$(npm bin)/jshint src/ && jshint test/\",\n    \"build\": \"npm run build-bundle && npm run build-minify\",\n    \"build-bundle\": \"$(npm bin)/browserify src/module.js -t [ babelify --presets [ es2015 ] ] -t brfs --debug -s Tangram -p browserify-derequire -p [ './build/quine.js' 'tangram.debug.js.map' ] -p [ mapstraction 'dist/tangram.debug.js.map' ] -o dist/tangram.debug.js\",\n    \"build-minify\": \"$(npm bin)/uglifyjs dist/tangram.debug.js -c warnings=false -m -o dist/tangram.min.js && npm run build-size\",\n    \"build-size\": \"gzip dist/tangram.min.js -c | wc -c | awk '{kb=$1/1024; print kb}' OFMT='%.0fk minified+gzipped'\",\n    \"watch\": \"$(npm bin)/budo src/module.js:dist/tangram.debug.js --port 8000 --cors --live -- -t [ babelify --presets [ es2015 ] ] -t brfs -s Tangram -p [ './build/quine.js' 'tangram.debug.temp.js.map' ] -p [ mapstraction 'dist/tangram.debug.temp.js.map' ]\"\n  },\n  \"author\": {\n    \"name\": \"Mapzen\",\n    \"email\": \"tangram@mapzen.com\"\n  },\n  \"contributors\": [\n    {\n      \"name\": \"Brett Camper\"\n    },\n    {\n      \"name\": \"Peter Richardson\"\n    },\n    {\n      \"name\": \"Patricio Gonzalez Vivo\"\n    },\n    {\n      \"name\": \"Karim Naaji\"\n    },\n    {\n      \"name\": \"Ivan Willig\"\n    },\n    {\n      \"name\": \"Lou Huang\"\n    },\n    {\n      \"name\": \"David Valdman\"\n    }\n  ],\n  \"license\": \"MIT\",\n  \"dependencies\": {\n    \"brfs\": \"1.4.3\",\n    \"csscolorparser\": \"1.0.3\",\n    \"earcut\": \"2.1.1\",\n    \"fontfaceobserver\": \"2.0.7\",\n    \"geojson-vt\": \"2.4.0\",\n    \"gl-mat3\": \"1.0.0\",\n    \"gl-mat4\": \"1.1.4\",\n    \"gl-shader-errors\": \"1.0.3\",\n    \"js-yaml\": \"tangrams/js-yaml#read-only\",\n    \"jszip\": \"tangrams/jszip#read-only\",\n    \"pbf\": \"1.3.7\",\n    \"strip-comments\": \"0.3.2\",\n    \"topojson-client\": \"tangrams/topojson-client#read-only\",\n    \"vector-tile\": \"1.3.0\"\n  },\n  \"devDependencies\": {\n    \"babelify\": \"7.3.0\",\n    \"babel-preset-es2015\": \"6.16.0\",\n    \"browserify\": \"13.0.1\",\n    \"browserify-derequire\": \"0.9.4\",\n    \"budo\": \"8.2.1\",\n    \"chai\": \"1.9.2\",\n    \"chai-as-promised\": \"4.1.1\",\n    \"core-js\": \"2.4.1\",\n    \"glob\": \"4.0.6\",\n    \"jshint\": \"jshint/jshint#3a8efa979dbb157bfb5c10b5826603a55a33b9ad\",\n    \"karma\": \"1.5.0\",\n    \"karma-browserify\": \"5.1.0\",\n    \"karma-chrome-launcher\": \"2.0.0\",\n    \"karma-mocha\": \"0.1.9\",\n    \"karma-mocha-reporter\": \"1.0.0\",\n    \"karma-sauce-launcher\": \"tangrams/karma-sauce-launcher#firefox-profiles2\",\n    \"karma-sinon\": \"1.0.4\",\n    \"mapstraction\": \"1.0.1\",\n    \"mocha\": \"1.21.4\",\n    \"sinon\": \"1.10.3\",\n    \"through2\": \"2.0.3\",\n    \"uglify-js\": \"2.4.14\",\n    \"yargs\": \"1.3.2\"\n  }\n}\n");
+var pkg = JSON.parse("{\n  \"name\": \"tangram\",\n  \"version\": \"0.13.2\",\n  \"description\": \"WebGL Maps for Vector Tiles\",\n  \"repository\": {\n    \"type\": \"git\",\n    \"url\": \"git://github.com/tangrams/tangram.git\"\n  },\n  \"main\": \"dist/tangram.min.js\",\n  \"homepage\": \"https://github.com/tangrams/tangram\",\n  \"keywords\": [\n    \"maps\",\n    \"graphics\",\n    \"rendering\",\n    \"visualization\",\n    \"WebGL\",\n    \"OpenStreetMap\"\n  ],\n  \"config\": {\n    \"output\": \"\",\n    \"output_map\": \"\"\n  },\n  \"scripts\": {\n    \"start\": \"npm run watch\",\n    \"test\": \"npm run lint && npm run build-bundle && npm run test-local\",\n    \"test-ci\": \"npm run lint && npm run build-bundle && npm run test-remote\",\n    \"test-remote\": \"./node_modules/karma/bin/karma start --browsers SL_Firefox --single-run\",\n    \"test-local\": \"./node_modules/karma/bin/karma start --browsers Chrome --single-run\",\n    \"karma-start\": \"./node_modules/karma/bin/karma start --browsers Chrome --no-watch\",\n    \"karma-run\": \"./node_modules/karma/bin/karma run --browsers Chrome\",\n    \"lint\": \"$(npm bin)/jshint src/ && jshint test/\",\n    \"build\": \"npm run build-bundle && npm run build-minify\",\n    \"build-bundle\": \"$(npm bin)/browserify src/module.js -t [ babelify --presets [ es2015 ] ] -t brfs --debug -s Tangram -p browserify-derequire -p [ './build/quine.js' 'tangram.debug.js.map' ] -p [ mapstraction 'dist/tangram.debug.js.map' ] -o dist/tangram.debug.js\",\n    \"build-minify\": \"$(npm bin)/uglifyjs dist/tangram.debug.js -c warnings=false -m | sed -e 's/tangram.debug.js.map//g' > dist/tangram.min.js && npm run build-size\",\n    \"build-size\": \"gzip dist/tangram.min.js -c | wc -c | awk '{kb=$1/1024; print kb}' OFMT='%.0fk minified+gzipped'\",\n    \"watch\": \"$(npm bin)/budo src/module.js:dist/tangram.debug.js --port 8000 --cors --live -- -t [ babelify --presets [ es2015 ] ] -t brfs -s Tangram -p [ './build/quine.js' 'tangram.debug.temp.js.map' ] -p [ mapstraction 'dist/tangram.debug.temp.js.map' ]\"\n  },\n  \"author\": {\n    \"name\": \"Mapzen\",\n    \"email\": \"tangram@mapzen.com\"\n  },\n  \"contributors\": [\n    {\n      \"name\": \"Brett Camper\"\n    },\n    {\n      \"name\": \"Peter Richardson\"\n    },\n    {\n      \"name\": \"Patricio Gonzalez Vivo\"\n    },\n    {\n      \"name\": \"Karim Naaji\"\n    },\n    {\n      \"name\": \"Ivan Willig\"\n    },\n    {\n      \"name\": \"Lou Huang\"\n    },\n    {\n      \"name\": \"David Valdman\"\n    },\n    {\n      \"name\": \"Nick Doiron\"\n    }\n  ],\n  \"license\": \"MIT\",\n  \"dependencies\": {\n    \"brfs\": \"1.4.3\",\n    \"csscolorparser\": \"1.0.3\",\n    \"earcut\": \"2.1.1\",\n    \"fontfaceobserver\": \"2.0.7\",\n    \"geojson-vt\": \"2.4.0\",\n    \"gl-mat3\": \"1.0.0\",\n    \"gl-mat4\": \"1.1.4\",\n    \"gl-shader-errors\": \"1.0.3\",\n    \"js-yaml\": \"tangrams/js-yaml#read-only\",\n    \"jszip\": \"tangrams/jszip#read-only\",\n    \"pbf\": \"1.3.7\",\n    \"strip-comments\": \"0.3.2\",\n    \"topojson-client\": \"tangrams/topojson-client#read-only\",\n    \"vector-tile\": \"1.3.0\"\n  },\n  \"devDependencies\": {\n    \"babelify\": \"7.3.0\",\n    \"babel-preset-es2015\": \"6.16.0\",\n    \"browserify\": \"14.4.0\",\n    \"browserify-derequire\": \"0.9.4\",\n    \"budo\": \"10.0.3\",\n    \"chai\": \"1.9.2\",\n    \"chai-as-promised\": \"4.1.1\",\n    \"core-js\": \"2.4.1\",\n    \"glob\": \"4.0.6\",\n    \"jshint\": \"2.9.4\",\n    \"karma\": \"1.5.0\",\n    \"karma-browserify\": \"5.1.1\",\n    \"karma-chrome-launcher\": \"2.0.0\",\n    \"karma-mocha\": \"0.1.9\",\n    \"karma-mocha-reporter\": \"1.0.0\",\n    \"karma-sauce-launcher\": \"tangrams/karma-sauce-launcher#firefox-profiles2\",\n    \"karma-sinon\": \"1.0.4\",\n    \"mapstraction\": \"1.0.1\",\n    \"mocha\": \"1.21.4\",\n    \"sinon\": \"1.10.3\",\n    \"through2\": \"2.0.3\",\n    \"uglify-js\": \"2.4.14\",\n    \"yargs\": \"1.3.2\"\n  }\n}\n");
 var version = void 0;
 exports.default = version = 'v' + pkg.version;
 
-},{}],270:[function(_dereq_,module,exports){
+},{}],272:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -43300,6 +44720,10 @@ WorkerBroker.addTarget = function (name, target) {
     targets[name] = target;
 };
 
+WorkerBroker.removeTarget = function (name) {
+    delete targets[name];
+};
+
 // Given a dot-notation-style method name, e.g. 'Object.object.method',
 // find the object to call the method on from the list of registered targets
 function findTarget(method) {
@@ -43369,7 +44793,6 @@ function setupMainThread() {
             message: message // message payload
         };
 
-        payload = maybeEncode(payload, transferables);
         worker.postMessage(payload, transferables.map(function (t) {
             return t.object;
         }));
@@ -43389,7 +44812,7 @@ function setupMainThread() {
         }
 
         worker.addEventListener('message', function WorkerBrokerMainThreadHandler(event) {
-            var data = maybeDecode(event.data);
+            var data = event.data;
             var id = data.message_id;
 
             // Listen for messages coming back from the worker, and fulfill that message's promise
@@ -43408,93 +44831,82 @@ function setupMainThread() {
             // and send any return value back to the worker
             // Unique id for this message & return call to main thread
             else if (data.type === 'worker_send' && id != null) {
-                    var method_name, target;
-                    var method;
-                    var result, error;
-
-                    (function () {
-                        var _findTarget = findTarget(data.method);
-                        // Call the requested method and save the return value
-
-
-                        var _findTarget2 = _slicedToArray(_findTarget, 2);
-
-                        method_name = _findTarget2[0];
+                    // Call the requested method and save the return value
+                    var _findTarget = findTarget(data.method),
+                        _findTarget2 = _slicedToArray(_findTarget, 2),
+                        method_name = _findTarget2[0],
                         target = _findTarget2[1];
 
-                        if (!target) {
-                            throw Error('Worker broker could not dispatch message type ' + data.method + ' on target ' + data.target + ' because no object with that name is registered on main thread');
-                        }
+                    if (!target) {
+                        throw Error('Worker broker could not dispatch message type ' + data.method + ' on target ' + data.target + ' because no object with that name is registered on main thread');
+                    }
 
-                        method = typeof target[method_name] === 'function' && target[method_name];
+                    var method = typeof target[method_name] === 'function' && target[method_name];
+                    if (!method) {
+                        throw Error('Worker broker could not dispatch message type ' + data.method + ' on target ' + data.target + ' because object has no method with that name');
+                    }
 
-                        if (!method) {
-                            throw Error('Worker broker could not dispatch message type ' + data.method + ' on target ' + data.target + ' because object has no method with that name');
-                        }
+                    var result, error;
+                    try {
+                        result = method.apply(target, data.message);
+                    } catch (e) {
+                        // Thrown errors will be passed back (in string form) to worker
+                        error = e;
+                    }
 
-                        try {
-                            result = method.apply(target, data.message);
-                        } catch (e) {
-                            // Thrown errors will be passed back (in string form) to worker
-                            error = e;
-                        }
+                    // Send return value to worker
+                    var payload = void 0,
+                        transferables = [];
 
-                        // Send return value to worker
-                        var payload = void 0,
-                            transferables = [];
-
-                        // Async result
-                        if (result instanceof Promise) {
-                            result.then(function (value) {
-                                if (value instanceof WorkerBroker.withTransferables) {
-                                    transferables = value.transferables;
-                                    value = value.value[0];
-                                }
-
-                                payload = {
-                                    type: 'main_reply',
-                                    message_id: id,
-                                    message: value
-                                };
-                                payload = maybeEncode(payload, transferables);
-                                worker.postMessage(payload, transferables.map(function (t) {
-                                    return t.object;
-                                }));
-                                freeTransferables(transferables);
-                                if (transferables.length > 0) {
-                                    (0, _log2.default)('trace', '\'' + method_name + '\' transferred ' + transferables.length + ' objects to worker thread');
-                                }
-                            }, function (error) {
-                                worker.postMessage({
-                                    type: 'main_reply',
-                                    message_id: id,
-                                    error: error instanceof Error ? error.message + ': ' + error.stack : error
-                                });
-                            });
-                        }
-                        // Immediate result
-                        else {
-                                if (result instanceof WorkerBroker.withTransferables) {
-                                    transferables = result.transferables;
-                                    result = result.value[0];
-                                }
-
-                                payload = {
-                                    type: 'main_reply',
-                                    message_id: id,
-                                    message: result,
-                                    error: error instanceof Error ? error.message + ': ' + error.stack : error
-                                };
-                                payload = maybeEncode(payload, transferables);
-                                worker.postMessage(payload, transferables.map(function (t) {
-                                    return t.object;
-                                }));
-                                freeTransferables(transferables);
-                                if (transferables.length > 0) {
-                                    (0, _log2.default)('trace', '\'' + method_name + '\' transferred ' + transferables.length + ' objects to worker thread');
-                                }
+                    // Async result
+                    if (result instanceof Promise) {
+                        result.then(function (value) {
+                            if (value instanceof WorkerBroker.withTransferables) {
+                                transferables = value.transferables;
+                                value = value.value[0];
                             }
-                    })();
+
+                            payload = {
+                                type: 'main_reply',
+                                message_id: id,
+                                message: value
+                            };
+                            worker.postMessage(payload, transferables.map(function (t) {
+                                return t.object;
+                            }));
+                            freeTransferables(transferables);
+                            if (transferables.length > 0) {
+                                (0, _log2.default)('trace', '\'' + method_name + '\' transferred ' + transferables.length + ' objects to worker thread');
+                            }
+                        }, function (error) {
+                            worker.postMessage({
+                                type: 'main_reply',
+                                message_id: id,
+                                error: error instanceof Error ? error.message + ': ' + error.stack : error
+                            });
+                        });
+                    }
+                    // Immediate result
+                    else {
+                            if (result instanceof WorkerBroker.withTransferables) {
+                                transferables = result.transferables;
+                                result = result.value[0];
+                            }
+
+                            payload = {
+                                type: 'main_reply',
+                                message_id: id,
+                                message: result,
+                                error: error instanceof Error ? error.message + ': ' + error.stack : error
+                            };
+                            worker.postMessage(payload, transferables.map(function (t) {
+                                return t.object;
+                            }));
+                            freeTransferables(transferables);
+                            if (transferables.length > 0) {
+                                (0, _log2.default)('trace', '\'' + method_name + '\' transferred ' + transferables.length + ' objects to worker thread');
+                            }
+                        }
                 }
         });
     };
@@ -43546,7 +44958,6 @@ function setupWorkerThread() {
             message: message // message payload
         };
 
-        payload = maybeEncode(payload, transferables);
         self.postMessage(payload, transferables.map(function (t) {
             return t.object;
         }));
@@ -43560,7 +44971,7 @@ function setupWorkerThread() {
     };
 
     self.addEventListener('message', function WorkerBrokerWorkerThreadHandler(event) {
-        var data = maybeDecode(event.data);
+        var data = event.data;
         var id = data.message_id;
 
         // Listen for messages coming back from the main thread, and fulfill that message's promise
@@ -43578,94 +44989,83 @@ function setupWorkerThread() {
         // Receive messages from main thread, dispatch them, and send back a reply
         // Unique id for this message & return call to main thread
         else if (data.type === 'main_send' && id != null) {
-                var method_name, target;
-                var method;
-                var result, error;
-
-                (function () {
-                    var _findTarget3 = findTarget(data.method);
-                    // Call the requested worker method and save the return value
-
-
-                    var _findTarget4 = _slicedToArray(_findTarget3, 2);
-
-                    method_name = _findTarget4[0];
+                // Call the requested worker method and save the return value
+                var _findTarget3 = findTarget(data.method),
+                    _findTarget4 = _slicedToArray(_findTarget3, 2),
+                    method_name = _findTarget4[0],
                     target = _findTarget4[1];
 
-                    if (!target) {
-                        throw Error('Worker broker could not dispatch message type ' + data.method + ' on target ' + data.target + ' because no object with that name is registered on main thread');
-                    }
+                if (!target) {
+                    throw Error('Worker broker could not dispatch message type ' + data.method + ' on target ' + data.target + ' because no object with that name is registered on main thread');
+                }
 
-                    method = typeof target[method_name] === 'function' && target[method_name];
+                var method = typeof target[method_name] === 'function' && target[method_name];
 
+                if (!method) {
+                    throw Error('Worker broker could not dispatch message type ' + data.method + ' because worker has no method with that name');
+                }
 
-                    if (!method) {
-                        throw Error('Worker broker could not dispatch message type ' + data.method + ' because worker has no method with that name');
-                    }
+                var result, error;
+                try {
+                    result = method.apply(target, data.message);
+                } catch (e) {
+                    // Thrown errors will be passed back (in string form) to main thread
+                    error = e;
+                }
 
-                    try {
-                        result = method.apply(target, data.message);
-                    } catch (e) {
-                        // Thrown errors will be passed back (in string form) to main thread
-                        error = e;
-                    }
+                // Send return value to main thread
+                var payload = void 0,
+                    transferables = [];
 
-                    // Send return value to main thread
-                    var payload = void 0,
-                        transferables = [];
-
-                    // Async result
-                    if (result instanceof Promise) {
-                        result.then(function (value) {
-                            if (value instanceof WorkerBroker.withTransferables) {
-                                transferables = value.transferables;
-                                value = value.value[0];
-                            }
-
-                            payload = {
-                                type: 'worker_reply',
-                                message_id: id,
-                                message: value
-                            };
-                            payload = maybeEncode(payload, transferables);
-                            self.postMessage(payload, transferables.map(function (t) {
-                                return t.object;
-                            }));
-                            freeTransferables(transferables);
-                            if (transferables.length > 0) {
-                                (0, _log2.default)('trace', '\'' + method_name + '\' transferred ' + transferables.length + ' objects to main thread');
-                            }
-                        }, function (error) {
-                            self.postMessage({
-                                type: 'worker_reply',
-                                message_id: id,
-                                error: error instanceof Error ? error.message + ': ' + error.stack : error
-                            });
-                        });
-                    }
-                    // Immediate result
-                    else {
-                            if (result instanceof WorkerBroker.withTransferables) {
-                                transferables = result.transferables;
-                                result = result.value[0];
-                            }
-
-                            payload = {
-                                type: 'worker_reply',
-                                message_id: id,
-                                message: result,
-                                error: error instanceof Error ? error.message + ': ' + error.stack : error
-                            };
-                            payload = maybeEncode(payload, transferables);
-                            self.postMessage(payload, transferables.map(function (t) {
-                                return t.object;
-                            }));
-                            freeTransferables(transferables);
-                            if (transferables.length > 0) {
-                                (0, _log2.default)('trace', '\'' + method_name + '\' transferred ' + transferables.length + ' objects to main thread');
-                            }
+                // Async result
+                if (result instanceof Promise) {
+                    result.then(function (value) {
+                        if (value instanceof WorkerBroker.withTransferables) {
+                            transferables = value.transferables;
+                            value = value.value[0];
                         }
-                })();
+
+                        payload = {
+                            type: 'worker_reply',
+                            message_id: id,
+                            message: value
+                        };
+                        self.postMessage(payload, transferables.map(function (t) {
+                            return t.object;
+                        }));
+                        freeTransferables(transferables);
+                        if (transferables.length > 0) {
+                            (0, _log2.default)('trace', '\'' + method_name + '\' transferred ' + transferables.length + ' objects to main thread');
+                        }
+                    }, function (error) {
+                        self.postMessage({
+                            type: 'worker_reply',
+                            message_id: id,
+                            error: error instanceof Error ? error.message + ': ' + error.stack : error
+                        });
+                    });
+                }
+                // Immediate result
+                else {
+                        if (result instanceof WorkerBroker.withTransferables) {
+                            transferables = result.transferables;
+                            result = result.value[0];
+                        }
+
+                        payload = {
+                            type: 'worker_reply',
+                            message_id: id,
+                            message: result,
+                            error: error instanceof Error ? error.message + ': ' + error.stack : error
+                        };
+                        self.postMessage(payload, transferables.map(function (t) {
+                            return t.object;
+                        }));
+                        freeTransferables(transferables);
+                        if (transferables.length > 0) {
+                            (0, _log2.default)('trace', '\'' + method_name + '\' transferred ' + transferables.length + ' objects to main thread');
+                        }
+                    }
             }
     });
 }
@@ -43735,19 +45135,6 @@ function freeTransferables(transferables) {
     });
 }
 
-// Message payload can be stringified for faster transfer, if it does not include transferable objects
-function maybeEncode(payload, transferables) {
-    if (transferables.length === 0) {
-        payload = JSON.stringify(payload);
-    }
-    return payload;
-}
-
-// Parse stringified message payload
-function maybeDecode(data) {
-    return typeof data === 'string' ? JSON.parse(data) : data;
-}
-
 // Setup this thread as appropriate
 if (_thread2.default.is_main) {
     setupMainThread();
@@ -43757,7 +45144,7 @@ if (_thread2.default.is_worker) {
     setupWorkerThread();
 }
 
-},{"./log":260,"./thread":266}],271:[function(_dereq_,module,exports){
+},{"./log":260,"./thread":268}],273:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -43964,7 +45351,7 @@ Vector.dot = function (v1, v2) {
     return n;
 };
 
-},{}],272:[function(_dereq_,module,exports){
+},{}],274:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -44023,8 +45410,11 @@ var View = function () {
         this.panning = false;
         this.panning_stop_at = 0;
         this.pan_snap_timer = 0;
-        this.zooming = false;
         this.zoom_direction = 0;
+
+        this.user_input_at = 0;
+        this.user_input_timeout = 50;
+        this.user_input_active = false;
 
         // Size of viewport in CSS pixels, device pixels, and mercator meters
         this.size = {
@@ -44037,7 +45427,6 @@ var View = function () {
         this.buffer = 0;
         this.continuous_zoom = typeof options.continuousZoom === 'boolean' ? options.continuousZoom : true;
         this.wrap = options.wrapView === false ? false : true;
-        this.tile_simplification_level = 0; // level-of-detail downsampling to apply to tile loading
         this.preserve_tiles_within_zoom = 1;
 
         this.reset();
@@ -44097,7 +45486,7 @@ var View = function () {
                 }
             }
 
-            this.scene.updateConfig({ rebuild: false });
+            this.scene.updateConfig({ rebuild: false, normalize: false });
             return this.getActiveCamera();
         }
 
@@ -44106,8 +45495,11 @@ var View = function () {
     }, {
         key: 'update',
         value: function update() {
-            this.camera.update();
+            if (this.camera != null && this.ready()) {
+                this.camera.update();
+            }
             this.pan_snap_timer = (+new Date() - this.panning_stop_at) / 1000;
+            this.user_input_active = +new Date() - this.user_input_at < this.user_input_timeout;
         }
 
         // Set logical pixel size of viewport
@@ -44158,14 +45550,8 @@ var View = function () {
     }, {
         key: 'setZoom',
         value: function setZoom(zoom) {
-            if (this.zooming) {
-                this.zooming = false;
-            } else {
-                this.last_zoom = this.zoom;
-            }
-
             var last_tile_zoom = this.tile_zoom;
-            var tile_zoom = this.tileZoom(zoom);
+            var tile_zoom = this.baseZoom(zoom);
             if (!this.continuous_zoom) {
                 zoom = tile_zoom;
             }
@@ -44174,18 +45560,11 @@ var View = function () {
                 this.zoom_direction = tile_zoom > last_tile_zoom ? 1 : -1;
             }
 
-            this.last_zoom = this.zoom;
             this.zoom = zoom;
             this.tile_zoom = tile_zoom;
 
             this.updateBounds();
             this.scene.requestRedraw();
-        }
-    }, {
-        key: 'startZoom',
-        value: function startZoom() {
-            this.last_zoom = this.zoom;
-            this.zooming = true;
         }
 
         // Choose the base zoom level to use for a given fractional zoom
@@ -44195,22 +45574,6 @@ var View = function () {
         value: function baseZoom(zoom) {
             return Math.floor(zoom);
         }
-
-        // For a given view zoom, what tile zoom should be loaded?
-
-    }, {
-        key: 'tileZoom',
-        value: function tileZoom(view_zoom) {
-            return Math.max(this.baseZoom(view_zoom) - this.tile_simplification_level, 0);
-        }
-
-        // For a given tile zoom, what style zoom should be used?
-
-    }, {
-        key: 'styleZoom',
-        value: function styleZoom(tile_zoom) {
-            return this.baseZoom(tile_zoom) + this.tile_simplification_level;
-        }
     }, {
         key: 'setPanning',
         value: function setPanning(panning) {
@@ -44218,6 +45581,11 @@ var View = function () {
             if (!this.panning) {
                 this.panning_stop_at = +new Date();
             }
+        }
+    }, {
+        key: 'markUserInput',
+        value: function markUserInput() {
+            this.user_input_at = +new Date();
         }
     }, {
         key: 'ready',
@@ -44290,13 +45658,11 @@ var View = function () {
             ];
 
             if (this.wrap === false) {
-                (function () {
-                    // prevent tiles from wrapping across antimeridian
-                    var tmax = (1 << z) - 1; // max xy tile number for this zoom
-                    range = range.map(function (v) {
-                        return Math.min(Math.max(0, v), tmax);
-                    });
-                })();
+                // prevent tiles from wrapping across antimeridian
+                var tmax = (1 << z) - 1; // max xy tile number for this zoom
+                range = range.map(function (v) {
+                    return Math.min(Math.max(0, v), tmax);
+                });
             }
 
             var coords = [];
@@ -44414,6 +45780,6 @@ var View = function () {
 
 exports.default = View;
 
-},{"./camera":201,"./geo":202,"./tile":252,"./utils/log":260,"./utils/subscribe":265,"./utils/utils":268}]},{},[226])(226)
+},{"./camera":201,"./geo":202,"./tile":252,"./utils/log":260,"./utils/subscribe":266,"./utils/utils":270}]},{},[226])(226)
 });})();
 //# sourceMappingURL=tangram.debug.js.map
