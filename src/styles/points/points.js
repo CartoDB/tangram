@@ -167,8 +167,8 @@ Object.assign(Points, {
 
         style.outline_edge_pct = 0;
         if (style.outline_width && style.outline_color) {
-            let outline_width = style.outline_width + 1;
-            style.size[0] += outline_width; // bump outline by 1px to balance out antialiasing
+            let outline_width = style.outline_width;
+            style.size[0] += outline_width;
             style.size[1] += outline_width;
             style.outline_edge_pct = outline_width / Math.min(style.size[0], style.size[1]) * 2; // UV distance at which outline starts
         }
@@ -353,7 +353,7 @@ Object.assign(Points, {
                 // Finish tile mesh
                 return Style.endData.call(this, tile).then(tile_data => {
                     // Attach tile-specific label atlas to mesh as a texture uniform
-                    if (textures && textures.length) {
+                    if (tile_data && textures && textures.length) {
                         tile_data.textures = tile_data.textures || [];
                         tile_data.textures.push(...textures); // assign texture ownership to tile
                     }
@@ -406,8 +406,11 @@ Object.assign(Points, {
         // Optional text styling
         draw.text = this.preprocessText(draw.text); // will return null if valid text styling wasn't provided
         if (draw.text) {
-            draw.text.key = draw.key; // copy layer key for use as label repeat group
-            draw.text.repeat_group = draw.text.repeat_group || draw.repeat_group; // inherit repeat group by default
+            draw.text.key = draw.key; // inherits parent properties
+            draw.text.group = draw.group;
+            draw.text.layers = draw.layers;
+            draw.text.order = draw.order;
+            draw.text.repeat_group = draw.text.repeat_group || draw.repeat_group;
             draw.text.anchor = draw.text.anchor || this.default_anchor;
             draw.text.optional = (typeof draw.text.optional === 'boolean') ? draw.text.optional : false; // default text to required
             draw.text.interactive = draw.text.interactive || draw.interactive; // inherits from point
