@@ -1129,6 +1129,8 @@ export default class Scene {
 
     // Listen to related objects
     createListeners () {
+        debugger;
+
         this.listeners = {};
 
         this.listeners.view = {
