@@ -32294,6 +32294,8 @@ var Scene = function () {
         value: function createListeners() {
             var _this14 = this;
 
+            debugger;
+
             this.listeners = {};
 
             this.listeners.view = {
@@ -43774,6 +43776,8 @@ function subscribeMixin(target) {
 
     return Object.assign(target, {
         subscribe: function subscribe(listener) {
+            debugger;
+
             if (listeners.indexOf(listener) === -1) {
                 listeners.push(listener);
             }
