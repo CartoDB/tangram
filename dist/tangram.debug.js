@@ -32333,6 +32333,7 @@ var Scene = function () {
             this.unsubscribeAll();
             this.view.unsubscribe(this.listeners.view);
             _texture2.default.unsubscribe(this.listeners.texture);
+            _data_source2.default.unsubscribe(this.listeners.tiles);
             _scene_loader2.default.unsubscribe(this.listeners.scene_loader);
             this.listeners = null;
         }
@@ -34206,6 +34207,10 @@ var _log = _dereq_('../utils/log');
 
 var _log2 = _interopRequireDefault(_log);
 
+var _worker_broker = _dereq_('../utils/worker_broker');
+
+var _worker_broker2 = _interopRequireDefault(_worker_broker);
+
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -34458,6 +34463,7 @@ exports.default = DataSource;
 
 
 DataSource.types = {}; // set of supported data source classes, referenced by type name
+_worker_broker2.default.addTarget('DataSource', DataSource);
 (0, _subscribe2.default)(DataSource);
 
 /*** Generic network loading source - abstract class ***/
@@ -34677,7 +34683,7 @@ var NetworkTileSource = exports.NetworkTileSource = function (_NetworkSource) {
     return NetworkTileSource;
 }(NetworkSource);
 
-},{"../geo":201,"../utils/errors":256,"../utils/log":259,"../utils/subscribe":265,"../utils/urls":268,"../utils/utils":269}],232:[function(_dereq_,module,exports){
+},{"../geo":201,"../utils/errors":256,"../utils/log":259,"../utils/subscribe":265,"../utils/urls":268,"../utils/utils":269,"../utils/worker_broker":271}],232:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
