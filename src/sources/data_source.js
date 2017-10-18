@@ -5,6 +5,7 @@ import Utils from '../utils/utils';
 import subscribeMixin from '../utils/subscribe';
 import * as URLs from '../utils/urls';
 import log from '../utils/log';
+import WorkerBroker from '../utils/worker_broker';
 
 export default class DataSource {
 
@@ -202,6 +203,7 @@ export default class DataSource {
 }
 
 DataSource.types = {}; // set of supported data source classes, referenced by type name
+WorkerBroker.addTarget('DataSource', DataSource);
 subscribeMixin(DataSource);
 
 /*** Generic network loading source - abstract class ***/
