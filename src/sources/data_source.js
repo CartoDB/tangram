@@ -2,7 +2,6 @@
 import Geo from '../geo';
 import {MethodNotImplemented} from '../utils/errors';
 import Utils from '../utils/utils';
-import subscribeMixin from '../utils/subscribe';
 import * as URLs from '../utils/urls';
 import log from '../utils/log';
 import WorkerBroker from '../utils/worker_broker';
@@ -204,7 +203,6 @@ export default class DataSource {
 
 DataSource.types = {}; // set of supported data source classes, referenced by type name
 WorkerBroker.addTarget('DataSource', DataSource);
-subscribeMixin(DataSource);
 
 /*** Generic network loading source - abstract class ***/
 
@@ -232,9 +230,6 @@ export class NetworkSource extends DataSource {
 
     _load (dest) {
         let url = this.formatUrl(this.url, dest);
-        const warnError = (error) => {
-            DataSource.trigger('warning', { error: error });
-        }
         let source_data = dest.source_data;
         source_data.url = url;
         dest.debug = dest.debug || {};
@@ -262,7 +257,6 @@ export class NetworkSource extends DataSource {
                 resolve(dest);
             }).catch((error) => {
                 source_data.error = error.stack;
-                warnError(error.stack);
                 resolve(dest); // resolve request but pass along error
             });
         });

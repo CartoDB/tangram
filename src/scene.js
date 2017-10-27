@@ -1129,8 +1129,6 @@ export default class Scene {
 
     // Listen to related objects
     createListeners () {
-        debugger;
-
         this.listeners = {};
 
         this.listeners.view = {
@@ -1143,11 +1141,6 @@ export default class Scene {
             warning: (data) => this.trigger('warning', Object.assign({ type: 'textures' }, data))
         };
         Texture.subscribe(this.listeners.texture);
-
-        this.listeners.tiles = {
-            warning: (data) => this.trigger('warning', Object.assign({ type: 'tiles' }, data))
-        };
-        DataSource.subscribe(this.listeners.tiles);
 
         this.listeners.scene_loader = {
             error: (data) => this.trigger('error', Object.assign({ type: 'scene' }, data))

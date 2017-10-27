@@ -7,8 +7,6 @@ export default function subscribeMixin (target) {
     return Object.assign(target, {
 
         subscribe(listener) {
-            debugger;
-
             if (listeners.indexOf(listener) === -1) {
                 listeners.push(listener);
             }
