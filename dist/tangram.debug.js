@@ -6014,7 +6014,7 @@ if (typeof Object.create === 'function') {
 /*!
  * Determine if an object is a Buffer
  *
- * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
+ * @author   Feross Aboukhadijeh <https://feross.org>
  * @license  MIT
  */
 
@@ -32294,8 +32294,6 @@ var Scene = function () {
         value: function createListeners() {
             var _this14 = this;
 
-            debugger;
-
             this.listeners = {};
 
             this.listeners.view = {
@@ -32314,13 +32312,6 @@ var Scene = function () {
                 }
             };
             _texture2.default.subscribe(this.listeners.texture);
-
-            this.listeners.tiles = {
-                warning: function warning(data) {
-                    return _this14.trigger('warning', Object.assign({ type: 'tiles' }, data));
-                }
-            };
-            _data_source2.default.subscribe(this.listeners.tiles);
 
             this.listeners.scene_loader = {
                 error: function error(data) {
@@ -32539,6 +32530,11 @@ var Scene = function () {
                     return scene.tile_manager.getRenderableTiles().length;
                 }
             };
+        }
+    }, {
+        key: 'tileFetchFailed',
+        value: function tileFetchFailed(statusCode) {
+            this.trigger('tileError', { statusCode: statusCode });
         }
     }, {
         key: 'animated',
@@ -33558,6 +33554,7 @@ if (_thread2.default.is_worker) {
                         // Warn and continue on data source error
                         if (tile.source_data.error) {
                             (0, _log2.default)('warn', 'tile load error(s) for ' + tile.key + ': ' + tile.source_data.error);
+                            _worker_broker2.default.postMessage('TileManager_' + self.scene_id + '.fetchTileError', tile);
                         }
 
                         tile.loading = false;
@@ -34197,10 +34194,6 @@ var _utils = _dereq_('../utils/utils');
 
 var _utils2 = _interopRequireDefault(_utils);
 
-var _subscribe = _dereq_('../utils/subscribe');
-
-var _subscribe2 = _interopRequireDefault(_subscribe);
-
 var _urls = _dereq_('../utils/urls');
 
 var URLs = _interopRequireWildcard(_urls);
@@ -34466,7 +34459,6 @@ exports.default = DataSource;
 
 DataSource.types = {}; // set of supported data source classes, referenced by type name
 _worker_broker2.default.addTarget('DataSource', DataSource);
-(0, _subscribe2.default)(DataSource);
 
 /*** Generic network loading source - abstract class ***/
 
@@ -34510,9 +34502,6 @@ var NetworkSource = exports.NetworkSource = function (_DataSource) {
             var _this4 = this;
 
             var url = this.formatUrl(this.url, dest);
-            var warnError = function warnError(error) {
-                DataSource.trigger('warning', { error: error });
-            };
             var source_data = dest.source_data;
             source_data.url = url;
             dest.debug = dest.debug || {};
@@ -34540,7 +34529,6 @@ var NetworkSource = exports.NetworkSource = function (_DataSource) {
                     resolve(dest);
                 }).catch(function (error) {
                     source_data.error = error.stack;
-                    warnError(error.stack);
                     resolve(dest); // resolve request but pass along error
                 });
             });
@@ -34685,7 +34673,7 @@ var NetworkTileSource = exports.NetworkTileSource = function (_NetworkSource) {
     return NetworkTileSource;
 }(NetworkSource);
 
-},{"../geo":201,"../utils/errors":256,"../utils/log":259,"../utils/subscribe":265,"../utils/urls":268,"../utils/utils":269,"../utils/worker_broker":271}],232:[function(_dereq_,module,exports){
+},{"../geo":201,"../utils/errors":256,"../utils/log":259,"../utils/urls":268,"../utils/utils":269,"../utils/worker_broker":271}],232:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -42711,6 +42699,17 @@ var TileManager = function () {
             }
         }
 
+        // Called on main thread when web worker encounters a status error fetching a tile
+
+    }, {
+        key: 'fetchTileError',
+        value: function fetchTileError(tile) {
+            var error = /\(code:(\d{3,3})\)/gi.exec(tile.source_data.error)[1];
+
+            // Notify scene that something failed
+            this.scene.tileFetchFailed(error);
+        }
+
         // Called on main thread when web worker encounters an error building a tile
 
     }, {
@@ -43776,8 +43775,6 @@ function subscribeMixin(target) {
 
     return Object.assign(target, {
         subscribe: function subscribe(listener) {
-            debugger;
-
             if (listeners.indexOf(listener) === -1) {
                 listeners.push(listener);
             }
@@ -44277,7 +44274,7 @@ Utils.io = function (url) {
                         resolve(request.response);
                     }
                 } else {
-                    reject(Error('Request error with a status of ' + request.statusText));
+                    reject(Error('Request error with a status (code:' + request.status + ') of ' + request.statusText));
                 }
             };
             request.onerror = function (evt) {
