@@ -18,7 +18,7 @@ varying vec2 v_texcoord;
 varying vec4 v_world_position;
 varying float v_alpha_factor;
 
-#ifdef TANGRAM_SHADER_POINT
+#ifdef TANGRAM_HAS_SHADER_POINTS
     varying vec4 v_outline_color;
     varying float v_outline_edge;
     varying float v_aa_offset;
@@ -32,7 +32,7 @@ varying float v_alpha_factor;
 #pragma tangram: raster
 #pragma tangram: global
 
-#ifdef TANGRAM_SHADER_POINT
+#ifdef TANGRAM_HAS_SHADER_POINTS
     //l is the distance from the center to the fragment, R is the radius of the drawn point
     float _tangram_antialias(float l, float R){
         float low  = R - v_aa_offset;
@@ -47,14 +47,15 @@ void main (void) {
 
     vec4 color = v_color;
 
-    if (u_point_type == TANGRAM_POINT_TYPE_TEXTURE) { // sprite texture
-        color *= texture2D(u_texture, v_texcoord);
-    }
-    else if (u_point_type == TANGRAM_POINT_TYPE_LABEL) { // label texture
-        color = texture2D(u_texture, v_texcoord);
-        color.rgb /= max(color.a, 0.001); // un-multiply canvas texture, avoid divide by zero
-    }
-    #ifdef TANGRAM_SHADER_POINT
+    #ifdef TANGRAM_HAS_SHADER_POINTS
+        // Only apply shader blocks to point, not to attached text (N.B.: for compatibility with ES)
+        if (u_point_type == TANGRAM_POINT_TYPE_TEXTURE) { // sprite texture
+            color *= texture2D(u_texture, v_texcoord);
+        }
+        else if (u_point_type == TANGRAM_POINT_TYPE_LABEL) { // label texture
+            color = texture2D(u_texture, v_texcoord);
+            color.rgb /= max(color.a, 0.001); // un-multiply canvas texture
+        }
         else if (u_point_type == TANGRAM_POINT_TYPE_SHADER) { // shader point
             float outline_edge = v_outline_edge;
             vec4 outlineColor  = v_outline_color;
@@ -74,6 +75,10 @@ void main (void) {
                 color.rgb = mix(color.rgb * fill_alpha, outlineColor.rgb, stroke_alpha) / max(color.a, 0.001); // avoid divide by zero
             #endif
         }
+    #else
+        // If shader points not supported, assume label texture
+        color = texture2D(u_texture, v_texcoord);
+        color.rgb /= max(color.a, 0.001); // un-multiply canvas texture
     #endif
 
     // Shader blocks for color/filter are only applied for sprites, shader points, and standalone text,
