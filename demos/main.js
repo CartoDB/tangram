@@ -59,11 +59,11 @@
         view_complete: function (msg) {
             // new set of map tiles was rendered
         },
-        tileError: function (msg) {
-            console.log("CAPTURADO!!!!", msg);
+        error: function (msg) {
+            // on error
         },
         warning: function (msg) {
-            console.log("CAPTURADO!!!!", msg);
+            // on warning
         }
     });
 
