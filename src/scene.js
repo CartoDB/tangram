@@ -1152,7 +1152,6 @@ export default class Scene {
         this.unsubscribeAll();
         this.view.unsubscribe(this.listeners.view);
         Texture.unsubscribe(this.listeners.texture);
-        DataSource.unsubscribe(this.listeners.tiles);
         SceneLoader.unsubscribe(this.listeners.scene_loader);
         this.listeners = null;
     }
