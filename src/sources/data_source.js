@@ -249,11 +249,13 @@ export class NetworkSource extends DataSource {
             source_data.request_id = request_id;
 
             const loadTile = body => {
-                dest.debug.response_size = body.length || body.byteLength;
-                dest.debug.network = +new Date() - dest.debug.network;
-                dest.debug.parsing = +new Date();
-                this.parseSourceData(dest, source_data, body);
-                dest.debug.parsing = +new Date() - dest.debug.parsing;
+                if (body && (body.length || body.byteLength)){
+                    dest.debug.response_size = body.length || body.byteLength;
+                    dest.debug.network = +new Date() - dest.debug.network;
+                    dest.debug.parsing = +new Date();
+                    this.parseSourceData(dest, source_data, body);
+                    dest.debug.parsing = +new Date() - dest.debug.parsing;
+                }
                 resolve(dest);
             };
             promise.then((body) => {
