@@ -67,10 +67,10 @@ Enjoy!
             // new set of map tiles was rendered
         },
         error: function (msg) {
-            // debugger;
+            console.log("CAPTURADO!!!!", msg);
         },
         warning: function (msg) {
-            // debugger;
+            console.log("CAPTURADO!!!!", msg);
         }
     });
 
