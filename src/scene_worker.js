@@ -186,6 +186,7 @@ Object.assign(self, {
                     // Warn and continue on data source error
                     if (tile.source_data.error) {
                         log('warn', `tile load error(s) for ${tile.key}: ${tile.source_data.error}`);
+                        WorkerBroker.postMessage(`TileManager_${self.scene_id}.fetchTileError`, tile);
                     }
 
                     tile.loading = false;
