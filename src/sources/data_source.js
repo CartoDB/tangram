@@ -248,16 +248,20 @@ export class NetworkSource extends DataSource {
             let promise = Utils.io(url, 60 * 1000, this.response_type, 'GET', {}, request_id);
             source_data.request_id = request_id;
 
-            promise.then((body) => {
+            const loadTile = body => {
                 dest.debug.response_size = body.length || body.byteLength;
                 dest.debug.network = +new Date() - dest.debug.network;
                 dest.debug.parsing = +new Date();
                 this.parseSourceData(dest, source_data, body);
                 dest.debug.parsing = +new Date() - dest.debug.parsing;
                 resolve(dest);
+            };
+            promise.then((body) => {
+            loadTile(body);
             }).catch((error) => {
                 source_data.error = error.stack;
-                resolve(dest); // resolve request but pass along error
+                // Try to load it anyway
+                loadTile(error.body);
             });
         });
     }
