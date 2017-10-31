@@ -60,12 +60,12 @@ export default class Scene {
 
         if (options.preUpdate){
             // optional pre-render loop hook
-            this.subscribe({'preUpdate': options.preUpdate});
+            this.subscribe({'pre_update': options.preUpdate});
         }
 
         if (options.postUpdate){
             // optional post-render loop hook
-            this.subscribe({'postUpdate': options.postUpdate});
+            this.subscribe({'post_update': options.postUpdate});
         }
 
         this.render_loop = !options.disableRenderLoop;  // disable render loop - app will have to manually call Scene.render() per frame
@@ -239,6 +239,7 @@ export default class Scene {
         try {
             this.gl = Context.getContext(this.canvas, Object.assign({
                 alpha: true, premultipliedAlpha: true,
+                stencil: true,
                 device_pixel_ratio: Utils.device_pixel_ratio
             }, this.contextOptions));
         }
@@ -274,24 +275,13 @@ export default class Scene {
         if (!worker_url) {
             throw new Error("Couldn't find internal Tangram source variable (may indicate the library did not build correctly)");
         }
-
-        // Import custom data source scripts alongside core library
-        // NOTE: workaround for issue where large libraries intermittently fail to load in web workers,
-        // when multiple importScripts() calls are used. Loading all scripts (including Tangram itself)
-        // in one call at at worker creation time has not exhibited the same issue.
-        let urls = [...this.data_source_scripts];
-        urls.push(worker_url); // load Tangram *last* (has been more reliable, though reason unknown)
-        let body = `importScripts(${urls.map(url => `'${url}'`).join(',')});`;
-        return URLs.createObjectURL(new Blob([body], { type: 'application/javascript' }));
+        return worker_url;
     }
 
     // Update list of any custom data source scripts (if any)
     updateDataSourceScripts () {
         let prev_scripts = [...(this.data_source_scripts||[])]; // save list of previously loaded scripts
         let scripts = Object.keys(this.config.sources).map(s => this.config.sources[s].scripts).filter(x => x);
-        if (scripts.length > 0) {
-            log('debug', 'loading custom data source scripts in worker:', scripts);
-        }
         this.data_source_scripts = [].concat(...scripts).sort();
 
         // Scripts changed?
@@ -320,15 +310,15 @@ export default class Scene {
 
         let queue = [];
         this.workers = [];
-        for (var id=0; id < this.num_workers; id++) {
-            var worker = new Worker(url);
+        for (let id=0; id < this.num_workers; id++) {
+            let worker = new Worker(url);
             this.workers[id] = worker;
 
             WorkerBroker.addWorker(worker);
 
             log('debug', `Scene.makeWorkers: initializing worker ${id}`);
             let _id = id;
-            queue.push(WorkerBroker.postMessage(worker, 'self.init', this.id, id, this.num_workers, this.log_level, Utils.device_pixel_ratio, has_element_index_uint).then(
+            queue.push(WorkerBroker.postMessage(worker, 'self.init', this.id, id, this.num_workers, this.log_level, Utils.device_pixel_ratio, has_element_index_uint, this.data_source_scripts).then(
                 (id) => {
                     log('debug', `Scene.makeWorkers: initialized worker ${id}`);
                     return id;
@@ -442,7 +432,7 @@ export default class Scene {
         );
 
         // Pre-render loop hook
-        this.trigger('preUpdate', will_render);
+        this.trigger('pre_update', will_render);
 
         // Update view (needs to update user input timer even if no render will occur)
         this.view.update();
@@ -460,7 +450,7 @@ export default class Scene {
         this.media_capture.completeScreenshot(); // completes screenshot capture if requested
 
         // Post-render loop hook
-        this.trigger('postUpdate', will_render);
+        this.trigger('post_update', will_render);
 
         // Redraw every frame if animating
         if (this.animated === true || this.view.isAnimating()) {
@@ -531,7 +521,7 @@ export default class Scene {
         // optionally force alpha off (e.g. for selection pass)
         allow_blend = (allow_blend == null) ? true : allow_blend;
 
-        this.clearFrame({ clear_color: true, clear_depth: true });
+        this.clearFrame();
 
         // Sort styles by blend order
         let styles = this.tile_manager.getActiveStyles().
@@ -553,7 +543,32 @@ export default class Scene {
                 );
                 this.setRenderState(state);
             }
+
+            // Depth pre-pass for translucency
+            let translucent = (style.blend === 'translucent' && program_key === 'program'); // skip for selection buffer render pass
+            if (translucent) {
+                this.gl.colorMask(false, false, false, false);
+                this.renderStyle(style.name, program_key);
+
+                this.gl.colorMask(true, true, true, true);
+                this.gl.depthFunc(this.gl.EQUAL);
+
+                // stencil buffer prevents compounding alpha from overlapping polys
+                this.gl.enable(this.gl.STENCIL_TEST);
+                this.gl.clear(this.gl.STENCIL_BUFFER_BIT);
+                this.gl.stencilFunc(this.gl.EQUAL, this.gl.ZERO, 0xFF);
+                this.gl.stencilOp(this.gl.KEEP, this.gl.KEEP, this.gl.INCR);
+            }
+
+            // Main render pass
             count += this.renderStyle(style.name, program_key);
+
+            if (translucent) {
+                // disable translucency-specific settings
+                this.gl.disable(this.gl.STENCIL_TEST);
+                this.gl.depthFunc(this.gl.LESS);
+            }
+
             last_blend = style.blend;
         }
 
@@ -638,23 +653,12 @@ export default class Scene {
         return program;
     }
 
-    clearFrame({ clear_color, clear_depth } = {}) {
+    clearFrame() {
         if (!this.initialized) {
             return;
         }
-
-        // Defaults
-        clear_color = (clear_color === false) ? false : true; // default true
-        clear_depth = (clear_depth === false) ? false : true; // default true
-
-        // Set GL state
-        this.render_states.depth_write.set({ depth_write: clear_depth });
-
-        let gl = this.gl;
-        if (clear_color || clear_depth) {
-            let mask = (clear_color && gl.COLOR_BUFFER_BIT) | (clear_depth && gl.DEPTH_BUFFER_BIT);
-            gl.clear(mask);
-        }
+        this.render_states.depth_write.set({ depth_write: true });
+        this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT | this.gl.STENCIL_BUFFER_BIT);
     }
 
     setRenderState({ depth_test, depth_write, cull_face, blend } = {}) {
@@ -673,8 +677,8 @@ export default class Scene {
         // Reset frame state
         let gl = this.gl;
 
-        render_states.depth_test.set({ depth_test: depth_test });
-        render_states.depth_write.set({ depth_write: depth_write });
+        render_states.depth_test.set({ depth_test });
+        render_states.depth_write.set({ depth_write });
         render_states.culling.set({ cull: cull_face, face: render_states.defaults.culling_face });
 
         // Blending of alpha channel is modified to account for WebGL alpha behavior, see:
@@ -688,7 +692,7 @@ export default class Scene {
                 });
             }
             // Traditional alpha blending
-            else if (blend === 'overlay' || blend === 'inlay') {
+            else if (blend === 'overlay' || blend === 'inlay' || blend === 'translucent') {
                 render_states.blending.set({
                     blend: true,
                     src: gl.SRC_ALPHA, dst: gl.ONE_MINUS_SRC_ALPHA,
@@ -1086,11 +1090,18 @@ export default class Scene {
 
         this.config = SceneLoader.applyGlobalProperties(this.config, this.config_globals_applied);
         if (normalize) {
+            // normalize whole scene
             SceneLoader.normalize(this.config, this.config_bundle);
+        }
+        else {
+            // special handling for shader uniforms that are globals
+            SceneLoader.hoistStyleShaderUniformTextures(this.config, this.config_bundle, { include_globals: true });
+
+            // just normalize top-level textures - necessary for adding base path to globals
+            SceneLoader.normalizeTextures(this.config, this.config_bundle);
         }
         this.trigger(load_event ? 'load' : 'update', { config: this.config });
 
-        SceneLoader.hoistTextures(this.config); // move inline textures into global texture set
         this.style_manager.init();
         this.view.reset();
         this.createLights();
