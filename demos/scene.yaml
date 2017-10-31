@@ -26,7 +26,6 @@ sources:
     CartoDB:
         type: MVT
         url: 'http://localhost:3000/{z}/{x}/{y}/mvt'
-        #url: 'https://cartocdn-ashbu_{s}.global.ssl.fastly.net/dmanzanares/api/v1/map/dmanzanares@0936b5a1@b0283149471ce69e93b6438972c5ea1d:1506088207591/mapnik/{z}/{x}/{y}.mvt'
         url_subdomains:
             - a
             - b
