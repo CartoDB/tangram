@@ -1,17 +1,20 @@
-﻿import:
-    - styles/halftone.yaml
-    - styles/windows.yaml
-    - styles/water.yaml
-    - styles/popup.yaml
-
-global:
-    language: en # ISO 2-char code
+﻿global:
+    language: en # optional ISO 2-char code
     language_text_source: |
         function() {
             // Use preferred language label if available
             return (global.language && feature['name:'+global.language]) || feature.name;
         }
+    language_text_source_left: |
+        function() {
+            return (global.language && feature['name:left:'+global.language]) || feature['name:left'];
+        }
+    language_text_source_right: |
+        function() {
+            return (global.language && feature['name:right:'+global.language]) || feature['name:right'];
+        }
     feature_order: function () { return feature.sort_rank; }
+    background_color: '#f0ebeb'
 
 cameras:
     perspective:
@@ -30,7 +33,7 @@ cameras:
 
 scene:
     background:
-        color: '#f0ebeb'
+        color: global.background_color
 
 fonts:
     Montserrat:
@@ -62,23 +65,15 @@ textures:
 styles:
     buildings:
         base: polygons
+        blend: translucent
         shaders:
             blocks:
                 color: |
-                    // Modify lighting
-                    material.ambient.rgb = vec3(2.);
-                    material.diffuse.rgb = vec3(.5);
-
                     // Shade by building height
-                    color.rgb = vec3(min((worldPosition().z*.0005 + .65), .8));
+                    color.rgb *= vec3((worldPosition().z*.0005 + .9));
 
-    icons:
-        base: points
-        texture: icons
-
-    dashed:
-        base: lines
-        dash: [2, 1]
+                    // Add translucency at higher zoom
+                    color.a = clamp(mix(1., 0., (u_map_position.z - 15.) * .25), .5, 1.);
 
     transit-lines:
         base: lines
@@ -88,52 +83,14 @@ styles:
             blocks:
                 filter: |
                     color.rgb *= 1.25; // pump up the colors
-                    color.a = 0.5;     // translucent
+                    color.a *= 0.5;     // translucent
         draw: # default draw parameters
-            color: function() { return feature.colour || 'gray'; }
+            color: function() { return feature.colour_name; }
             width: 6px
             outline:
                 color: [.8, .8, .8]
                 width: 1px
             interactive: true
-
-    rainbow:
-        base: polygons
-        animated: true
-        lighting: false
-        shaders:
-            blocks:
-                global: |
-                    // hue-saturation-value to RBG color space converter
-                    vec3 hsv2rgb(vec3 c) {
-                        vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
-                        vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
-                        return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
-                    }
-                filter: |
-                    // modulate hue by z-position and time, then convert to RGB and set pixel color
-                    vec3 c = vec3(worldPosition().z * .003 + u_time / 10., 1.0, 1.0);
-                    color.rgb = hsv2rgb(c);
-
-    elevator:
-        base: polygons
-        animated: true
-        shaders:
-            blocks:
-                position: |
-                    // Elevator buildings
-                    if (position.z > 0.01) {
-                        position.z *= (sin(position.z + u_time) + 1.0);
-                    }
-
-    envmap:
-        base: polygons
-        material:
-            ambient: 0
-            diffuse: 0
-            emission:
-                texture: images/sunset.jpg
-                mapping: spheremap
 
 sources:
     mapzen:
@@ -183,14 +140,6 @@ layers:
 
     earth:
         data: { source: mapzen }
-
-        fill:
-            filter: { $geometry: polygon }
-            enabled: false
-            draw:
-                polygons:
-                    order: global.feature_order
-                    color: '#f0ebeb'
 
         labels:
             filter: { kind: continent, $geometry: point }
@@ -292,18 +241,26 @@ layers:
             lines:
                 color: white
                 # color: function() { return [Math.random(), Math.random(), Math.random()] }
-                width: 12
+                # width: 20px
+                # width: [[14, 20], [16, 5], [17, 1], [20, 5]]
+                # width: [[16, 0px], [18, 10px], [20, 0px]]
+                width: [[16, 0px], [17, 10px], [18, 15px], [19, 15px], [20, 0px]]
+                # width: 10px
                 order: global.feature_order
                 outline:
                     color: [[16, '#999'], [18, '#aaa']]
-                    width: [[15, 0], [16, 2]]
+                    # width: [[15, 0], [16, 2]]
+                    width: [[17, 0], [18, 2px], [19, 3px]]
+                    # width: 3px
                     order: 352 # put all outlines below all roads
+                # offset: [[18, 0], [19, -30px], [20, 30px]]
 
         rounded:
             filter: { $zoom: { min: 18 } }
             draw:
                 lines:
                     cap: round
+                    join: round
 
         highway:
             filter: { kind: highway }
@@ -337,7 +294,7 @@ layers:
             filter: { kind: path }
             draw:
                 lines:
-                    style: dashed
+                    dash: [2, 1]
                     color: white
                     width: [[15, 0px], [18, 3px]]
                     outline:
@@ -357,7 +314,7 @@ layers:
             filter: { kind: ferry }
             draw:
                 lines:
-                    style: dashed
+                    dash: [2, 1]
                     color: '#8db3ce'
                     width: [[14, 1px], [18, 2px]]
                     outline:
@@ -444,7 +401,8 @@ layers:
             # oneway arrows and shields are distinct groups!
             filter: { oneway: yes, shield_text: false, $zoom: { min: 17 } }
             draw:
-                icons:
+                points:
+                    texture: icons
                     sprite: arrow
                     size: [[17, 18px], [18, 20px], [20, 32px]]
                     placement: spaced
@@ -456,7 +414,8 @@ layers:
                 network: 'US:I' # US interstates only in this demo
                 shield_text: true
             draw:
-                icons:
+                points:
+                    texture: icons
                     sprite: shield
                     # sprite: function() { return feature.network }
                     priority: 2
@@ -477,7 +436,7 @@ layers:
             thinning:
                 filter: { $zoom: { max: 11 } }
                 draw:
-                    icons:
+                    points:
                         repeat_distance: 75px
 
     buildings:
@@ -536,7 +495,8 @@ layers:
 
         # all POIs are interactive
         draw:
-            icons:
+            points:
+                texture: icons
                 interactive: true
 
         parks:
@@ -546,8 +506,11 @@ layers:
                     - { $zoom: { min: 16 } }
                     - { area: { min: 500px2 } }
             draw:
-                icons:
+                points:
                     sprite: tree
+                    # texture: null
+                    # color: red
+                    # outline: { width: 2px, color: white }
                     priority: 2
                     size: 16px
                     text:
@@ -583,7 +546,7 @@ layers:
                     kind: [peak, viewpoint, bicycle_rental, car_sharing, park, forest, cemetery, graveyard]
                 $zoom: { min: 15 }
             draw:
-                icons:
+                points:
                     size: [[13, 12px], [15, 18px]]
                     priority: 6
 
@@ -593,7 +556,7 @@ layers:
                     - { $zoom: { min: 17 } }
                     - { $zoom: { min: 16 }, kind: station }
                 draw:
-                    icons:
+                    points:
                         text:
                             text_source: global.language_text_source
                             font:
@@ -604,37 +567,37 @@ layers:
             # add generic icon at high zoom
             generic:
                 filter: { $zoom: { min: 18 } }
-                draw: { icons: { sprite: info } }
+                draw: { points: { sprite: info } }
 
             # examples of different icons mapped to feature properties
             icons:
                 restaurant:
                     filter: { kind: [restaurant] }
-                    draw: { icons: { sprite: restaurant } }
+                    draw: { points: { sprite: restaurant } }
                 cafe:
                     filter: { kind: [cafe, convenience] }
-                    draw: { icons: { sprite: cafe } }
+                    draw: { points: { sprite: cafe } }
                 bar:
                     filter: { kind: [bar, pub] }
-                    draw: { icons: { sprite: bar } }
+                    draw: { points: { sprite: bar } }
                 culture:
                     filter: { kind: [museum, library, church, place_of_worship, bank] }
-                    draw: { icons: { sprite: museum } }
+                    draw: { points: { sprite: museum } }
                 station:
                     filter: { kind: [station] }
-                    draw: { icons: { sprite: train, priority: 2, optional: true } }
+                    draw: { points: { sprite: train, priority: 2, optional: true } }
                 hospital:
                     filter: { kind: [hospital, pharmacy] }
-                    draw: { icons: { sprite: hospital } }
+                    draw: { points: { sprite: hospital } }
                 hotel:
                     filter: { kind: [hotel, hostel] }
-                    draw: { icons: { sprite: hotel } }
+                    draw: { points: { sprite: hotel } }
                 bus_stop:
                     filter: { kind: [bus_stop] }
-                    draw: { icons: { sprite: bus } }
+                    draw: { points: { sprite: bus } }
                 bookstore:
                     filter: { kind: [bookstore] }
-                    draw: { icons: { sprite: bookstore } }
+                    draw: { points: { sprite: bookstore } }
 
     boundaries:
         data: { source: mapzen}
@@ -643,8 +606,9 @@ layers:
             lines:
                 visible: false
                 order: global.feature_order
-                width: 2px
+                width: 2.5px
                 color: wheat
+                dash: [1, 1, 3, 1]
 
         country:
             filter: { kind: country }
@@ -674,9 +638,10 @@ layers:
                 draw:
                     text:
                         priority: 1
+                        offset: [0, 2px]
                         text_source:
-                            left: ['name:left:en', 'name:left']
-                            right: ['name:right:en', 'name:right']
+                            left: global.language_text_source_left
+                            right: global.language_text_source_right
 
     places:
         data: { source: mapzen }
@@ -777,14 +742,31 @@ layers:
                             style: italic
                             fill: rgba(136, 45, 23, 0.9)
 
-
     transit:
         data: { source: mapzen }
-        filter: { $zoom: { min: 16 } }
+        filter: { $zoom: { min: 15 } }
         draw:
             lines:
                 style: transit-lines
                 order: 400
+                width: [[15, 6px], [16, 12px]]
+
+        NYC:
+            filter: { network: 'NYC Subway' }
+
+            F:
+                filter: { ref: F }
+                draw:
+                    lines:
+                        offset: [[15, 3.5px], [16, 6.5px]]
+
+            G:
+                filter: { ref: G }
+                draw:
+                    lines:
+                        offset: [[15, -3.5px], [16, -6.5px]]
+                        order: function () { return feature.sort_rank + 1; }
+
 
     # schools:
     #     data: { source: schools }

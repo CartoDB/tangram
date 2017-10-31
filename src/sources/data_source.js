@@ -4,6 +4,7 @@ import {MethodNotImplemented} from '../utils/errors';
 import Utils from '../utils/utils';
 import * as URLs from '../utils/urls';
 import log from '../utils/log';
+import WorkerBroker from '../utils/worker_broker';
 
 export default class DataSource {
 
@@ -201,7 +202,7 @@ export default class DataSource {
 }
 
 DataSource.types = {}; // set of supported data source classes, referenced by type name
-
+WorkerBroker.addTarget('DataSource', DataSource);
 
 /*** Generic network loading source - abstract class ***/
 
@@ -229,7 +230,6 @@ export class NetworkSource extends DataSource {
 
     _load (dest) {
         let url = this.formatUrl(this.url, dest);
-
         let source_data = dest.source_data;
         source_data.url = url;
         dest.debug = dest.debug || {};
