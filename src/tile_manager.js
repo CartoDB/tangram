@@ -340,7 +340,8 @@ export default class TileManager {
 
     // Called on main thread when web worker encounters a status error fetching a tile
     fetchTileError(tile) {
-        const error = /\(code:(\d{3,3})\)/gi.exec(tile.source_data.error)[1];
+        const code = /\(code:(\d{3,3})\)/gi.exec(tile.source_data.error);
+        const error = code && code[1];
 
         // Notify scene that something failed
         this.scene.tileFetchFailed(error);
