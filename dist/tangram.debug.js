@@ -6034,13 +6034,6 @@ function isSlowBuffer (obj) {
 }
 
 },{}],96:[function(_dereq_,module,exports){
-var toString = {}.toString;
-
-module.exports = Array.isArray || function (arr) {
-  return toString.call(arr) == '[object Array]';
-};
-
-},{}],97:[function(_dereq_,module,exports){
 'use strict';
 
 
@@ -6049,7 +6042,7 @@ var yaml = _dereq_('./lib/js-yaml.js');
 
 module.exports = yaml;
 
-},{"./lib/js-yaml.js":98}],98:[function(_dereq_,module,exports){
+},{"./lib/js-yaml.js":97}],97:[function(_dereq_,module,exports){
 'use strict';
 
 
@@ -6090,7 +6083,7 @@ module.exports.parse          = deprecated('parse');
 module.exports.compose        = deprecated('compose');
 module.exports.addConstructor = deprecated('addConstructor');
 
-},{"./js-yaml/exception":100,"./js-yaml/loader":101,"./js-yaml/schema":103,"./js-yaml/schema/core":104,"./js-yaml/schema/default_full":105,"./js-yaml/schema/default_safe":106,"./js-yaml/schema/failsafe":107,"./js-yaml/schema/json":108,"./js-yaml/type":109}],99:[function(_dereq_,module,exports){
+},{"./js-yaml/exception":99,"./js-yaml/loader":100,"./js-yaml/schema":102,"./js-yaml/schema/core":103,"./js-yaml/schema/default_full":104,"./js-yaml/schema/default_safe":105,"./js-yaml/schema/failsafe":106,"./js-yaml/schema/json":107,"./js-yaml/type":108}],98:[function(_dereq_,module,exports){
 'use strict';
 
 
@@ -6151,7 +6144,7 @@ module.exports.repeat         = repeat;
 module.exports.isNegativeZero = isNegativeZero;
 module.exports.extend         = extend;
 
-},{}],100:[function(_dereq_,module,exports){
+},{}],99:[function(_dereq_,module,exports){
 // YAML error class. http://stackoverflow.com/questions/8458984
 //
 'use strict';
@@ -6196,7 +6189,7 @@ YAMLException.prototype.toString = function toString(compact) {
 
 module.exports = YAMLException;
 
-},{}],101:[function(_dereq_,module,exports){
+},{}],100:[function(_dereq_,module,exports){
 'use strict';
 
 /*eslint-disable max-len,no-use-before-define*/
@@ -7784,7 +7777,7 @@ module.exports.load        = load;
 module.exports.safeLoadAll = safeLoadAll;
 module.exports.safeLoad    = safeLoad;
 
-},{"./common":99,"./exception":100,"./mark":102,"./schema/default_full":105,"./schema/default_safe":106}],102:[function(_dereq_,module,exports){
+},{"./common":98,"./exception":99,"./mark":101,"./schema/default_full":104,"./schema/default_safe":105}],101:[function(_dereq_,module,exports){
 'use strict';
 
 
@@ -7862,7 +7855,7 @@ Mark.prototype.toString = function toString(compact) {
 
 module.exports = Mark;
 
-},{"./common":99}],103:[function(_dereq_,module,exports){
+},{"./common":98}],102:[function(_dereq_,module,exports){
 'use strict';
 
 /*eslint-disable max-len*/
@@ -7968,7 +7961,7 @@ Schema.create = function createSchema() {
 
 module.exports = Schema;
 
-},{"./common":99,"./exception":100,"./type":109}],104:[function(_dereq_,module,exports){
+},{"./common":98,"./exception":99,"./type":108}],103:[function(_dereq_,module,exports){
 // Standard YAML's Core schema.
 // http://www.yaml.org/spec/1.2/spec.html#id2804923
 //
@@ -7988,7 +7981,7 @@ module.exports = new Schema({
   ]
 });
 
-},{"../schema":103,"./json":108}],105:[function(_dereq_,module,exports){
+},{"../schema":102,"./json":107}],104:[function(_dereq_,module,exports){
 // JS-YAML's default schema for `load` function.
 // It is not described in the YAML specification.
 //
@@ -8015,7 +8008,7 @@ module.exports = Schema.DEFAULT = new Schema({
   ]
 });
 
-},{"../schema":103,"../type/js/function":114,"../type/js/regexp":115,"../type/js/undefined":116,"./default_safe":106}],106:[function(_dereq_,module,exports){
+},{"../schema":102,"../type/js/function":113,"../type/js/regexp":114,"../type/js/undefined":115,"./default_safe":105}],105:[function(_dereq_,module,exports){
 // JS-YAML's default schema for `safeLoad` function.
 // It is not described in the YAML specification.
 //
@@ -8045,7 +8038,7 @@ module.exports = new Schema({
   ]
 });
 
-},{"../schema":103,"../type/binary":110,"../type/merge":118,"../type/omap":120,"../type/pairs":121,"../type/set":123,"../type/timestamp":125,"./core":104}],107:[function(_dereq_,module,exports){
+},{"../schema":102,"../type/binary":109,"../type/merge":117,"../type/omap":119,"../type/pairs":120,"../type/set":122,"../type/timestamp":124,"./core":103}],106:[function(_dereq_,module,exports){
 // Standard YAML's Failsafe schema.
 // http://www.yaml.org/spec/1.2/spec.html#id2802346
 
@@ -8064,7 +8057,7 @@ module.exports = new Schema({
   ]
 });
 
-},{"../schema":103,"../type/map":117,"../type/seq":122,"../type/str":124}],108:[function(_dereq_,module,exports){
+},{"../schema":102,"../type/map":116,"../type/seq":121,"../type/str":123}],107:[function(_dereq_,module,exports){
 // Standard YAML's JSON schema.
 // http://www.yaml.org/spec/1.2/spec.html#id2803231
 //
@@ -8091,7 +8084,7 @@ module.exports = new Schema({
   ]
 });
 
-},{"../schema":103,"../type/bool":111,"../type/float":112,"../type/int":113,"../type/null":119,"./failsafe":107}],109:[function(_dereq_,module,exports){
+},{"../schema":102,"../type/bool":110,"../type/float":111,"../type/int":112,"../type/null":118,"./failsafe":106}],108:[function(_dereq_,module,exports){
 'use strict';
 
 var YAMLException = _dereq_('./exception');
@@ -8154,7 +8147,7 @@ function Type(tag, options) {
 
 module.exports = Type;
 
-},{"./exception":100}],110:[function(_dereq_,module,exports){
+},{"./exception":99}],109:[function(_dereq_,module,exports){
 'use strict';
 
 /*eslint-disable no-bitwise*/
@@ -8286,7 +8279,7 @@ module.exports = new Type('tag:yaml.org,2002:binary', {
   represent: representYamlBinary
 });
 
-},{"../type":109,"buffer":4}],111:[function(_dereq_,module,exports){
+},{"../type":108,"buffer":4}],110:[function(_dereq_,module,exports){
 'use strict';
 
 var Type = _dereq_('../type');
@@ -8323,7 +8316,7 @@ module.exports = new Type('tag:yaml.org,2002:bool', {
   defaultStyle: 'lowercase'
 });
 
-},{"../type":109}],112:[function(_dereq_,module,exports){
+},{"../type":108}],111:[function(_dereq_,module,exports){
 'use strict';
 
 var common = _dereq_('../common');
@@ -8430,7 +8423,7 @@ module.exports = new Type('tag:yaml.org,2002:float', {
   defaultStyle: 'lowercase'
 });
 
-},{"../common":99,"../type":109}],113:[function(_dereq_,module,exports){
+},{"../common":98,"../type":108}],112:[function(_dereq_,module,exports){
 'use strict';
 
 var common = _dereq_('../common');
@@ -8600,7 +8593,7 @@ module.exports = new Type('tag:yaml.org,2002:int', {
   }
 });
 
-},{"../common":99,"../type":109}],114:[function(_dereq_,module,exports){
+},{"../common":98,"../type":108}],113:[function(_dereq_,module,exports){
 'use strict';
 
 var esprima;
@@ -8686,7 +8679,7 @@ module.exports = new Type('tag:yaml.org,2002:js/function', {
   represent: representJavascriptFunction
 });
 
-},{"../../type":109}],115:[function(_dereq_,module,exports){
+},{"../../type":108}],114:[function(_dereq_,module,exports){
 'use strict';
 
 var Type = _dereq_('../../type');
@@ -8748,7 +8741,7 @@ module.exports = new Type('tag:yaml.org,2002:js/regexp', {
   represent: representJavascriptRegExp
 });
 
-},{"../../type":109}],116:[function(_dereq_,module,exports){
+},{"../../type":108}],115:[function(_dereq_,module,exports){
 'use strict';
 
 var Type = _dereq_('../../type');
@@ -8778,7 +8771,7 @@ module.exports = new Type('tag:yaml.org,2002:js/undefined', {
   represent: representJavascriptUndefined
 });
 
-},{"../../type":109}],117:[function(_dereq_,module,exports){
+},{"../../type":108}],116:[function(_dereq_,module,exports){
 'use strict';
 
 var Type = _dereq_('../type');
@@ -8788,7 +8781,7 @@ module.exports = new Type('tag:yaml.org,2002:map', {
   construct: function (data) { return data !== null ? data : {}; }
 });
 
-},{"../type":109}],118:[function(_dereq_,module,exports){
+},{"../type":108}],117:[function(_dereq_,module,exports){
 'use strict';
 
 var Type = _dereq_('../type');
@@ -8802,7 +8795,7 @@ module.exports = new Type('tag:yaml.org,2002:merge', {
   resolve: resolveYamlMerge
 });
 
-},{"../type":109}],119:[function(_dereq_,module,exports){
+},{"../type":108}],118:[function(_dereq_,module,exports){
 'use strict';
 
 var Type = _dereq_('../type');
@@ -8838,7 +8831,7 @@ module.exports = new Type('tag:yaml.org,2002:null', {
   defaultStyle: 'lowercase'
 });
 
-},{"../type":109}],120:[function(_dereq_,module,exports){
+},{"../type":108}],119:[function(_dereq_,module,exports){
 'use strict';
 
 var Type = _dereq_('../type');
@@ -8884,7 +8877,7 @@ module.exports = new Type('tag:yaml.org,2002:omap', {
   construct: constructYamlOmap
 });
 
-},{"../type":109}],121:[function(_dereq_,module,exports){
+},{"../type":108}],120:[function(_dereq_,module,exports){
 'use strict';
 
 var Type = _dereq_('../type');
@@ -8939,7 +8932,7 @@ module.exports = new Type('tag:yaml.org,2002:pairs', {
   construct: constructYamlPairs
 });
 
-},{"../type":109}],122:[function(_dereq_,module,exports){
+},{"../type":108}],121:[function(_dereq_,module,exports){
 'use strict';
 
 var Type = _dereq_('../type');
@@ -8949,7 +8942,7 @@ module.exports = new Type('tag:yaml.org,2002:seq', {
   construct: function (data) { return data !== null ? data : []; }
 });
 
-},{"../type":109}],123:[function(_dereq_,module,exports){
+},{"../type":108}],122:[function(_dereq_,module,exports){
 'use strict';
 
 var Type = _dereq_('../type');
@@ -8980,7 +8973,7 @@ module.exports = new Type('tag:yaml.org,2002:set', {
   construct: constructYamlSet
 });
 
-},{"../type":109}],124:[function(_dereq_,module,exports){
+},{"../type":108}],123:[function(_dereq_,module,exports){
 'use strict';
 
 var Type = _dereq_('../type');
@@ -8990,7 +8983,7 @@ module.exports = new Type('tag:yaml.org,2002:str', {
   construct: function (data) { return data !== null ? data : ''; }
 });
 
-},{"../type":109}],125:[function(_dereq_,module,exports){
+},{"../type":108}],124:[function(_dereq_,module,exports){
 'use strict';
 
 var Type = _dereq_('../type');
@@ -9073,7 +9066,7 @@ module.exports = new Type('tag:yaml.org,2002:timestamp', {
   represent: representYamlTimestamp
 });
 
-},{"../type":109}],126:[function(_dereq_,module,exports){
+},{"../type":108}],125:[function(_dereq_,module,exports){
 'use strict';
 var utils = _dereq_('./utils');
 var support = _dereq_('./support');
@@ -9160,7 +9153,7 @@ exports.decode = function(input) {
     return output;
 };
 
-},{"./support":152,"./utils":154}],127:[function(_dereq_,module,exports){
+},{"./support":151,"./utils":153}],126:[function(_dereq_,module,exports){
 'use strict';
 
 var external = _dereq_("./external");
@@ -9237,7 +9230,7 @@ CompressedObject.createWorkerFrom = function (uncompressedWorker, compression, c
 
 module.exports = CompressedObject;
 
-},{"./external":131,"./stream/Crc32Probe":147,"./stream/DataLengthProbe":148,"./stream/DataWorker":149}],128:[function(_dereq_,module,exports){
+},{"./external":130,"./stream/Crc32Probe":146,"./stream/DataLengthProbe":147,"./stream/DataWorker":148}],127:[function(_dereq_,module,exports){
 'use strict';
 
 var GenericWorker = _dereq_("./stream/GenericWorker");
@@ -9253,7 +9246,7 @@ exports.STORE = {
 };
 exports.DEFLATE = _dereq_('./flate');
 
-},{"./flate":132,"./stream/GenericWorker":150}],129:[function(_dereq_,module,exports){
+},{"./flate":131,"./stream/GenericWorker":149}],128:[function(_dereq_,module,exports){
 'use strict';
 
 var utils = _dereq_('./utils');
@@ -9333,7 +9326,7 @@ module.exports = function crc32wrapper(input, crc) {
 };
 // vim: set shiftwidth=4 softtabstop=4:
 
-},{"./utils":154}],130:[function(_dereq_,module,exports){
+},{"./utils":153}],129:[function(_dereq_,module,exports){
 'use strict';
 exports.base64 = false;
 exports.binary = false;
@@ -9346,7 +9339,7 @@ exports.comment = null;
 exports.unixPermissions = null;
 exports.dosPermissions = null;
 
-},{}],131:[function(_dereq_,module,exports){
+},{}],130:[function(_dereq_,module,exports){
 'use strict';
 
 // var ES6Promise = require("es6-promise").Promise;
@@ -9358,7 +9351,7 @@ module.exports = {
     Promise: window.Promise
 };
 
-},{}],132:[function(_dereq_,module,exports){
+},{}],131:[function(_dereq_,module,exports){
 'use strict';
 var USE_TYPEDARRAY = (typeof Uint8Array !== 'undefined') && (typeof Uint16Array !== 'undefined') && (typeof Uint32Array !== 'undefined');
 
@@ -9428,7 +9421,7 @@ exports.uncompressWorker = function () {
     return new FlateWorker("Inflate", {});
 };
 
-},{"./stream/GenericWorker":150,"./utils":154,"pako":165}],133:[function(_dereq_,module,exports){
+},{"./stream/GenericWorker":149,"./utils":153,"pako":164}],132:[function(_dereq_,module,exports){
 'use strict';
 
 /**
@@ -9478,7 +9471,7 @@ JSZip.loadAsync = function (content, options) {
 JSZip.external = _dereq_("./external");
 module.exports = JSZip;
 
-},{"./defaults":130,"./external":131,"./load":134,"./object":138,"./support":152}],134:[function(_dereq_,module,exports){
+},{"./defaults":129,"./external":130,"./load":133,"./object":137,"./support":151}],133:[function(_dereq_,module,exports){
 'use strict';
 var utils = _dereq_('./utils');
 var external = _dereq_("./external");
@@ -9562,7 +9555,7 @@ module.exports = function(data, options) {
     });
 };
 
-},{"./external":131,"./nodejsUtils":137,"./stream/Crc32Probe":147,"./utf8":153,"./utils":154,"./zipEntries":155}],135:[function(_dereq_,module,exports){
+},{"./external":130,"./nodejsUtils":136,"./stream/Crc32Probe":146,"./utf8":152,"./utils":153,"./zipEntries":154}],134:[function(_dereq_,module,exports){
 "use strict";
 
 var utils = _dereq_('../utils');
@@ -9638,7 +9631,7 @@ NodejsStreamInputAdapter.prototype.resume = function () {
 
 module.exports = NodejsStreamInputAdapter;
 
-},{"../stream/GenericWorker":150,"../utils":154}],136:[function(_dereq_,module,exports){
+},{"../stream/GenericWorker":149,"../utils":153}],135:[function(_dereq_,module,exports){
 'use strict';
 
 var Readable = _dereq_('readable-stream').Readable;
@@ -9682,7 +9675,7 @@ NodejsStreamOutputAdapter.prototype._read = function() {
 
 module.exports = NodejsStreamOutputAdapter;
 
-},{"readable-stream":163,"util":191}],137:[function(_dereq_,module,exports){
+},{"readable-stream":163,"util":191}],136:[function(_dereq_,module,exports){
 (function (Buffer){
 'use strict';
 
@@ -9721,7 +9714,7 @@ module.exports = {
 
 }).call(this,_dereq_("buffer").Buffer)
 
-},{"buffer":5}],138:[function(_dereq_,module,exports){
+},{"buffer":5}],137:[function(_dereq_,module,exports){
 'use strict';
 // var utf8 = require('./utf8');
 var utils = _dereq_('./utils');
@@ -10110,7 +10103,7 @@ var out = {
 };
 module.exports = out;
 
-},{"./compressedObject":127,"./defaults":130,"./nodejs/NodejsStreamInputAdapter":135,"./nodejsUtils":137,"./stream/GenericWorker":150,"./utils":154,"./zipObject":157}],139:[function(_dereq_,module,exports){
+},{"./compressedObject":126,"./defaults":129,"./nodejs/NodejsStreamInputAdapter":134,"./nodejsUtils":136,"./stream/GenericWorker":149,"./utils":153,"./zipObject":156}],138:[function(_dereq_,module,exports){
 'use strict';
 var DataReader = _dereq_('./DataReader');
 var utils = _dereq_('../utils');
@@ -10169,7 +10162,7 @@ ArrayReader.prototype.readData = function(size) {
 };
 module.exports = ArrayReader;
 
-},{"../utils":154,"./DataReader":140}],140:[function(_dereq_,module,exports){
+},{"../utils":153,"./DataReader":139}],139:[function(_dereq_,module,exports){
 'use strict';
 var utils = _dereq_('../utils');
 
@@ -10287,7 +10280,7 @@ DataReader.prototype = {
 };
 module.exports = DataReader;
 
-},{"../utils":154}],141:[function(_dereq_,module,exports){
+},{"../utils":153}],140:[function(_dereq_,module,exports){
 'use strict';
 var Uint8ArrayReader = _dereq_('./Uint8ArrayReader');
 var utils = _dereq_('../utils');
@@ -10308,7 +10301,7 @@ NodeBufferReader.prototype.readData = function(size) {
 };
 module.exports = NodeBufferReader;
 
-},{"../utils":154,"./Uint8ArrayReader":143}],142:[function(_dereq_,module,exports){
+},{"../utils":153,"./Uint8ArrayReader":142}],141:[function(_dereq_,module,exports){
 'use strict';
 var DataReader = _dereq_('./DataReader');
 var utils = _dereq_('../utils');
@@ -10348,7 +10341,7 @@ StringReader.prototype.readData = function(size) {
 };
 module.exports = StringReader;
 
-},{"../utils":154,"./DataReader":140}],143:[function(_dereq_,module,exports){
+},{"../utils":153,"./DataReader":139}],142:[function(_dereq_,module,exports){
 'use strict';
 var ArrayReader = _dereq_('./ArrayReader');
 var utils = _dereq_('../utils');
@@ -10372,7 +10365,7 @@ Uint8ArrayReader.prototype.readData = function(size) {
 };
 module.exports = Uint8ArrayReader;
 
-},{"../utils":154,"./ArrayReader":139}],144:[function(_dereq_,module,exports){
+},{"../utils":153,"./ArrayReader":138}],143:[function(_dereq_,module,exports){
 'use strict';
 
 var utils = _dereq_('../utils');
@@ -10404,7 +10397,7 @@ module.exports = function (data) {
 
 // vim: set shiftwidth=4 softtabstop=4:
 
-},{"../support":152,"../utils":154,"./ArrayReader":139,"./NodeBufferReader":141,"./StringReader":142,"./Uint8ArrayReader":143}],145:[function(_dereq_,module,exports){
+},{"../support":151,"../utils":153,"./ArrayReader":138,"./NodeBufferReader":140,"./StringReader":141,"./Uint8ArrayReader":142}],144:[function(_dereq_,module,exports){
 'use strict';
 exports.LOCAL_FILE_HEADER = "PK\x03\x04";
 exports.CENTRAL_FILE_HEADER = "PK\x01\x02";
@@ -10413,7 +10406,7 @@ exports.ZIP64_CENTRAL_DIRECTORY_LOCATOR = "PK\x06\x07";
 exports.ZIP64_CENTRAL_DIRECTORY_END = "PK\x06\x06";
 exports.DATA_DESCRIPTOR = "PK\x07\x08";
 
-},{}],146:[function(_dereq_,module,exports){
+},{}],145:[function(_dereq_,module,exports){
 'use strict';
 
 var GenericWorker = _dereq_('./GenericWorker');
@@ -10441,7 +10434,7 @@ ConvertWorker.prototype.processChunk = function (chunk) {
 };
 module.exports = ConvertWorker;
 
-},{"../utils":154,"./GenericWorker":150}],147:[function(_dereq_,module,exports){
+},{"../utils":153,"./GenericWorker":149}],146:[function(_dereq_,module,exports){
 'use strict';
 
 var GenericWorker = _dereq_('./GenericWorker');
@@ -10466,7 +10459,7 @@ Crc32Probe.prototype.processChunk = function (chunk) {
 };
 module.exports = Crc32Probe;
 
-},{"../crc32":129,"../utils":154,"./GenericWorker":150}],148:[function(_dereq_,module,exports){
+},{"../crc32":128,"../utils":153,"./GenericWorker":149}],147:[function(_dereq_,module,exports){
 'use strict';
 
 var utils = _dereq_('../utils');
@@ -10497,7 +10490,7 @@ DataLengthProbe.prototype.processChunk = function (chunk) {
 module.exports = DataLengthProbe;
 
 
-},{"../utils":154,"./GenericWorker":150}],149:[function(_dereq_,module,exports){
+},{"../utils":153,"./GenericWorker":149}],148:[function(_dereq_,module,exports){
 'use strict';
 
 var utils = _dereq_('../utils');
@@ -10615,7 +10608,7 @@ DataWorker.prototype._tick = function() {
 
 module.exports = DataWorker;
 
-},{"../utils":154,"./GenericWorker":150}],150:[function(_dereq_,module,exports){
+},{"../utils":153,"./GenericWorker":149}],149:[function(_dereq_,module,exports){
 'use strict';
 
 /**
@@ -10880,7 +10873,7 @@ GenericWorker.prototype = {
 
 module.exports = GenericWorker;
 
-},{}],151:[function(_dereq_,module,exports){
+},{}],150:[function(_dereq_,module,exports){
 (function (Buffer){
 'use strict';
 
@@ -11090,7 +11083,7 @@ module.exports = StreamHelper;
 
 }).call(this,_dereq_("buffer").Buffer)
 
-},{"../base64":126,"../external":131,"../nodejs/NodejsStreamOutputAdapter":136,"../utils":154,"./ConvertWorker":146,"./GenericWorker":150,"buffer":5}],152:[function(_dereq_,module,exports){
+},{"../base64":125,"../external":130,"../nodejs/NodejsStreamOutputAdapter":135,"../utils":153,"./ConvertWorker":145,"./GenericWorker":149,"buffer":5}],151:[function(_dereq_,module,exports){
 (function (Buffer){
 'use strict';
 
@@ -11129,7 +11122,7 @@ exports.nodestream = !!_dereq_("./nodejs/NodejsStreamOutputAdapter").prototype;
 
 }).call(this,_dereq_("buffer").Buffer)
 
-},{"./nodejs/NodejsStreamOutputAdapter":136,"buffer":5}],153:[function(_dereq_,module,exports){
+},{"./nodejs/NodejsStreamOutputAdapter":135,"buffer":5}],152:[function(_dereq_,module,exports){
 'use strict';
 
 var utils = _dereq_('./utils');
@@ -11406,7 +11399,7 @@ Utf8EncodeWorker.prototype.processChunk = function (chunk) {
 };
 exports.Utf8EncodeWorker = Utf8EncodeWorker;
 
-},{"./nodejsUtils":137,"./stream/GenericWorker":150,"./support":152,"./utils":154}],154:[function(_dereq_,module,exports){
+},{"./nodejsUtils":136,"./stream/GenericWorker":149,"./support":151,"./utils":153}],153:[function(_dereq_,module,exports){
 'use strict';
 
 var support = _dereq_('./support');
@@ -11873,7 +11866,7 @@ exports.prepareContent = function(name, inputData, isBinary, isOptimizedBinarySt
     });
 };
 
-},{"./base64":126,"./external":131,"./nodejsUtils":137,"./support":152,"asap":1}],155:[function(_dereq_,module,exports){
+},{"./base64":125,"./external":130,"./nodejsUtils":136,"./support":151,"asap":1}],154:[function(_dereq_,module,exports){
 'use strict';
 var readerFor = _dereq_('./reader/readerFor');
 var utils = _dereq_('./utils');
@@ -12137,7 +12130,7 @@ ZipEntries.prototype = {
 // }}} end of ZipEntries
 module.exports = ZipEntries;
 
-},{"./reader/readerFor":144,"./signature":145,"./support":152,"./utf8":153,"./utils":154,"./zipEntry":156}],156:[function(_dereq_,module,exports){
+},{"./reader/readerFor":143,"./signature":144,"./support":151,"./utf8":152,"./utils":153,"./zipEntry":155}],155:[function(_dereq_,module,exports){
 'use strict';
 var readerFor = _dereq_('./reader/readerFor');
 var utils = _dereq_('./utils');
@@ -12431,7 +12424,7 @@ ZipEntry.prototype = {
 };
 module.exports = ZipEntry;
 
-},{"./compressedObject":127,"./compressions":128,"./crc32":129,"./reader/readerFor":144,"./support":152,"./utf8":153,"./utils":154}],157:[function(_dereq_,module,exports){
+},{"./compressedObject":126,"./compressions":127,"./crc32":128,"./reader/readerFor":143,"./support":151,"./utf8":152,"./utils":153}],156:[function(_dereq_,module,exports){
 'use strict';
 
 var StreamHelper = _dereq_('./stream/StreamHelper');
@@ -12557,7 +12550,14 @@ for(var i = 0; i < removedMethods.length; i++) {
 }
 module.exports = ZipObject;
 
-},{"./compressedObject":127,"./stream/DataWorker":149,"./stream/GenericWorker":150,"./stream/StreamHelper":151,"./utf8":153}],158:[function(_dereq_,module,exports){
+},{"./compressedObject":126,"./stream/DataWorker":148,"./stream/GenericWorker":149,"./stream/StreamHelper":150,"./utf8":152}],157:[function(_dereq_,module,exports){
+var toString = {}.toString;
+
+module.exports = Array.isArray || function (arr) {
+  return toString.call(arr) == '[object Array]';
+};
+
+},{}],158:[function(_dereq_,module,exports){
 // a duplex stream is just a stream that is both readable and writable.
 // Since JS doesn't have multiple prototypal inheritance, this class
 // prototypally inherits from Readable, and then parasitically from
@@ -12633,7 +12633,7 @@ function forEach(xs, f) {
     f(xs[i], i);
   }
 }
-},{"./_stream_readable":160,"./_stream_writable":162,"core-util-is":70,"inherits":94,"process-nextick-args":184}],159:[function(_dereq_,module,exports){
+},{"./_stream_readable":160,"./_stream_writable":162,"core-util-is":70,"inherits":94,"process-nextick-args":183}],159:[function(_dereq_,module,exports){
 // a passthrough stream.
 // basically just the most minimal sort of Transform stream.
 // Every written chunk gets output as-is.
@@ -13544,7 +13544,7 @@ function indexOf(xs, x) {
 }
 }).call(this,_dereq_('_process'))
 
-},{"./_stream_duplex":158,"_process":185,"buffer":5,"core-util-is":70,"events":73,"inherits":94,"isarray":96,"process-nextick-args":184,"string_decoder/":164,"util":4}],161:[function(_dereq_,module,exports){
+},{"./_stream_duplex":158,"_process":184,"buffer":5,"core-util-is":70,"events":73,"inherits":94,"isarray":157,"process-nextick-args":183,"string_decoder/":185,"util":4}],161:[function(_dereq_,module,exports){
 // a transform stream is a readable/writable stream where you do
 // something with the data.  Sometimes it's called a "filter",
 // but that's not a great name for it, since that implies a thing where
@@ -14245,7 +14245,7 @@ function CorkedRequest(state) {
 }
 }).call(this,_dereq_('_process'))
 
-},{"./_stream_duplex":158,"_process":185,"buffer":5,"core-util-is":70,"events":73,"inherits":94,"process-nextick-args":184,"util-deprecate":188}],163:[function(_dereq_,module,exports){
+},{"./_stream_duplex":158,"_process":184,"buffer":5,"core-util-is":70,"events":73,"inherits":94,"process-nextick-args":183,"util-deprecate":188}],163:[function(_dereq_,module,exports){
 var Stream = (function (){
   try {
     return _dereq_('st' + 'ream'); // hack to fix a circular dependency issue when used with browserify
@@ -14260,229 +14260,6 @@ exports.Transform = _dereq_('./lib/_stream_transform.js');
 exports.PassThrough = _dereq_('./lib/_stream_passthrough.js');
 
 },{"./lib/_stream_duplex.js":158,"./lib/_stream_passthrough.js":159,"./lib/_stream_readable.js":160,"./lib/_stream_transform.js":161,"./lib/_stream_writable.js":162}],164:[function(_dereq_,module,exports){
-// Copyright Joyent, Inc. and other Node contributors.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to permit
-// persons to whom the Software is furnished to do so, subject to the
-// following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-var Buffer = _dereq_('buffer').Buffer;
-
-var isBufferEncoding = Buffer.isEncoding
-  || function(encoding) {
-       switch (encoding && encoding.toLowerCase()) {
-         case 'hex': case 'utf8': case 'utf-8': case 'ascii': case 'binary': case 'base64': case 'ucs2': case 'ucs-2': case 'utf16le': case 'utf-16le': case 'raw': return true;
-         default: return false;
-       }
-     }
-
-
-function assertEncoding(encoding) {
-  if (encoding && !isBufferEncoding(encoding)) {
-    throw new Error('Unknown encoding: ' + encoding);
-  }
-}
-
-// StringDecoder provides an interface for efficiently splitting a series of
-// buffers into a series of JS strings without breaking apart multi-byte
-// characters. CESU-8 is handled as part of the UTF-8 encoding.
-//
-// @TODO Handling all encodings inside a single object makes it very difficult
-// to reason about this code, so it should be split up in the future.
-// @TODO There should be a utf8-strict encoding that rejects invalid UTF-8 code
-// points as used by CESU-8.
-var StringDecoder = exports.StringDecoder = function(encoding) {
-  this.encoding = (encoding || 'utf8').toLowerCase().replace(/[-_]/, '');
-  assertEncoding(encoding);
-  switch (this.encoding) {
-    case 'utf8':
-      // CESU-8 represents each of Surrogate Pair by 3-bytes
-      this.surrogateSize = 3;
-      break;
-    case 'ucs2':
-    case 'utf16le':
-      // UTF-16 represents each of Surrogate Pair by 2-bytes
-      this.surrogateSize = 2;
-      this.detectIncompleteChar = utf16DetectIncompleteChar;
-      break;
-    case 'base64':
-      // Base-64 stores 3 bytes in 4 chars, and pads the remainder.
-      this.surrogateSize = 3;
-      this.detectIncompleteChar = base64DetectIncompleteChar;
-      break;
-    default:
-      this.write = passThroughWrite;
-      return;
-  }
-
-  // Enough space to store all bytes of a single character. UTF-8 needs 4
-  // bytes, but CESU-8 may require up to 6 (3 bytes per surrogate).
-  this.charBuffer = new Buffer(6);
-  // Number of bytes received for the current incomplete multi-byte character.
-  this.charReceived = 0;
-  // Number of bytes expected for the current incomplete multi-byte character.
-  this.charLength = 0;
-};
-
-
-// write decodes the given buffer and returns it as JS string that is
-// guaranteed to not contain any partial multi-byte characters. Any partial
-// character found at the end of the buffer is buffered up, and will be
-// returned when calling write again with the remaining bytes.
-//
-// Note: Converting a Buffer containing an orphan surrogate to a String
-// currently works, but converting a String to a Buffer (via `new Buffer`, or
-// Buffer#write) will replace incomplete surrogates with the unicode
-// replacement character. See https://codereview.chromium.org/121173009/ .
-StringDecoder.prototype.write = function(buffer) {
-  var charStr = '';
-  // if our last write ended with an incomplete multibyte character
-  while (this.charLength) {
-    // determine how many remaining bytes this buffer has to offer for this char
-    var available = (buffer.length >= this.charLength - this.charReceived) ?
-        this.charLength - this.charReceived :
-        buffer.length;
-
-    // add the new bytes to the char buffer
-    buffer.copy(this.charBuffer, this.charReceived, 0, available);
-    this.charReceived += available;
-
-    if (this.charReceived < this.charLength) {
-      // still not enough chars in this buffer? wait for more ...
-      return '';
-    }
-
-    // remove bytes belonging to the current character from the buffer
-    buffer = buffer.slice(available, buffer.length);
-
-    // get the character that was split
-    charStr = this.charBuffer.slice(0, this.charLength).toString(this.encoding);
-
-    // CESU-8: lead surrogate (D800-DBFF) is also the incomplete character
-    var charCode = charStr.charCodeAt(charStr.length - 1);
-    if (charCode >= 0xD800 && charCode <= 0xDBFF) {
-      this.charLength += this.surrogateSize;
-      charStr = '';
-      continue;
-    }
-    this.charReceived = this.charLength = 0;
-
-    // if there are no more bytes in this buffer, just emit our char
-    if (buffer.length === 0) {
-      return charStr;
-    }
-    break;
-  }
-
-  // determine and set charLength / charReceived
-  this.detectIncompleteChar(buffer);
-
-  var end = buffer.length;
-  if (this.charLength) {
-    // buffer the incomplete character bytes we got
-    buffer.copy(this.charBuffer, 0, buffer.length - this.charReceived, end);
-    end -= this.charReceived;
-  }
-
-  charStr += buffer.toString(this.encoding, 0, end);
-
-  var end = charStr.length - 1;
-  var charCode = charStr.charCodeAt(end);
-  // CESU-8: lead surrogate (D800-DBFF) is also the incomplete character
-  if (charCode >= 0xD800 && charCode <= 0xDBFF) {
-    var size = this.surrogateSize;
-    this.charLength += size;
-    this.charReceived += size;
-    this.charBuffer.copy(this.charBuffer, size, 0, size);
-    buffer.copy(this.charBuffer, 0, 0, size);
-    return charStr.substring(0, end);
-  }
-
-  // or just emit the charStr
-  return charStr;
-};
-
-// detectIncompleteChar determines if there is an incomplete UTF-8 character at
-// the end of the given buffer. If so, it sets this.charLength to the byte
-// length that character, and sets this.charReceived to the number of bytes
-// that are available for this character.
-StringDecoder.prototype.detectIncompleteChar = function(buffer) {
-  // determine how many bytes we have to check at the end of this buffer
-  var i = (buffer.length >= 3) ? 3 : buffer.length;
-
-  // Figure out if one of the last i bytes of our buffer announces an
-  // incomplete char.
-  for (; i > 0; i--) {
-    var c = buffer[buffer.length - i];
-
-    // See http://en.wikipedia.org/wiki/UTF-8#Description
-
-    // 110XXXXX
-    if (i == 1 && c >> 5 == 0x06) {
-      this.charLength = 2;
-      break;
-    }
-
-    // 1110XXXX
-    if (i <= 2 && c >> 4 == 0x0E) {
-      this.charLength = 3;
-      break;
-    }
-
-    // 11110XXX
-    if (i <= 3 && c >> 3 == 0x1E) {
-      this.charLength = 4;
-      break;
-    }
-  }
-  this.charReceived = i;
-};
-
-StringDecoder.prototype.end = function(buffer) {
-  var res = '';
-  if (buffer && buffer.length)
-    res = this.write(buffer);
-
-  if (this.charReceived) {
-    var cr = this.charReceived;
-    var buf = this.charBuffer;
-    var enc = this.encoding;
-    res += buf.slice(0, cr).toString(enc);
-  }
-
-  return res;
-};
-
-function passThroughWrite(buffer) {
-  return buffer.toString(this.encoding);
-}
-
-function utf16DetectIncompleteChar(buffer) {
-  this.charReceived = buffer.length % 2;
-  this.charLength = this.charReceived ? 2 : 0;
-}
-
-function base64DetectIncompleteChar(buffer) {
-  this.charReceived = buffer.length % 3;
-  this.charLength = this.charReceived ? 3 : 0;
-}
-
-},{"buffer":5}],165:[function(_dereq_,module,exports){
 // Top level file is just a mixin of submodules & constants
 'use strict';
 
@@ -14498,7 +14275,7 @@ assign(pako, deflate, inflate, constants);
 
 module.exports = pako;
 
-},{"./lib/deflate":166,"./lib/inflate":167,"./lib/utils/common":168,"./lib/zlib/constants":171}],166:[function(_dereq_,module,exports){
+},{"./lib/deflate":165,"./lib/inflate":166,"./lib/utils/common":167,"./lib/zlib/constants":170}],165:[function(_dereq_,module,exports){
 'use strict';
 
 
@@ -14900,7 +14677,7 @@ exports.deflate = deflate;
 exports.deflateRaw = deflateRaw;
 exports.gzip = gzip;
 
-},{"./utils/common":168,"./utils/strings":169,"./zlib/deflate":173,"./zlib/messages":178,"./zlib/zstream":180}],167:[function(_dereq_,module,exports){
+},{"./utils/common":167,"./utils/strings":168,"./zlib/deflate":172,"./zlib/messages":177,"./zlib/zstream":179}],166:[function(_dereq_,module,exports){
 'use strict';
 
 
@@ -15320,7 +15097,7 @@ exports.inflate = inflate;
 exports.inflateRaw = inflateRaw;
 exports.ungzip  = inflate;
 
-},{"./utils/common":168,"./utils/strings":169,"./zlib/constants":171,"./zlib/gzheader":174,"./zlib/inflate":176,"./zlib/messages":178,"./zlib/zstream":180}],168:[function(_dereq_,module,exports){
+},{"./utils/common":167,"./utils/strings":168,"./zlib/constants":170,"./zlib/gzheader":173,"./zlib/inflate":175,"./zlib/messages":177,"./zlib/zstream":179}],167:[function(_dereq_,module,exports){
 'use strict';
 
 
@@ -15427,7 +15204,7 @@ exports.setTyped = function (on) {
 
 exports.setTyped(TYPED_OK);
 
-},{}],169:[function(_dereq_,module,exports){
+},{}],168:[function(_dereq_,module,exports){
 // String encode/decode helpers
 'use strict';
 
@@ -15614,7 +15391,7 @@ exports.utf8border = function (buf, max) {
   return (pos + _utf8len[buf[pos]] > max) ? pos : max;
 };
 
-},{"./common":168}],170:[function(_dereq_,module,exports){
+},{"./common":167}],169:[function(_dereq_,module,exports){
 'use strict';
 
 // Note: adler32 takes 12% for level 0 and 2% for level 6.
@@ -15667,7 +15444,7 @@ function adler32(adler, buf, len, pos) {
 
 module.exports = adler32;
 
-},{}],171:[function(_dereq_,module,exports){
+},{}],170:[function(_dereq_,module,exports){
 'use strict';
 
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -15737,7 +15514,7 @@ module.exports = {
   //Z_NULL:                 null // Use -1 or null inline, depending on var type
 };
 
-},{}],172:[function(_dereq_,module,exports){
+},{}],171:[function(_dereq_,module,exports){
 'use strict';
 
 // Note: we can't get significant speed boost here.
@@ -15798,7 +15575,7 @@ function crc32(crc, buf, len, pos) {
 
 module.exports = crc32;
 
-},{}],173:[function(_dereq_,module,exports){
+},{}],172:[function(_dereq_,module,exports){
 'use strict';
 
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -17674,7 +17451,7 @@ exports.deflatePrime = deflatePrime;
 exports.deflateTune = deflateTune;
 */
 
-},{"../utils/common":168,"./adler32":170,"./crc32":172,"./messages":178,"./trees":179}],174:[function(_dereq_,module,exports){
+},{"../utils/common":167,"./adler32":169,"./crc32":171,"./messages":177,"./trees":178}],173:[function(_dereq_,module,exports){
 'use strict';
 
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -17734,7 +17511,7 @@ function GZheader() {
 
 module.exports = GZheader;
 
-},{}],175:[function(_dereq_,module,exports){
+},{}],174:[function(_dereq_,module,exports){
 'use strict';
 
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -18081,7 +17858,7 @@ module.exports = function inflate_fast(strm, start) {
   return;
 };
 
-},{}],176:[function(_dereq_,module,exports){
+},{}],175:[function(_dereq_,module,exports){
 'use strict';
 
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -19639,7 +19416,7 @@ exports.inflateSyncPoint = inflateSyncPoint;
 exports.inflateUndermine = inflateUndermine;
 */
 
-},{"../utils/common":168,"./adler32":170,"./crc32":172,"./inffast":175,"./inftrees":177}],177:[function(_dereq_,module,exports){
+},{"../utils/common":167,"./adler32":169,"./crc32":171,"./inffast":174,"./inftrees":176}],176:[function(_dereq_,module,exports){
 'use strict';
 
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -19984,7 +19761,7 @@ module.exports = function inflate_table(type, lens, lens_index, codes, table, ta
   return 0;
 };
 
-},{"../utils/common":168}],178:[function(_dereq_,module,exports){
+},{"../utils/common":167}],177:[function(_dereq_,module,exports){
 'use strict';
 
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -20018,7 +19795,7 @@ module.exports = {
   '-6':   'incompatible version' /* Z_VERSION_ERROR (-6) */
 };
 
-},{}],179:[function(_dereq_,module,exports){
+},{}],178:[function(_dereq_,module,exports){
 'use strict';
 
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -21240,7 +21017,7 @@ exports._tr_flush_block  = _tr_flush_block;
 exports._tr_tally = _tr_tally;
 exports._tr_align = _tr_align;
 
-},{"../utils/common":168}],180:[function(_dereq_,module,exports){
+},{"../utils/common":167}],179:[function(_dereq_,module,exports){
 'use strict';
 
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -21289,7 +21066,7 @@ function ZStream() {
 
 module.exports = ZStream;
 
-},{}],181:[function(_dereq_,module,exports){
+},{}],180:[function(_dereq_,module,exports){
 'use strict';
 
 // lightweight Buffer shim for pbf browser build
@@ -21450,7 +21227,7 @@ function encodeString(str) {
     return bytes;
 }
 
-},{"ieee754":93}],182:[function(_dereq_,module,exports){
+},{"ieee754":93}],181:[function(_dereq_,module,exports){
 (function (global){
 'use strict';
 
@@ -21877,7 +21654,7 @@ function writePackedSFixed64(arr, pbf) { for (var i = 0; i < arr.length; i++) pb
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./buffer":181}],183:[function(_dereq_,module,exports){
+},{"./buffer":180}],182:[function(_dereq_,module,exports){
 'use strict';
 
 module.exports = Point;
@@ -22010,7 +21787,7 @@ Point.convert = function (a) {
     return a;
 };
 
-},{}],184:[function(_dereq_,module,exports){
+},{}],183:[function(_dereq_,module,exports){
 (function (process){
 'use strict';
 
@@ -22058,7 +21835,7 @@ function nextTick(fn, arg1, arg2, arg3) {
 
 }).call(this,_dereq_('_process'))
 
-},{"_process":185}],185:[function(_dereq_,module,exports){
+},{"_process":184}],184:[function(_dereq_,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -22244,7 +22021,230 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],186:[function(_dereq_,module,exports){
+},{}],185:[function(_dereq_,module,exports){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+var Buffer = _dereq_('buffer').Buffer;
+
+var isBufferEncoding = Buffer.isEncoding
+  || function(encoding) {
+       switch (encoding && encoding.toLowerCase()) {
+         case 'hex': case 'utf8': case 'utf-8': case 'ascii': case 'binary': case 'base64': case 'ucs2': case 'ucs-2': case 'utf16le': case 'utf-16le': case 'raw': return true;
+         default: return false;
+       }
+     }
+
+
+function assertEncoding(encoding) {
+  if (encoding && !isBufferEncoding(encoding)) {
+    throw new Error('Unknown encoding: ' + encoding);
+  }
+}
+
+// StringDecoder provides an interface for efficiently splitting a series of
+// buffers into a series of JS strings without breaking apart multi-byte
+// characters. CESU-8 is handled as part of the UTF-8 encoding.
+//
+// @TODO Handling all encodings inside a single object makes it very difficult
+// to reason about this code, so it should be split up in the future.
+// @TODO There should be a utf8-strict encoding that rejects invalid UTF-8 code
+// points as used by CESU-8.
+var StringDecoder = exports.StringDecoder = function(encoding) {
+  this.encoding = (encoding || 'utf8').toLowerCase().replace(/[-_]/, '');
+  assertEncoding(encoding);
+  switch (this.encoding) {
+    case 'utf8':
+      // CESU-8 represents each of Surrogate Pair by 3-bytes
+      this.surrogateSize = 3;
+      break;
+    case 'ucs2':
+    case 'utf16le':
+      // UTF-16 represents each of Surrogate Pair by 2-bytes
+      this.surrogateSize = 2;
+      this.detectIncompleteChar = utf16DetectIncompleteChar;
+      break;
+    case 'base64':
+      // Base-64 stores 3 bytes in 4 chars, and pads the remainder.
+      this.surrogateSize = 3;
+      this.detectIncompleteChar = base64DetectIncompleteChar;
+      break;
+    default:
+      this.write = passThroughWrite;
+      return;
+  }
+
+  // Enough space to store all bytes of a single character. UTF-8 needs 4
+  // bytes, but CESU-8 may require up to 6 (3 bytes per surrogate).
+  this.charBuffer = new Buffer(6);
+  // Number of bytes received for the current incomplete multi-byte character.
+  this.charReceived = 0;
+  // Number of bytes expected for the current incomplete multi-byte character.
+  this.charLength = 0;
+};
+
+
+// write decodes the given buffer and returns it as JS string that is
+// guaranteed to not contain any partial multi-byte characters. Any partial
+// character found at the end of the buffer is buffered up, and will be
+// returned when calling write again with the remaining bytes.
+//
+// Note: Converting a Buffer containing an orphan surrogate to a String
+// currently works, but converting a String to a Buffer (via `new Buffer`, or
+// Buffer#write) will replace incomplete surrogates with the unicode
+// replacement character. See https://codereview.chromium.org/121173009/ .
+StringDecoder.prototype.write = function(buffer) {
+  var charStr = '';
+  // if our last write ended with an incomplete multibyte character
+  while (this.charLength) {
+    // determine how many remaining bytes this buffer has to offer for this char
+    var available = (buffer.length >= this.charLength - this.charReceived) ?
+        this.charLength - this.charReceived :
+        buffer.length;
+
+    // add the new bytes to the char buffer
+    buffer.copy(this.charBuffer, this.charReceived, 0, available);
+    this.charReceived += available;
+
+    if (this.charReceived < this.charLength) {
+      // still not enough chars in this buffer? wait for more ...
+      return '';
+    }
+
+    // remove bytes belonging to the current character from the buffer
+    buffer = buffer.slice(available, buffer.length);
+
+    // get the character that was split
+    charStr = this.charBuffer.slice(0, this.charLength).toString(this.encoding);
+
+    // CESU-8: lead surrogate (D800-DBFF) is also the incomplete character
+    var charCode = charStr.charCodeAt(charStr.length - 1);
+    if (charCode >= 0xD800 && charCode <= 0xDBFF) {
+      this.charLength += this.surrogateSize;
+      charStr = '';
+      continue;
+    }
+    this.charReceived = this.charLength = 0;
+
+    // if there are no more bytes in this buffer, just emit our char
+    if (buffer.length === 0) {
+      return charStr;
+    }
+    break;
+  }
+
+  // determine and set charLength / charReceived
+  this.detectIncompleteChar(buffer);
+
+  var end = buffer.length;
+  if (this.charLength) {
+    // buffer the incomplete character bytes we got
+    buffer.copy(this.charBuffer, 0, buffer.length - this.charReceived, end);
+    end -= this.charReceived;
+  }
+
+  charStr += buffer.toString(this.encoding, 0, end);
+
+  var end = charStr.length - 1;
+  var charCode = charStr.charCodeAt(end);
+  // CESU-8: lead surrogate (D800-DBFF) is also the incomplete character
+  if (charCode >= 0xD800 && charCode <= 0xDBFF) {
+    var size = this.surrogateSize;
+    this.charLength += size;
+    this.charReceived += size;
+    this.charBuffer.copy(this.charBuffer, size, 0, size);
+    buffer.copy(this.charBuffer, 0, 0, size);
+    return charStr.substring(0, end);
+  }
+
+  // or just emit the charStr
+  return charStr;
+};
+
+// detectIncompleteChar determines if there is an incomplete UTF-8 character at
+// the end of the given buffer. If so, it sets this.charLength to the byte
+// length that character, and sets this.charReceived to the number of bytes
+// that are available for this character.
+StringDecoder.prototype.detectIncompleteChar = function(buffer) {
+  // determine how many bytes we have to check at the end of this buffer
+  var i = (buffer.length >= 3) ? 3 : buffer.length;
+
+  // Figure out if one of the last i bytes of our buffer announces an
+  // incomplete char.
+  for (; i > 0; i--) {
+    var c = buffer[buffer.length - i];
+
+    // See http://en.wikipedia.org/wiki/UTF-8#Description
+
+    // 110XXXXX
+    if (i == 1 && c >> 5 == 0x06) {
+      this.charLength = 2;
+      break;
+    }
+
+    // 1110XXXX
+    if (i <= 2 && c >> 4 == 0x0E) {
+      this.charLength = 3;
+      break;
+    }
+
+    // 11110XXX
+    if (i <= 3 && c >> 3 == 0x1E) {
+      this.charLength = 4;
+      break;
+    }
+  }
+  this.charReceived = i;
+};
+
+StringDecoder.prototype.end = function(buffer) {
+  var res = '';
+  if (buffer && buffer.length)
+    res = this.write(buffer);
+
+  if (this.charReceived) {
+    var cr = this.charReceived;
+    var buf = this.charBuffer;
+    var enc = this.encoding;
+    res += buf.slice(0, cr).toString(enc);
+  }
+
+  return res;
+};
+
+function passThroughWrite(buffer) {
+  return buffer.toString(this.encoding);
+}
+
+function utf16DetectIncompleteChar(buffer) {
+  this.charReceived = buffer.length % 2;
+  this.charLength = this.charReceived ? 2 : 0;
+}
+
+function base64DetectIncompleteChar(buffer) {
+  this.charReceived = buffer.length % 3;
+  this.charLength = this.charReceived ? 3 : 0;
+}
+
+},{"buffer":5}],186:[function(_dereq_,module,exports){
 /*!
  * strip-comments <https://github.com/jonschlinkert/strip-comments>
  *
@@ -23107,7 +23107,7 @@ function hasOwnProperty(obj, prop) {
 
 }).call(this,_dereq_('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./support/isBuffer":190,"_process":185,"inherits":189}],192:[function(_dereq_,module,exports){
+},{"./support/isBuffer":190,"_process":184,"inherits":189}],192:[function(_dereq_,module,exports){
 module.exports.VectorTile = _dereq_('./lib/vectortile.js');
 module.exports.VectorTileFeature = _dereq_('./lib/vectortilefeature.js');
 module.exports.VectorTileLayer = _dereq_('./lib/vectortilelayer.js');
@@ -23366,7 +23366,7 @@ function signedArea(ring) {
     return sum;
 }
 
-},{"point-geometry":183}],195:[function(_dereq_,module,exports){
+},{"point-geometry":182}],195:[function(_dereq_,module,exports){
 'use strict';
 
 var VectorTileFeature = _dereq_('./vectortilefeature.js');
@@ -30875,7 +30875,7 @@ module.exports = {
     version: _version2.default
 };
 
-},{"./geo":201,"./gl/glsl":205,"./gl/shader_program":207,"./gl/texture":208,"./gl/vertex_data":211,"./labels/collision":214,"./leaflet_layer":222,"./light":223,"./material":224,"./scene":226,"./scene_worker":229,"./selection":230,"./sources/data_source":231,"./sources/geojson":232,"./sources/mvt":233,"./sources/raster":234,"./sources/topojson":235,"./styles/layer":237,"./styles/style_manager":244,"./styles/style_parser":245,"./styles/text/canvas_text":246,"./utils/debug_settings":255,"./utils/log":259,"./utils/polyfills":263,"./utils/thread":267,"./utils/utils":269,"./utils/version":270,"./utils/worker_broker":271,"./vector":272,"js-yaml":97,"jszip":133}],226:[function(_dereq_,module,exports){
+},{"./geo":201,"./gl/glsl":205,"./gl/shader_program":207,"./gl/texture":208,"./gl/vertex_data":211,"./labels/collision":214,"./leaflet_layer":222,"./light":223,"./material":224,"./scene":226,"./scene_worker":229,"./selection":230,"./sources/data_source":231,"./sources/geojson":232,"./sources/mvt":233,"./sources/raster":234,"./sources/topojson":235,"./styles/layer":237,"./styles/style_manager":244,"./styles/style_parser":245,"./styles/text/canvas_text":246,"./utils/debug_settings":255,"./utils/log":259,"./utils/polyfills":263,"./utils/thread":267,"./utils/utils":269,"./utils/version":270,"./utils/worker_broker":271,"./vector":272,"js-yaml":96,"jszip":132}],226:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -32326,7 +32326,6 @@ var Scene = function () {
             this.unsubscribeAll();
             this.view.unsubscribe(this.listeners.view);
             _texture2.default.unsubscribe(this.listeners.texture);
-            _data_source2.default.unsubscribe(this.listeners.tiles);
             _scene_loader2.default.unsubscribe(this.listeners.scene_loader);
             this.listeners = null;
         }
@@ -32888,7 +32887,7 @@ function loadResource(source) {
     });
 }
 
-},{"./utils/urls":268,"./utils/utils":269,"js-yaml":97,"jszip":133}],228:[function(_dereq_,module,exports){
+},{"./utils/urls":268,"./utils/utils":269,"js-yaml":96,"jszip":132}],228:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -34520,16 +34519,22 @@ var NetworkSource = exports.NetworkSource = function (_DataSource) {
                 var promise = _utils2.default.io(url, 60 * 1000, _this4.response_type, 'GET', {}, request_id);
                 source_data.request_id = request_id;
 
-                promise.then(function (body) {
-                    dest.debug.response_size = body.length || body.byteLength;
-                    dest.debug.network = +new Date() - dest.debug.network;
-                    dest.debug.parsing = +new Date();
-                    _this4.parseSourceData(dest, source_data, body);
-                    dest.debug.parsing = +new Date() - dest.debug.parsing;
+                var loadTile = function loadTile(body) {
+                    if (body && (body.length || body.byteLength)) {
+                        dest.debug.response_size = body.length || body.byteLength;
+                        dest.debug.network = +new Date() - dest.debug.network;
+                        dest.debug.parsing = +new Date();
+                        _this4.parseSourceData(dest, source_data, body);
+                        dest.debug.parsing = +new Date() - dest.debug.parsing;
+                    }
                     resolve(dest);
+                };
+                promise.then(function (body) {
+                    loadTile(body);
                 }).catch(function (error) {
                     source_data.error = error.stack;
-                    resolve(dest); // resolve request but pass along error
+                    // Try to load it anyway
+                    loadTile(error.body);
                 });
             });
         }
@@ -35191,7 +35196,7 @@ function decodeMultiPolygon(geom) {
 
 _data_source2.default.register(MVTSource, 'MVT');
 
-},{"../geo":201,"./data_source":231,"pbf":182,"vector-tile":192}],234:[function(_dereq_,module,exports){
+},{"../geo":201,"./data_source":231,"pbf":181,"vector-tile":192}],234:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -42704,7 +42709,8 @@ var TileManager = function () {
     }, {
         key: 'fetchTileError',
         value: function fetchTileError(tile) {
-            var error = /\(code:(\d{3,3})\)/gi.exec(tile.source_data.error)[1];
+            var code = /\(code:(\d{3,3})\)/gi.exec(tile.source_data.error);
+            var error = code && code[1];
 
             // Notify scene that something failed
             this.scene.tileFetchFailed(error);
@@ -44274,7 +44280,9 @@ Utils.io = function (url) {
                         resolve(request.response);
                     }
                 } else {
-                    reject(Error('Request error with a status (code:' + request.status + ') of ' + request.statusText));
+                    var err = Error('Request error with a status (code:' + request.status + ') of ' + request.statusText);
+                    err.body = ['text', 'json'].indexOf(request.responseType) > -1 ? request.responseText : request.response;
+                    reject(err);
                 }
             };
             request.onerror = function (evt) {
