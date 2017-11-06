@@ -262,8 +262,13 @@ export class NetworkSource extends DataSource {
             loadTile(body);
             }).catch((error) => {
                 source_data.error = error.stack;
-                // Try to load it anyway
-                loadTile(error.body);
+                // Since the error body could be a MVT let's try to load it,
+                // otherwise, resolve the promise with the error
+                try {
+                    loadTile(error.body);
+                } catch (error) {
+                    resolve(dest)
+                }
             });
         });
     }
