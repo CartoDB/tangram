@@ -42709,7 +42709,8 @@ var TileManager = function () {
     }, {
         key: 'fetchTileError',
         value: function fetchTileError(tile) {
-            var error = /\(code:(\d{3,3})\)/gi.exec(tile.source_data.error)[1];
+            var code = /\(code:(\d{3,3})\)/gi.exec(tile.source_data.error);
+            var error = code && code[1];
 
             // Notify scene that something failed
             this.scene.tileFetchFailed(error);
