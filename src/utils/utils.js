@@ -53,7 +53,9 @@ Utils.io = function (url, timeout = 60000, responseType = 'text', method = 'GET'
                         resolve(request.response);
                     }
                 } else {
-                    reject(Error('Request error with a status of ' + request.statusText));
+                    var err = Error(`Request error with a status (code:${request.status}) of ${request.statusText}`);
+                    err.body = ['text','json'].indexOf(request.responseType)>-1 ? request.responseText: request.response;
+                    reject(err);
                 }
             };
             request.onerror = (evt) => {

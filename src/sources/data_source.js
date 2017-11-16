@@ -4,6 +4,7 @@ import {MethodNotImplemented} from '../utils/errors';
 import Utils from '../utils/utils';
 import * as URLs from '../utils/urls';
 import log from '../utils/log';
+import WorkerBroker from '../utils/worker_broker';
 
 export default class DataSource {
 
@@ -201,7 +202,7 @@ export default class DataSource {
 }
 
 DataSource.types = {}; // set of supported data source classes, referenced by type name
-
+WorkerBroker.addTarget('DataSource', DataSource);
 
 /*** Generic network loading source - abstract class ***/
 
@@ -229,7 +230,6 @@ export class NetworkSource extends DataSource {
 
     _load (dest) {
         let url = this.formatUrl(this.url, dest);
-
         let source_data = dest.source_data;
         source_data.url = url;
         dest.debug = dest.debug || {};
@@ -248,16 +248,27 @@ export class NetworkSource extends DataSource {
             let promise = Utils.io(url, 60 * 1000, this.response_type, 'GET', {}, request_id);
             source_data.request_id = request_id;
 
-            promise.then((body) => {
-                dest.debug.response_size = body.length || body.byteLength;
-                dest.debug.network = +new Date() - dest.debug.network;
-                dest.debug.parsing = +new Date();
-                this.parseSourceData(dest, source_data, body);
-                dest.debug.parsing = +new Date() - dest.debug.parsing;
+            const loadTile = body => {
+                if (body && (body.length || body.byteLength)){
+                    dest.debug.response_size = body.length || body.byteLength;
+                    dest.debug.network = +new Date() - dest.debug.network;
+                    dest.debug.parsing = +new Date();
+                    this.parseSourceData(dest, source_data, body);
+                    dest.debug.parsing = +new Date() - dest.debug.parsing;
+                }
                 resolve(dest);
+            };
+            promise.then((body) => {
+            loadTile(body);
             }).catch((error) => {
                 source_data.error = error.stack;
-                resolve(dest); // resolve request but pass along error
+                // Since the error body could be a MVT let's try to load it,
+                // otherwise, resolve the promise with the error
+                try {
+                    loadTile(error.body);
+                } catch (error) {
+                    resolve(dest)
+                }
             });
         });
     }

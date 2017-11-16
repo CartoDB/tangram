@@ -1317,6 +1317,10 @@ export default class Scene {
         };
     }
 
+    tileFetchFailed (statusCode) {
+        this.trigger('tileError', { statusCode });
+    }
+
 }
 
 Scene.id = 0;         // unique id for a scene instance
